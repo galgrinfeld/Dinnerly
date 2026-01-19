@@ -9,6 +9,7 @@ import {
   Alert,
 } from "@mui/material";
 import { IngredientsTable } from "../components/IngredientsTable";
+import { RichTextEditor } from "../components/RichTextEditor";
 import {
   RecipeFormState,
   IngredientRow,
@@ -78,7 +79,7 @@ export const AddRecipe: React.FC = () => {
       name: formState.name,
       description: formState.description,
       baseServings: formState.baseServings,
-      instructions: formState.instructions,
+      instructionsHtml: formState.instructions,
       ingredients: formState.ingredients
         .filter((ing) => ing.name.trim())
         .map((ing) => ({
@@ -158,15 +159,16 @@ export const AddRecipe: React.FC = () => {
         </Box>
 
         {/* Instructions */}
-        <TextField
-          label="Instructions"
-          fullWidth
-          multiline
-          minRows={5}
-          value={formState.instructions}
-          onChange={(e) => handleFieldChange("instructions", e.target.value)}
-          placeholder="Step-by-step cooking instructions"
-        />
+        <Box>
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+            Instructions
+          </Typography>
+          <RichTextEditor
+            value={formState.instructions}
+            onChange={(nextHtml) => handleFieldChange("instructions", nextHtml)}
+            placeholder="Step-by-step cooking instructions"
+          />
+        </Box>
 
         {/* Actions */}
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
