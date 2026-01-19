@@ -139,7 +139,7 @@ export const IngredientsTable: React.FC<IngredientsTableProps> = ({ ingredients,
                 }}
               >
                 <AddIcon sx={{ mr: 1, fontSize: "1.2rem" }} />
-                ----- Add ingredient -----
+                Add Ingredient
               </Box>
             </TableCell>
           </TableRow>
