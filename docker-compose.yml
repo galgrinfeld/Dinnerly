@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16
+    container_name: recip_db
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: recip_backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://app:app@db:5432/appdb
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend/app:/app/app
+
+volumes:
+  pgdata:
