@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
 
       <Grid container spacing={3}>
         {/* Recipes Card */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
@@ -106,7 +106,7 @@ export const Home: React.FC = () => {
         </Grid>
 
         {/* Events Card */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>

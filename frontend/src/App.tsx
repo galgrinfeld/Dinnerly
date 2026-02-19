@@ -30,30 +30,36 @@ function App() {
           >
             Dinnerly
           </Typography>
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={3}>
             <Button
-              color="inherit"
               onClick={() => navigate("/")}
               sx={{
-                fontWeight: location.pathname === "/" ? "bold" : "normal",
+                color: location.pathname === "/" ? "#8A6A2F" : "#171717",
+                fontWeight: location.pathname === "/" ? 700 : 500,
+                textTransform: "none",
+                fontSize: "1rem",
               }}
             >
               Home
             </Button>
             <Button
-              color="inherit"
               onClick={() => navigate("/addRecipe")}
               sx={{
-                fontWeight: location.pathname === "/addRecipe" ? "bold" : "normal",
+                color: location.pathname === "/addRecipe" ? "#8A6A2F" : "#171717",
+                fontWeight: location.pathname === "/addRecipe" ? 700 : 500,
+                textTransform: "none",
+                fontSize: "1rem",
               }}
             >
               Add Recipe
             </Button>
             <Button
-              color="inherit"
               onClick={() => navigate("/events/new")}
               sx={{
-                fontWeight: location.pathname === "/events/new" ? "bold" : "normal",
+                color: location.pathname === "/events/new" ? "#8A6A2F" : "#171717",
+                fontWeight: location.pathname === "/events/new" ? 700 : 500,
+                textTransform: "none",
+                fontSize: "1rem",
               }}
             >
               Create Event

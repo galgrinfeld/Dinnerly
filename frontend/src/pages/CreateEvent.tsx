@@ -8,7 +8,6 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Box,
 } from "@mui/material";
 import { createEvent } from "../api/events";
 
@@ -43,7 +42,7 @@ export const CreateEvent: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await createEvent({
+      await createEvent({
         name,
         targetServings,
       });
