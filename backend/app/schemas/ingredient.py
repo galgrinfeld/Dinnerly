@@ -1,19 +1,19 @@
 """
 Ingredient Pydantic schemas.
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
-class IngredientBase(BaseModel):
-    name: str
+class IngredientCreate(BaseModel):
+    """Schema for creating an ingredient."""
+    name: str = Field(..., min_length=1, max_length=255)
 
 
-class IngredientCreate(IngredientBase):
-    pass
-
-
-class Ingredient(IngredientBase):
+class IngredientRead(BaseModel):
+    """Schema for reading an ingredient."""
     id: int
+    name: str
 
     class Config:
         from_attributes = True
+

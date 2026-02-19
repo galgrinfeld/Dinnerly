@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   TextField,
@@ -7,9 +8,11 @@ import {
   Box,
   Typography,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { IngredientsTable } from "../components/IngredientsTable";
 import { RichTextEditor } from "../components/RichTextEditor";
+import { createRecipe } from "../api/recipes";
 import {
   RecipeFormState,
   IngredientRow,
@@ -25,9 +28,12 @@ const INITIAL_STATE: RecipeFormState = {
 };
 
 export const AddRecipe: React.FC = () => {
+  const navigate = useNavigate();
   const [formState, setFormState] = useState<RecipeFormState>(INITIAL_STATE);
   const [submitted, setSubmitted] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFieldChange = (field: keyof RecipeFormState, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -66,7 +72,7 @@ export const AddRecipe: React.FC = () => {
     return { valid: true, error: null };
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSubmitted(true);
     const validation = validateForm();
 
@@ -91,14 +97,31 @@ export const AddRecipe: React.FC = () => {
         })),
     };
 
-    console.log("Recipe saved:", payload);
-    setValidationError(null);
+    try {
+      setLoading(true);
+      setValidationError(null);
+      const result = await createRecipe(payload);
+      setSuccessMessage(`Recipe created: ${result.name} (#${result.id})`);
+      // Reset form after success
+      setTimeout(() => {
+        setFormState(INITIAL_STATE);
+        setSubmitted(false);
+        setSuccessMessage(null);
+      }, 2000);
+    } catch (error) {
+      setValidationError(
+        error instanceof Error ? error.message : "Failed to create recipe"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
     setFormState(INITIAL_STATE);
     setSubmitted(false);
     setValidationError(null);
+    setSuccessMessage(null);
   };
 
   const nameError = submitted && !formState.name.trim();
@@ -110,6 +133,20 @@ export const AddRecipe: React.FC = () => {
       </Typography>
 
       <Stack spacing={3}>
+        {/* Success Alert */}
+        {successMessage && (
+          <Alert severity="success">
+            {successMessage}
+          </Alert>
+        )}
+
+        {/* Error Alert */}
+        {validationError && (
+          <Alert severity="error">
+            {validationError}
+          </Alert>
+        )}
+
         {/* Recipe Name */}
         <TextField
           label="Recipe Name"
@@ -119,6 +156,7 @@ export const AddRecipe: React.FC = () => {
           error={nameError}
           helperText={nameError ? "Recipe name is required" : ""}
           placeholder="e.g. Spaghetti Carbonara"
+          disabled={loading}
         />
 
         {/* Description */}
@@ -130,6 +168,7 @@ export const AddRecipe: React.FC = () => {
           value={formState.description}
           onChange={(e) => handleFieldChange("description", e.target.value)}
           placeholder="Optional description of your recipe"
+          disabled={loading}
         />
 
         {/* Base Servings */}
@@ -140,6 +179,7 @@ export const AddRecipe: React.FC = () => {
           onChange={(e) => handleFieldChange("baseServings", parseInt(e.target.value) || 1)}
           inputProps={{ min: 1 }}
           sx={{ maxWidth: 200 }}
+          disabled={loading}
         />
 
         {/* Ingredients Section */}
@@ -147,11 +187,6 @@ export const AddRecipe: React.FC = () => {
           <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
             Ingredients
           </Typography>
-          {validationError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {validationError}
-            </Alert>
-          )}
           <IngredientsTable
             ingredients={formState.ingredients}
             onChange={handleIngredientsChange}
@@ -176,16 +211,27 @@ export const AddRecipe: React.FC = () => {
             variant="contained"
             size="large"
             onClick={handleSave}
+            disabled={loading}
+            sx={{ position: "relative" }}
           >
-            Save
+            {loading ? <CircularProgress size={24} /> : "Save"}
           </Button>
           <Button
             variant="outlined"
             size="large"
             onClick={handleReset}
+            disabled={loading}
           >
             Reset
           </Button>
+          {successMessage && (
+            <Button
+              variant="text"
+              onClick={() => navigate("/")}
+            >
+              Back to Home
+            </Button>
+          )}
         </Stack>
       </Stack>
     </Container>
@@ -193,3 +239,4 @@ export const AddRecipe: React.FC = () => {
 };
 
 export default AddRecipe;
+

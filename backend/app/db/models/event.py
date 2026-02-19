@@ -1,7 +1,8 @@
 """
 Event database model.
 """
-from sqlalchemy import Column, Integer, String
+from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, String, DateTime, func
 from app.db.base import Base
 
 
@@ -9,4 +10,13 @@ class Event(Base):
     __tablename__ = "events"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String, nullable=False, index=True)
+    target_servings = Column(Integer, nullable=False)
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    
+    def __repr__(self) -> str:
+        return f"<Event(id={self.id}, name={self.name})>"

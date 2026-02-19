@@ -1,16 +1,18 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { Home } from "../pages/Home";
 import { AddRecipe } from "../pages/AddRecipe";
+import { CreateEvent } from "../pages/CreateEvent";
 
 const AppRouter: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/addRecipe" replace />} />
-        <Route path="/addRecipe" element={<AddRecipe />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/addRecipe" element={<AddRecipe />} />
+      <Route path="/events/new" element={<CreateEvent />} />
+    </Routes>
   );
 };
 
 export default AppRouter;
+
