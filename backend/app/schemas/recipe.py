@@ -68,6 +68,7 @@ class RecipeCreate(BaseModel):
     description: str = Field(default="", max_length=2000)
     baseServings: int = Field(..., gt=0, alias="baseServings")
     instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
+    imageUrl: Optional[str] = Field(None, max_length=2000, alias="imageUrl")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
     @field_validator("ingredients")
@@ -88,6 +89,7 @@ class RecipeUpdate(BaseModel):
     description: str = Field(default="", max_length=2000)
     baseServings: int = Field(..., gt=0, alias="baseServings")
     instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
+    imageUrl: Optional[str] = Field(None, max_length=2000, alias="imageUrl")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
     @field_validator("ingredients")
@@ -109,6 +111,7 @@ class RecipeRead(BaseModel):
     description: str
     base_servings: int = Field(alias="baseServings")
     instructions_html: str = Field(alias="instructionsHtml", default="")
+    image_url: Optional[str] = Field(alias="imageUrl", default=None)
     ingredients: List[RecipeIngredientRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True, alias_priority=True)

@@ -17,6 +17,7 @@ export interface RecipeCreateRequest {
   description?: string;
   baseServings: number;
   instructionsHtml?: string;
+  imageUrl?: string | null;
   ingredients: RecipeIngredient[];
 }
 
@@ -26,6 +27,7 @@ export interface RecipeRead {
   description: string;
   baseServings: number;
   instructionsHtml?: string;
+  imageUrl?: string | null;
   ingredients: Array<{
     id: number;
     ingredientId: number;
@@ -42,6 +44,7 @@ export interface RecipeUpdateRequest {
   description?: string;
   baseServings: number;
   instructionsHtml?: string;
+  imageUrl?: string | null;
   ingredients: RecipeIngredient[];
 }
 

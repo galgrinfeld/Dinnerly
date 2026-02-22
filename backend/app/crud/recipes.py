@@ -16,6 +16,7 @@ def create_recipe(db: Session, payload: RecipeCreate) -> Recipe:
         description=payload.description,
         base_servings=payload.baseServings,
         instructions_html=payload.instructionsHtml,
+        image_url=payload.imageUrl or None,
     )
     db.add(db_recipe)
     db.flush()  # Flush to get the recipe ID without committing
@@ -73,6 +74,7 @@ def update_recipe(db: Session, recipe_id: int, payload: RecipeUpdate) -> Recipe:
     recipe.description = payload.description
     recipe.base_servings = payload.baseServings
     recipe.instructions_html = payload.instructionsHtml
+    recipe.image_url = payload.imageUrl or None
     
     # Remove existing ingredients
     db.query(RecipeIngredient).filter(RecipeIngredient.recipe_id == recipe_id).delete()

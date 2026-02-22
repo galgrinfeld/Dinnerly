@@ -23,6 +23,7 @@ export type RecipeFormState = {
   name: string;
   description: string;
   baseServings: number;
+  imageUrl?: string | null;
   ingredients: IngredientRow[];
   instructions: string;
 };

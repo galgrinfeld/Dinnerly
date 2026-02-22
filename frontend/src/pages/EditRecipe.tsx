@@ -30,6 +30,7 @@ export const EditRecipe: React.FC = () => {
     baseServings: 4,
     ingredients: [createEmptyIngredientRow()],
     instructions: "",
+    imageUrl: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -64,6 +65,7 @@ export const EditRecipe: React.FC = () => {
           baseServings: recipe.baseServings,
           ingredients: ingredients.length > 0 ? ingredients : [createEmptyIngredientRow()],
           instructions: recipe.instructionsHtml || "",
+          imageUrl: recipe.imageUrl || "",
         });
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to load recipe";
@@ -134,6 +136,7 @@ export const EditRecipe: React.FC = () => {
       description: formState.description,
       baseServings: formState.baseServings,
       instructionsHtml: formState.instructions,
+      imageUrl: formState.imageUrl?.trim() || null,
       ingredients: formState.ingredients
         .filter((ing) => ing.name.trim())
         .map((ing) => ({
@@ -227,6 +230,18 @@ export const EditRecipe: React.FC = () => {
           value={formState.description}
           onChange={(e) => handleFieldChange("description", e.target.value)}
           placeholder="Optional description of your recipe"
+          disabled={saving}
+        />
+
+        {/* Image URL */}
+        <TextField
+          label="Image URL (optional)"
+          fullWidth
+          value={formState.imageUrl || ""}
+          onChange={(e) =>
+            handleFieldChange("imageUrl", e.target.value.trim() || null)
+          }
+          placeholder="https://example.com/image.jpg"
           disabled={saving}
         />
 

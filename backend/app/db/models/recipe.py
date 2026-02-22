@@ -15,6 +15,7 @@ class Recipe(Base):
     description = Column(Text, nullable=True)
     base_servings = Column(Integer, nullable=False)
     instructions_html = Column(Text, nullable=True)
+    image_url = Column(String, nullable=True)
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,

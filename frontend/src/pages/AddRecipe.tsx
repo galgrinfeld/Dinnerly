@@ -23,6 +23,7 @@ const INITIAL_STATE: RecipeFormState = {
   name: "",
   description: "",
   baseServings: 4,
+  imageUrl: "",
   ingredients: [createEmptyIngredientRow()],
   instructions: "",
 };
@@ -94,6 +95,7 @@ export const AddRecipe: React.FC = () => {
       description: formState.description,
       baseServings: formState.baseServings,
       instructionsHtml: formState.instructions,
+      imageUrl: formState.imageUrl?.trim() || null,
       ingredients: formState.ingredients
         .filter((ing) => ing.name.trim())
         .map((ing) => ({
@@ -171,6 +173,18 @@ export const AddRecipe: React.FC = () => {
           value={formState.description}
           onChange={(e) => handleFieldChange("description", e.target.value)}
           placeholder="Optional description of your recipe"
+          disabled={loading}
+        />
+
+        {/* Image URL */}
+        <TextField
+          label="Image URL (optional)"
+          fullWidth
+          value={formState.imageUrl || ""}
+          onChange={(e) =>
+            handleFieldChange("imageUrl", e.target.value.trim() || null)
+          }
+          placeholder="https://example.com/image.jpg"
           disabled={loading}
         />
 

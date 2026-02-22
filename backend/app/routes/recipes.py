@@ -35,6 +35,7 @@ def create_recipe(
             description=recipe.description,
             base_servings=recipe.base_servings,
             instructions_html=recipe.instructions_html or "",
+            image_url=recipe.image_url,
             ingredients=ingredients,
         )
     except ValueError as e:
@@ -73,6 +74,7 @@ def get_recipe(
         description=recipe.description,
         base_servings=recipe.base_servings,
         instructions_html=recipe.instructions_html or "",
+        image_url=recipe.image_url,
         ingredients=ingredients,
     )
 
@@ -100,6 +102,7 @@ def update_recipe(
             description=recipe.description,
             base_servings=recipe.base_servings,
             instructions_html=recipe.instructions_html or "",
+            image_url=recipe.image_url,
             ingredients=ingredients,
         )
     except ValueError as e:
