@@ -73,6 +73,11 @@ export const AddRecipe: React.FC = () => {
   };
 
   const handleSave = async () => {
+    // Prevent duplicate submissions
+    if (loading) {
+      return;
+    }
+
     setSubmitted(true);
     const validation = validateForm();
 
@@ -80,6 +85,9 @@ export const AddRecipe: React.FC = () => {
       setValidationError(validation.error);
       return;
     }
+
+    setLoading(true);
+    setValidationError(null);
 
     const payload = {
       name: formState.name,
@@ -98,22 +106,17 @@ export const AddRecipe: React.FC = () => {
     };
 
     try {
-      setLoading(true);
-      setValidationError(null);
       const result = await createRecipe(payload);
-      setSuccessMessage(`Recipe created: ${result.name} (#${result.id})`);
-      // Reset form after success
+      setSuccessMessage(`✓ Recipe added: ${result.name}`);
+      // Redirect to home immediately
       setTimeout(() => {
-        setFormState(INITIAL_STATE);
-        setSubmitted(false);
-        setSuccessMessage(null);
-      }, 2000);
+        navigate("/");
+      }, 500);
     } catch (error) {
-      setValidationError(
-        error instanceof Error ? error.message : "Failed to create recipe"
-      );
-    } finally {
       setLoading(false);
+      const errorMsg = error instanceof Error ? error.message : "Failed to create recipe";
+      console.error("Recipe creation error:", errorMsg);
+      setValidationError(errorMsg);
     }
   };
 
@@ -224,14 +227,12 @@ export const AddRecipe: React.FC = () => {
           >
             Reset
           </Button>
-          {successMessage && (
-            <Button
-              variant="text"
-              onClick={() => navigate("/")}
-            >
-              Back to Home
-            </Button>
-          )}
+          <Button
+            variant="text"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </Button>
         </Stack>
       </Stack>
     </Container>

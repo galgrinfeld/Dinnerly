@@ -40,7 +40,6 @@ def create_ingredient(db: Session, name: str) -> Ingredient:
     
     db_ingredient = Ingredient(name=trimmed_name)
     db.add(db_ingredient)
-    db.commit()
-    db.refresh(db_ingredient)
+    db.flush()  # Flush to get the ID without committing
     return db_ingredient
 

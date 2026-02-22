@@ -38,12 +38,11 @@ class RecipeIngredientCreate(BaseModel):
 class RecipeIngredientRead(BaseModel):
     """Schema for reading a recipe ingredient."""
     id: int
-    name: str
+    ingredient_id: int
     quantity: Optional[float]
     unit: str
     note: str
     optional: bool
-    ingredient_id: int
 
     class Config:
         from_attributes = True
@@ -53,8 +52,8 @@ class RecipeCreate(BaseModel):
     """Schema for creating a recipe."""
     name: str = Field(..., min_length=1, max_length=255)
     description: str = Field(default="", max_length=2000)
-    baseServings: int = Field(..., alias="baseServings", gt=0)
-    instructionsHtml: str = Field(default="", alias="instructionsHtml", max_length=5000)
+    baseServings: int = Field(..., gt=0, alias="baseServings")
+    instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
     @field_validator("ingredients")
@@ -76,7 +75,7 @@ class RecipeRead(BaseModel):
     description: str
     baseServings: int = Field(alias="base_servings")
     instructionsHtml: str = Field(alias="instructions_html")
-    ingredients: List[RecipeIngredientRead]
+    ingredients: List[RecipeIngredientRead] = Field(default_factory=list)
 
     class Config:
         from_attributes = True

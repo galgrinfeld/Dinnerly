@@ -85,6 +85,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
+          "&:focus": {
+            outline: "none",
+          },
         },
         containedSecondary: {
           backgroundColor: "#8A6A2F",
