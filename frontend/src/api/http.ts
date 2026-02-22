@@ -28,5 +28,10 @@ export async function apiFetch<T>(
     throw new Error(errorMessage);
   }
 
+  // Handle 204 No Content - return empty object
+  if (response.status === 204) {
+    return {} as T;
+  }
+
   return response.json() as Promise<T>;
 }

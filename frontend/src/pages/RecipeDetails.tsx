@@ -69,13 +69,19 @@ const RecipeDetails: React.FC = () => {
     try {
       setDeleting(true);
       setDeleteError(null);
+      // Close dialog first
       setDeleteConfirmOpen(false);
+      // Delete the recipe
       await deleteRecipe(recipe.id);
-      navigate('/', { replace: true });
+      // Navigate to home after successful deletion
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete recipe';
       setDeleteError(message);
       setDeleting(false);
+      // Reopen dialog to show error
       setDeleteConfirmOpen(true);
     }
   };
