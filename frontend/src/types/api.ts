@@ -8,6 +8,8 @@ export interface RecipeIngredient {
   unit: string;
   note?: string;
   optional?: boolean;
+  id?: number;
+  ingredientId?: number;
 }
 
 export interface RecipeCreateRequest {
@@ -23,7 +25,24 @@ export interface RecipeRead {
   name: string;
   description: string;
   baseServings: number;
-  instructionsHtml: string;
+  instructionsHtml?: string;
+  ingredients: Array<{
+    id: number;
+    ingredientId: number;
+    ingredientName: string;
+    quantity: number | null;
+    unit: string;
+    note: string;
+    optional: boolean;
+  }>;
+}
+
+export interface RecipeUpdateRequest {
+  name: string;
+  description?: string;
+  baseServings: number;
+  instructionsHtml?: string;
+  ingredients: RecipeIngredient[];
 }
 
 export interface RecipeListItem {

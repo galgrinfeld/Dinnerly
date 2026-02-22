@@ -12,7 +12,6 @@ import {
   CircularProgress,
   Alert,
   List,
-  ListItem,
   ListItemText,
 } from "@mui/material";
 import { listRecipes } from "../api/recipes";
@@ -84,12 +83,17 @@ export const Home: React.FC = () => {
               ) : (
                 <List sx={{ maxHeight: 300, overflow: "auto" }}>
                   {recipes.map((recipe) => (
-                    <ListItem key={recipe.id}>
+                    <Box
+                      key={recipe.id}
+                      onClick={() => navigate(`/recipes/${recipe.id}`)}
+                      component="div"
+                      sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f5f5f5" }, px: 2, py: 1 }}
+                    >
                       <ListItemText
                         primary={recipe.name}
                         secondary={`Serves: ${recipe.baseServings}`}
                       />
-                    </ListItem>
+                    </Box>
                   ))}
                 </List>
               )}
@@ -130,17 +134,17 @@ export const Home: React.FC = () => {
               ) : (
                 <List sx={{ maxHeight: 300, overflow: "auto" }}>
                   {events.map((event) => (
-                    <ListItem
+                    <Box
                       key={event.id}
-                      button
                       onClick={() => navigate(`/events/${event.id}`)}
-                      sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f5f5f5" } }}
+                      component="div"
+                      sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f5f5f5" }, px: 2, py: 1 }}
                     >
                       <ListItemText
                         primary={event.name}
                         secondary={`Target: ${event.targetServings} servings`}
                       />
-                    </ListItem>
+                    </Box>
                   ))}
                 </List>
               )}

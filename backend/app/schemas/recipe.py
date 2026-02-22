@@ -2,7 +2,7 @@
 Recipe Pydantic schemas.
 """
 from typing import List, Optional, Literal
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # Allowed units for ingredients
 ALLOWED_UNITS = {"g", "kg", "ml", "l", "tsp", "tbsp", "cup", "unit", "slice", "to_taste"}
@@ -38,18 +38,52 @@ class RecipeIngredientCreate(BaseModel):
 class RecipeIngredientRead(BaseModel):
     """Schema for reading a recipe ingredient."""
     id: int
-    ingredient_id: int
-    quantity: Optional[float]
+    ingredient_id: int = Field(alias="ingredientId")
+    quantity: Optional[float] = None
     unit: str
-    note: str
-    optional: bool
+    note: str = ""
+    optional: bool = False
+    ingredient_name: str = Field(alias="ingredientName", default="")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    @classmethod
+    def from_orm(cls, obj):
+        """Custom ORM conversion to get ingredient name from relationship."""
+        data = {
+            "id": obj.id,
+            "ingredient_id": obj.ingredient_id,
+            "quantity": float(obj.quantity) if obj.quantity else None,
+            "unit": obj.unit,
+            "note": obj.note or "",
+            "optional": bool(obj.optional),
+            "ingredient_name": obj.ingredient.name if obj.ingredient else "",
+        }
+        return cls(**data)
 
 
 class RecipeCreate(BaseModel):
     """Schema for creating a recipe."""
+    name: str = Field(..., min_length=1, max_length=255)
+    description: str = Field(default="", max_length=2000)
+    baseServings: int = Field(..., gt=0, alias="baseServings")
+    instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
+    ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
+    
+    @field_validator("ingredients")
+    @classmethod
+    def validate_ingredients(cls, v: List[RecipeIngredientCreate]) -> List[RecipeIngredientCreate]:
+        """Ensure at least one ingredient with non-empty name."""
+        if not v or not any(ing.name.strip() for ing in v):
+            raise ValueError("At least one ingredient with non-empty name is required")
+        return v
+
+    class Config:
+        populate_by_name = True
+
+
+class RecipeUpdate(BaseModel):
+    """Schema for updating a recipe."""
     name: str = Field(..., min_length=1, max_length=255)
     description: str = Field(default="", max_length=2000)
     baseServings: int = Field(..., gt=0, alias="baseServings")
@@ -73,13 +107,11 @@ class RecipeRead(BaseModel):
     id: int
     name: str
     description: str
-    baseServings: int = Field(alias="base_servings")
-    instructionsHtml: str = Field(alias="instructions_html")
+    base_servings: int = Field(alias="baseServings")
+    instructions_html: str = Field(alias="instructionsHtml", default="")
     ingredients: List[RecipeIngredientRead] = Field(default_factory=list)
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True, alias_priority=True)
 
 
 class RecipeListItem(BaseModel):
@@ -87,9 +119,7 @@ class RecipeListItem(BaseModel):
     id: int
     name: str
     description: str
-    baseServings: int = Field(alias="base_servings")
+    base_servings: int = Field(alias="baseServings")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True, alias_priority=True)
 
