@@ -5,18 +5,16 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  List,
+  ListItem,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Typography,
   Alert,
 } from '@mui/material';
@@ -147,7 +145,7 @@ const RecipeDetails: React.FC = () => {
         {/* Recipe Details Card */}
         <Card sx={{ borderTop: 4, borderTopColor: '#8A6A2F' }}>
           <CardContent>
-            <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Typography variant="h4" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
               {recipe.name}
             </Typography>
 
@@ -161,69 +159,95 @@ const RecipeDetails: React.FC = () => {
               Base Servings: {recipe.baseServings}
             </Typography>
 
+            {/* Ingredients */}
+            {recipe.ingredients && recipe.ingredients.length > 0 ? (
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Ingredients ({recipe.ingredients.length})
+                </Typography>
+                <List disablePadding>
+                  {recipe.ingredients.map((ing, idx) => {
+                    // Check if note exists
+                    const hasNote = ing.note && ing.note.trim().length > 0;
+
+                    // Determine if we should show "to taste"
+                    const isToTaste = ing.quantity === null || ing.unit === 'to_taste';
+
+                    return (
+                      <ListItem key={idx} disableGutters sx={{ py: 0.75, '&:hover': { backgroundColor: 'transparent' } }}>
+                        <Stack direction="row" spacing={1.5} alignItems="baseline" sx={{ width: '100%' }}>
+                          {/* Left block for quantity + unit (fixed width for alignment) */}
+                          <Box sx={{ minWidth: 40, display: 'flex', gap: 0.5, alignItems: 'baseline' }}>
+                            {isToTaste ? (
+                              <Typography sx={{ fontSize: '0.95rem' }}>to taste</Typography>
+                            ) : (
+                              <>
+                                <Typography sx={{ fontWeight: 600 }}>{ing.quantity}</Typography>
+                                {ing.unit !== 'unit' && (
+                                  <Typography sx={{ fontSize: '0.95rem' }}>{ing.unit}</Typography>
+                                )}
+                              </>
+                            )}
+                          </Box>
+
+                          {/* Ingredient Name */}
+                          <Typography>{ing.ingredientName}</Typography>
+
+                          {/* Note */}
+                          {hasNote && (
+                            <Typography variant="body2" color="text.secondary">
+                              * {ing.note}
+                            </Typography>
+                          )}
+
+                          {/* Optional Chip */}
+                          {ing.optional && (
+                            <Chip
+                              size="small"
+                              label="Optional"
+                              color="secondary"
+                              variant="outlined"
+                            />
+                          )}
+                        </Stack>
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Box>
+            ) : (
+              <Typography variant="body2" sx={{ mt: 3, color: '#999', fontStyle: 'italic' }}>
+                No ingredients listed
+              </Typography>
+            )}
+
             {/* Instructions */}
             {recipe.instructionsHtml && recipe.instructionsHtml.trim() && (
-              <Box sx={{ my: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                   Instructions
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#fafafa',
                     p: 2,
-                    borderRadius: 1,
-                    '& p': { margin: '0.5rem 0' },
-                    '& ol': { marginLeft: '1.5rem' },
-                    '& ul': { marginLeft: '1.5rem' },
+                    borderRadius: 2,
+                    backgroundColor: '#fafafa',
+                    '& p': { m: 0, mb: 1, lineHeight: 1.6, fontSize: '0.95rem' },
+                    '& p:last-child': { mb: 0 },
+                    '& ol': { m: 0, pl: 3, lineHeight: 1.8 },
+                    '& ul': { m: 0, pl: 3, lineHeight: 1.8 },
+                    '& li': { mb: 0.5 },
                   }}
-                  dangerouslySetInnerHTML={{ __html: recipe.instructionsHtml }}
-                />
+                >
+                  <Box dangerouslySetInnerHTML={{ __html: recipe.instructionsHtml }} />
+                </Box>
               </Box>
             )}
 
             {/* No instructions message */}
             {(!recipe.instructionsHtml || !recipe.instructionsHtml.trim()) && (
-              <Typography variant="body2" sx={{ my: 3, color: '#999', fontStyle: 'italic' }}>
-                No instructions provided
-              </Typography>
-            )}
-
-            {/* Ingredients */}
-            {recipe.ingredients && recipe.ingredients.length > 0 ? (
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                  Ingredients ({recipe.ingredients.length})
-                </Typography>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                      <TableCell sx={{ fontWeight: 600 }}>Ingredient</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>
-                        Quantity
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Unit</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Note</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600 }}>
-                        Optional
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recipe.ingredients.map((ing, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{ing.ingredientName}</TableCell>
-                        <TableCell align="right">{ing.quantity || '—'}</TableCell>
-                        <TableCell>{ing.unit}</TableCell>
-                        <TableCell>{ing.note || '—'}</TableCell>
-                        <TableCell align="center">{ing.optional ? '✓' : '—'}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            ) : (
               <Typography variant="body2" sx={{ mt: 3, color: '#999', fontStyle: 'italic' }}>
-                No ingredients listed
+                No instructions provided
               </Typography>
             )}
           </CardContent>
