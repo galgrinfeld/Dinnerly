@@ -38,8 +38,42 @@ export interface EventCreateRequest {
   targetServings: number;
 }
 
+export interface EventRecipeAttach {
+  recipeId: number;
+  desiredServings: number;
+}
+
+export interface EventRecipeRead {
+  recipeId: number;
+  desiredServings: number;
+}
+
 export interface EventRead {
   id: number;
   name: string;
   targetServings: number;
+  recipes?: EventRecipeRead[];
+}
+
+export interface ShoppingListSource {
+  recipeId: number;
+  recipeName: string;
+  originalQuantity: number | null;
+  scaledQuantity: number | null;
+  scaleFactor: number;
+  desiredServings: number;
+  baseServings: number;
+}
+
+export interface ShoppingListItem {
+  ingredientId: number;
+  ingredientName: string;
+  unit: string;
+  quantity: number | null;
+  optional: boolean;
+  sources: ShoppingListSource[];
+}
+
+export interface ShoppingListResponse {
+  items: ShoppingListItem[];
 }

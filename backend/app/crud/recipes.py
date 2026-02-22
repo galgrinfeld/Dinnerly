@@ -45,3 +45,17 @@ def list_recipes(db: Session, limit: int = 50) -> list[Recipe]:
     """List all recipes."""
     return db.query(Recipe).limit(limit).all()
 
+
+def get_recipe_by_id(db: Session, recipe_id: int) -> Recipe | None:
+    """Get a specific recipe by ID."""
+    return db.query(Recipe).filter(Recipe.id == recipe_id).first()
+
+
+def get_recipe_with_ingredients(db: Session, recipe_id: int) -> Recipe | None:
+    """Get a recipe with all its ingredients loaded."""
+    recipe = get_recipe_by_id(db, recipe_id)
+    if recipe:
+        # Ensure ingredients are loaded
+        _ = recipe.ingredients
+    return recipe
+

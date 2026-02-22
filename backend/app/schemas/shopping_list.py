@@ -1,18 +1,43 @@
 """
-Shopping list Pydantic schemas.
+Shopping list Pydantic schemas with camelCase.
 """
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import Optional
+
+
+class ShoppingListSource(BaseModel):
+    """Source information for a shopping list item - which recipe(s) contributed."""
+    recipe_id: int = Field(alias="recipeId")
+    recipe_name: str = Field(alias="recipeName")
+    original_quantity: Optional[float] = Field(alias="originalQuantity")
+    scaled_quantity: Optional[float] = Field(alias="scaledQuantity")
+    scale_factor: float = Field(alias="scaleFactor")
+    desired_servings: int = Field(alias="desiredServings")
+    base_servings: int = Field(alias="baseServings")
+    
+    class Config:
+        populate_by_name = True
+        from_attributes = True
 
 
 class ShoppingListItem(BaseModel):
-    name: str
-    quantity: int = 1
-
-
-class ShoppingList(BaseModel):
-    event_id: int
-    items: List[ShoppingListItem] = []
-
+    """A single item in the shopping list."""
+    ingredient_id: int = Field(alias="ingredientId")
+    ingredient_name: str = Field(alias="ingredientName")
+    unit: str
+    quantity: Optional[float] = None
+    optional: bool = False
+    sources: list[ShoppingListSource] = []
+    
     class Config:
+        populate_by_name = True
+        from_attributes = True
+
+
+class ShoppingListResponse(BaseModel):
+    """Complete shopping list response for an event."""
+    items: list[ShoppingListItem] = []
+    
+    class Config:
+        populate_by_name = True
         from_attributes = True

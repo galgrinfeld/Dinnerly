@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI
 from app.db.session import engine
 from app.db.base import Base
-from app.db.models import Ingredient, Recipe, RecipeIngredient, Event
+from app.db.models import Ingredient, Recipe, RecipeIngredient, Event, EventRecipe
 from app.api.router import router as api_router
 
 # Create database tables at startup (development only)

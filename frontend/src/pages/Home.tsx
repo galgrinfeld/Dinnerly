@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
 
       <Grid container spacing={3}>
         {/* Recipes Card */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
@@ -106,7 +106,7 @@ export const Home: React.FC = () => {
         </Grid>
 
         {/* Events Card */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
@@ -130,7 +130,12 @@ export const Home: React.FC = () => {
               ) : (
                 <List sx={{ maxHeight: 300, overflow: "auto" }}>
                   {events.map((event) => (
-                    <ListItem key={event.id}>
+                    <ListItem
+                      key={event.id}
+                      button
+                      onClick={() => navigate(`/events/${event.id}`)}
+                      sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f5f5f5" } }}
+                    >
                       <ListItemText
                         primary={event.name}
                         secondary={`Target: ${event.targetServings} servings`}

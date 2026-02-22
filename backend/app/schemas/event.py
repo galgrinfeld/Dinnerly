@@ -13,11 +13,31 @@ class EventCreate(BaseModel):
         populate_by_name = True
 
 
+class EventRecipeAttach(BaseModel):
+    """Schema for attaching a recipe to an event."""
+    recipe_id: int = Field(alias="recipeId")
+    desired_servings: int = Field(alias="desiredServings", gt=0)
+    
+    class Config:
+        populate_by_name = True
+
+
+class EventRecipeRead(BaseModel):
+    """Schema for reading an event-recipe relationship."""
+    recipe_id: int = Field(alias="recipeId")
+    desired_servings: int = Field(alias="desiredServings")
+    
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+
+
 class EventRead(BaseModel):
     """Schema for reading an event."""
     id: int
     name: str
-    target_servings: int = Field(alias="target_servings")
+    target_servings: int = Field(alias="targetServings")
+    recipes: list[EventRecipeRead] = []
     
     class Config:
         from_attributes = True
