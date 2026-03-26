@@ -6,6 +6,10 @@ import {
   Chip,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputLabel,
@@ -31,7 +35,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { getEvent, attachRecipe, getShoppingList } from '../api/events';
+import { getEvent, attachRecipe, getShoppingList, deleteEvent } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import {
   EventRead,
@@ -67,6 +71,11 @@ const EventDetails: React.FC = () => {
   // Edit mode for recipes
   const [editingRecipeId, setEditingRecipeId] = useState<number | null>(null);
   const [editServings, setEditServings] = useState<number>(1);
+
+  // Delete event state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Load event, recipes, and shopping list
   useEffect(() => {
@@ -164,6 +173,41 @@ const EventDetails: React.FC = () => {
     setError('Delete recipe feature coming soon - need backend support');
   };
 
+  // Handle delete event
+  const handleDeleteEventClick = () => {
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDeleteEvent = async () => {
+    if (!event) return;
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+      // Close dialog first
+      setDeleteConfirmOpen(false);
+      // Delete the event
+      await deleteEvent(event.id);
+      // Navigate to home after successful deletion
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete event';
+      setDeleteError(message);
+      // Reopen dialog on error so user can retry
+      setTimeout(() => {
+        setDeleteConfirmOpen(true);
+      }, 100);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCancelDeleteEvent = () => {
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
@@ -206,15 +250,44 @@ const EventDetails: React.FC = () => {
         </Alert>
       )}
 
+      {deleteError && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {deleteError}
+        </Alert>
+      )}
+
       <Stack spacing={3}>
         {/* Event Info Section */}
         <Paper variant="outlined" sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
-            {event.name}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Target Servings: {event.targetServings}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                {event.name}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Target Servings: {event.targetServings}
+              </Typography>
+            </Box>
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<EditIcon />}
+                onClick={() => navigate(`/events/${event.id}/edit`)}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                startIcon={<DeleteIcon />}
+                onClick={handleDeleteEventClick}
+              >
+                Delete
+              </Button>
+            </Stack>
+          </Box>
         </Paper>
 
         {/* Attached Recipes Section */}
@@ -416,6 +489,34 @@ const EventDetails: React.FC = () => {
           </>
         )}
       </Stack>
+
+      {/* Delete Event Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onClose={handleCancelDeleteEvent}>
+        <DialogTitle>Delete Event?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Delete this event? This will remove all attached recipes.
+          </Typography>
+          {deleteError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {deleteError}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDeleteEvent} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDeleteEvent}
+            color="error"
+            variant="contained"
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

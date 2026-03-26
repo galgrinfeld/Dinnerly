@@ -4,6 +4,7 @@
 import { apiFetch } from "./http";
 import {
   EventCreateRequest,
+  EventUpdateRequest,
   EventRead,
   EventRecipeAttach,
   ShoppingListResponse,
@@ -24,6 +25,22 @@ export async function getEvent(eventId: number): Promise<EventRead> {
   return apiFetch<EventRead>(`/api/events/${eventId}`);
 }
 
+export async function updateEvent(
+  eventId: number,
+  payload: EventUpdateRequest
+): Promise<EventRead> {
+  return apiFetch<EventRead>(`/api/events/${eventId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteEvent(eventId: number): Promise<void> {
+  return apiFetch<void>(`/api/events/${eventId}`, {
+    method: "DELETE",
+  });
+}
+
 export async function attachRecipe(
   eventId: number,
   payload: EventRecipeAttach
@@ -37,3 +54,4 @@ export async function attachRecipe(
 export async function getShoppingList(eventId: number): Promise<ShoppingListResponse> {
   return apiFetch<ShoppingListResponse>(`/api/events/${eventId}/shopping-list`);
 }
+

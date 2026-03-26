@@ -13,6 +13,15 @@ class EventCreate(BaseModel):
         populate_by_name = True
 
 
+class EventUpdate(BaseModel):
+    """Schema for updating an event."""
+    name: str = Field(..., min_length=1, max_length=255)
+    target_servings: int = Field(alias="targetServings", gt=0)
+    
+    class Config:
+        populate_by_name = True
+
+
 class EventRecipeAttach(BaseModel):
     """Schema for attaching a recipe to an event."""
     recipe_id: int = Field(alias="recipeId")

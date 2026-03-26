@@ -6,6 +6,7 @@ import { CreateEvent } from "../pages/CreateEvent";
 import { EventDetails } from "../pages/EventDetails";
 import { RecipeDetails } from "../pages/RecipeDetails";
 import { EditRecipe } from "../pages/EditRecipe";
+import { EditEvent } from "../pages/EditEvent";
 
 const AppRouter: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const AppRouter: React.FC = () => {
       <Route path="/addRecipe" element={<AddRecipe />} />
       <Route path="/events/new" element={<CreateEvent />} />
       <Route path="/events/:eventId" element={<EventDetails />} />
+      <Route path="/events/:eventId/edit" element={<EditEvent />} />
       <Route path="/recipes/:recipeId" element={<RecipeDetails />} />
       <Route path="/recipes/:recipeId/edit" element={<EditRecipe />} />
     </Routes>

@@ -60,6 +60,11 @@ export interface EventCreateRequest {
   targetServings: number;
 }
 
+export interface EventUpdateRequest {
+  name: string;
+  targetServings: number;
+}
+
 export interface EventRecipeAttach {
   recipeId: number;
   desiredServings: number;

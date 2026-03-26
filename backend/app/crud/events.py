@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.db.models.event import Event
 from app.db.models.event_recipe import EventRecipe
-from app.schemas.event import EventCreate, EventRecipeAttach
+from app.schemas.event import EventCreate, EventUpdate, EventRecipeAttach
 
 
 def list_events(db: Session, limit: int = 50) -> list[Event]:
@@ -58,3 +58,28 @@ def attach_recipe_to_event(
     db.refresh(event)
     return event
 
+
+def update_event(db: Session, event_id: int, data: EventUpdate) -> Event:
+    """Update an event's name and target servings."""
+    event = get_event(db, event_id)
+    if not event:
+        raise ValueError(f"Event {event_id} not found")
+    
+    event.name = data.name
+    event.target_servings = data.target_servings
+    
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+def delete_event(db: Session, event_id: int) -> None:
+    """Delete an event and its associated event-recipe records."""
+    event = get_event(db, event_id)
+    if not event:
+        raise ValueError(f"Event {event_id} not found")
+    
+    # EventRecipe rows will be cascade-deleted by the database
+    # because Event.recipes has cascade="all, delete-orphan"
+    db.delete(event)
+    db.commit()
