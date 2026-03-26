@@ -31,8 +31,6 @@ export async function apiFetch<T>(
     (defaultHeaders as any)["Authorization"] = `Bearer ${token}`;
   }
 
-  console.log("[apiFetch]", { path, token: token ? "present" : "missing", headers: defaultHeaders });
-
   const response = await fetch(path, {
     ...options,
     headers: {
@@ -40,8 +38,6 @@ export async function apiFetch<T>(
       ...(options?.headers || {}),
     },
   });
-
-  console.log("[apiFetch response]", { path, status: response.status, statusText: response.statusText });
 
   // Handle 401 - clear token and redirect to login
   if (response.status === 401) {
@@ -58,7 +54,6 @@ export async function apiFetch<T>(
     } catch {
       // Fallback to status text if not JSON
     }
-    console.error("[apiFetch error]", { path, status: response.status, errorMessage });
     throw new Error(errorMessage);
   }
 

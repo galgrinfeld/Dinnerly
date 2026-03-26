@@ -41,7 +41,7 @@ def register(
         # Claim any pending invites for this email
         claim_invites_for_user(db, user)
         
-        # Create access token (sub must be a string for JWT)
+        # Create access token (sub must be string for JWT verification)
         access_token = create_access_token(data={"sub": str(user.id)})
         
         return AuthResponse(
@@ -79,7 +79,7 @@ def login(
         # Claim any pending invites
         claim_invites_for_user(db, user)
         
-        # Create access token (sub must be a string for JWT)
+        # Create access token (sub must be string for JWT verification)
         access_token = create_access_token(data={"sub": str(user.id)})
         
         return AuthResponse(

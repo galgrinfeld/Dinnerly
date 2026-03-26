@@ -49,16 +49,12 @@ export const Login: React.FC = () => {
         password: formData.password,
       };
 
-      console.log("Logging in with:", payload);
-      const response = await login(payload);
-      console.log("Login response:", response);
+      await login(payload);
 
       // Navigate to home on success
-      console.log("Navigating to home...");
       navigate("/", { replace: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to login";
-      console.error("Login error:", err);
       setError(message);
     } finally {
       setLoading(false);
