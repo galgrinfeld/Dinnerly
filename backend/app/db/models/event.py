@@ -2,7 +2,7 @@
 Event database model.
 """
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 
@@ -13,6 +13,7 @@ class Event(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
     target_servings = Column(Integer, nullable=False)
+    owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,
@@ -21,6 +22,7 @@ class Event(Base):
     
     # Relationships
     recipes = relationship("EventRecipe", back_populates="event", cascade="all, delete-orphan")
+    members = relationship("EventMember", back_populates="event", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
         return f"<Event(id={self.id}, name={self.name})>"

@@ -35,7 +35,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { getEvent, attachRecipe, getShoppingList, deleteEvent } from '../api/events';
+import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import {
   EventRead,
@@ -43,6 +43,8 @@ import {
   RecipeListItem,
   ShoppingListResponse,
   ShoppingListItem,
+  EventMemberRead,
+  ParticipantAddRequest,
 } from '../types/api';
 
 /**
@@ -57,6 +59,7 @@ const EventDetails: React.FC = () => {
   const [event, setEvent] = useState<EventRead | null>(null);
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListResponse | null>(null);
+  const [members, setMembers] = useState<EventMemberRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +67,10 @@ const EventDetails: React.FC = () => {
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | ''>('');
   const [desiredServings, setDesiredServings] = useState<number>(1);
   const [attachingRecipe, setAttachingRecipe] = useState(false);
+
+  // Participants form state
+  const [newParticipantEmail, setNewParticipantEmail] = useState('');
+  const [addingParticipant, setAddingParticipant] = useState(false);
 
   // Expanded sources rows
   const [expandedSources, setExpandedSources] = useState<Set<number>>(new Set());
@@ -77,7 +84,7 @@ const EventDetails: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Load event, recipes, and shopping list
+  // Load event, recipes, shopping list, and participants
   useEffect(() => {
     const loadData = async () => {
       if (!eventId) return;
@@ -86,15 +93,17 @@ const EventDetails: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const [eventData, recipesData, shoppingListData] = await Promise.all([
+        const [eventData, recipesData, shoppingListData, membersData] = await Promise.all([
           getEvent(parseInt(eventId, 10)),
           listRecipes(),
           getShoppingList(parseInt(eventId, 10)),
+          listParticipants(parseInt(eventId, 10)),
         ]);
 
         setEvent(eventData);
         setRecipes(recipesData);
         setShoppingList(shoppingListData);
+        setMembers(membersData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load event');
       } finally {
@@ -172,6 +181,39 @@ const EventDetails: React.FC = () => {
     // TODO: Implement backend endpoint for deleting recipes from events
     setError('Delete recipe feature coming soon - need backend support');
   };
+
+  // Handle add participant
+  const handleAddParticipant = async () => {
+    if (!eventId || !newParticipantEmail.trim()) return;
+
+    try {
+      setAddingParticipant(true);
+      const newMember = await addParticipant(parseInt(eventId, 10), {
+        email: newParticipantEmail.trim(),
+      });
+      setMembers([...members, newMember]);
+      setNewParticipantEmail('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add participant');
+    } finally {
+      setAddingParticipant(false);
+    }
+  };
+
+  // Handle remove participant
+  const handleRemoveParticipant = async (memberId: number) => {
+    if (!eventId) return;
+
+    try {
+      await removeParticipant(parseInt(eventId, 10), memberId);
+      setMembers(members.filter(m => m.id !== memberId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove participant');
+    }
+  };
+
+  // Check if current user is owner (we'll assume they are if they can edit/delete)
+  const isOwner = true; // This would normally check against current user
 
   // Handle delete event
   const handleDeleteEventClick = () => {
@@ -290,7 +332,92 @@ const EventDetails: React.FC = () => {
           </Box>
         </Paper>
 
-        {/* Attached Recipes Section */}
+        {/* Participants Section */}
+        <Paper variant="outlined" sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Participants
+          </Typography>
+          
+          {/* Add participant form (owner only) */}
+          {isOwner && (
+            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <TextField
+                size="small"
+                placeholder="Enter email"
+                value={newParticipantEmail}
+                onChange={(e) => setNewParticipantEmail(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') handleAddParticipant();
+                }}
+                sx={{ flex: 1 }}
+              />
+              <Button
+                variant="contained"
+                onClick={handleAddParticipant}
+                disabled={addingParticipant || !newParticipantEmail.trim()}
+                sx={{
+                  backgroundColor: "#8A6A2F",
+                  "&:hover": { backgroundColor: "#6F5624" },
+                }}
+              >
+                {addingParticipant ? 'Adding...' : 'Add'}
+              </Button>
+            </Stack>
+          )}
+
+          {/* Participants list */}
+          {members && members.length > 0 ? (
+            <List disablePadding>
+              {members.map((member) => (
+                <ListItem
+                  key={member.id}
+                  disableGutters
+                  sx={{
+                    py: 1,
+                    px: 1,
+                    borderRadius: 1,
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box>
+                    <Typography variant="body2">{member.email}</Typography>
+                    <Stack direction="row" spacing={1}>
+                      <Chip
+                        label={member.role}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          mt: 0.5,
+                          backgroundColor: member.role === 'owner' ? 'rgba(138, 106, 47, 0.1)' : undefined,
+                        }}
+                      />
+                      {member.status === 'invited' && (
+                        <Chip label="Invited" size="small" color="warning" variant="outlined" />
+                      )}
+                    </Stack>
+                  </Box>
+                  {isOwner && member.role !== 'owner' && (
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleRemoveParticipant(member.id)}
+                      sx={{ p: 0.5 }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
+              No participants yet
+            </Typography>
+          )}
+        </Paper>
         <Typography variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
           Attached Recipes
         </Typography>

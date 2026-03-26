@@ -8,6 +8,8 @@ import {
   EventRead,
   EventRecipeAttach,
   ShoppingListResponse,
+  EventMemberRead,
+  ParticipantAddRequest,
 } from "../types/api";
 
 export async function createEvent(payload: EventCreateRequest): Promise<EventRead> {
@@ -53,5 +55,26 @@ export async function attachRecipe(
 
 export async function getShoppingList(eventId: number): Promise<ShoppingListResponse> {
   return apiFetch<ShoppingListResponse>(`/api/events/${eventId}/shopping-list`);
+}
+
+// Participant functions
+export async function listParticipants(eventId: number): Promise<EventMemberRead[]> {
+  return apiFetch<EventMemberRead[]>(`/api/events/${eventId}/participants`);
+}
+
+export async function addParticipant(
+  eventId: number,
+  payload: ParticipantAddRequest
+): Promise<EventMemberRead> {
+  return apiFetch<EventMemberRead>(`/api/events/${eventId}/participants`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function removeParticipant(eventId: number, memberId: number): Promise<void> {
+  return apiFetch<void>(`/api/events/${eventId}/participants/${memberId}`, {
+    method: "DELETE",
+  });
 }
 

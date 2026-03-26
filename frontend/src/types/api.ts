@@ -1,7 +1,43 @@
 /**
- * API types for recipes and events.
+ * API types for recipes, events, and authentication.
  */
 
+// Auth types
+export interface UserRead {
+  id: number;
+  email: string;
+  displayName?: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  displayName?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: UserRead;
+  accessToken: string;
+}
+
+// Participant types
+export interface ParticipantAddRequest {
+  email: string;
+}
+
+export interface EventMemberRead {
+  id: number;
+  email: string;
+  role: "owner" | "participant";
+  status: "active" | "invited";
+}
+
+// Recipe types
 export interface RecipeIngredient {
   name: string;
   quantity: number | null;
@@ -55,6 +91,7 @@ export interface RecipeListItem {
   description?: string;
 }
 
+// Event types
 export interface EventCreateRequest {
   name: string;
   targetServings: number;
@@ -80,8 +117,10 @@ export interface EventRead {
   name: string;
   targetServings: number;
   recipes?: EventRecipeRead[];
+  members?: EventMemberRead[];
 }
 
+// Shopping list types
 export interface ShoppingListSource {
   recipeId: number;
   recipeName: string;

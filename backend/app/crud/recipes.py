@@ -8,7 +8,7 @@ from app.schemas.recipe import RecipeCreate, RecipeUpdate
 from app.crud.ingredients import create_ingredient
 
 
-def create_recipe(db: Session, payload: RecipeCreate) -> Recipe:
+def create_recipe(db: Session, payload: RecipeCreate, owner_user_id: int) -> Recipe:
     """Create a new recipe with ingredients."""
     # Create the recipe
     db_recipe = Recipe(
@@ -17,6 +17,7 @@ def create_recipe(db: Session, payload: RecipeCreate) -> Recipe:
         base_servings=payload.baseServings,
         instructions_html=payload.instructionsHtml,
         image_url=payload.imageUrl or None,
+        owner_user_id=owner_user_id,
     )
     db.add(db_recipe)
     db.flush()  # Flush to get the recipe ID without committing
@@ -42,32 +43,42 @@ def create_recipe(db: Session, payload: RecipeCreate) -> Recipe:
     return db_recipe
 
 
-def list_recipes(db: Session, limit: int = 50) -> list[Recipe]:
-    """List all recipes."""
-    return db.query(Recipe).limit(limit).all()
+def list_recipes(db: Session, owner_user_id: int, limit: int = 50) -> list[Recipe]:
+    """List recipes owned by a specific user."""
+    return db.query(Recipe).filter(Recipe.owner_user_id == owner_user_id).limit(limit).all()
 
 
-def get_recipe_by_id(db: Session, recipe_id: int) -> Recipe | None:
-    """Get a specific recipe by ID."""
-    return db.query(Recipe).filter(Recipe.id == recipe_id).first()
+def get_recipe_by_id(db: Session, recipe_id: int, owner_user_id: int = None) -> Recipe | None:
+    """
+    Get a recipe by ID.
+    If owner_user_id is provided, only returns if the user owns it.
+    """
+    query = db.query(Recipe).filter(Recipe.id == recipe_id)
+    if owner_user_id is not None:
+        query = query.filter(Recipe.owner_user_id == owner_user_id)
+    return query.first()
 
 
-def get_recipe_with_ingredients(db: Session, recipe_id: int) -> Recipe | None:
-    """Get a recipe with all its ingredients and ingredient details loaded."""
-    recipe = (
+def get_recipe_with_ingredients(db: Session, recipe_id: int, owner_user_id: int = None) -> Recipe | None:
+    """
+    Get a recipe with all its ingredients and ingredient details loaded.
+    If owner_user_id is provided, only returns if the user owns it.
+    """
+    query = (
         db.query(Recipe)
         .options(selectinload(Recipe.ingredients).selectinload(RecipeIngredient.ingredient))
         .filter(Recipe.id == recipe_id)
-        .first()
     )
-    return recipe
+    if owner_user_id is not None:
+        query = query.filter(Recipe.owner_user_id == owner_user_id)
+    return query.first()
 
 
-def update_recipe(db: Session, recipe_id: int, payload: RecipeUpdate) -> Recipe:
-    """Update a recipe and its ingredients atomically."""
-    recipe = get_recipe_by_id(db, recipe_id)
+def update_recipe(db: Session, recipe_id: int, payload: RecipeUpdate, owner_user_id: int) -> Recipe:
+    """Update a recipe and its ingredients atomically. Enforces ownership."""
+    recipe = get_recipe_by_id(db, recipe_id, owner_user_id)
     if not recipe:
-        raise ValueError(f"Recipe {recipe_id} not found")
+        raise ValueError(f"Recipe {recipe_id} not found or access denied")
     
     # Update basic fields
     recipe.name = payload.name
@@ -98,13 +109,13 @@ def update_recipe(db: Session, recipe_id: int, payload: RecipeUpdate) -> Recipe:
     return recipe
 
 
-def delete_recipe(db: Session, recipe_id: int) -> None:
-    """Delete a recipe. Raises ValueError if recipe is attached to events."""
+def delete_recipe(db: Session, recipe_id: int, owner_user_id: int) -> None:
+    """Delete a recipe. Enforces ownership. Raises ValueError if not owner or attached to events."""
     from app.db.models.event_recipe import EventRecipe
     
-    recipe = get_recipe_by_id(db, recipe_id)
+    recipe = get_recipe_by_id(db, recipe_id, owner_user_id)
     if not recipe:
-        raise ValueError(f"Recipe {recipe_id} not found")
+        raise ValueError(f"Recipe {recipe_id} not found or access denied")
     
     # Check if recipe is attached to any events
     event_count = db.query(EventRecipe).filter(EventRecipe.recipe_id == recipe_id).count()

@@ -2,7 +2,7 @@
 Recipe database model.
 """
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, DateTime, func
+from sqlalchemy import Column, Integer, String, Text, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 
@@ -16,6 +16,7 @@ class Recipe(Base):
     base_servings = Column(Integer, nullable=False)
     instructions_html = Column(Text, nullable=True)
     image_url = Column(String, nullable=True)
+    owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,
