@@ -1,12 +1,14 @@
 """
 Event Pydantic schemas with camelCase.
 """
+from datetime import date
 from pydantic import BaseModel, Field
 
 
 class EventCreate(BaseModel):
     """Schema for creating an event."""
     name: str = Field(..., min_length=1, max_length=255)
+    event_date: date = Field(alias="eventDate")
     target_servings: int = Field(alias="targetServings", gt=0)
     
     class Config:
@@ -16,6 +18,7 @@ class EventCreate(BaseModel):
 class EventUpdate(BaseModel):
     """Schema for updating an event."""
     name: str = Field(..., min_length=1, max_length=255)
+    event_date: date = Field(alias="eventDate")
     target_servings: int = Field(alias="targetServings", gt=0)
     
     class Config:
@@ -47,6 +50,7 @@ class EventRead(BaseModel):
     """Schema for reading an event."""
     id: int
     name: str
+    event_date: date = Field(alias="eventDate")
     target_servings: int = Field(alias="targetServings")
     recipes: list[EventRecipeRead] = []
     

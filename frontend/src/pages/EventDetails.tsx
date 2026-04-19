@@ -355,6 +355,9 @@ const EventDetails: React.FC = () => {
               <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
                 {event.name}
               </Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                Date: {new Date(event.eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </Typography>
               <Typography variant="body2" color="textSecondary">
                 Target Servings: {event.targetServings}
               </Typography>

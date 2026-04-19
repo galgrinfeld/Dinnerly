@@ -57,6 +57,22 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
 
         {/* Event Metadata */}
         <Stack spacing={1.5}>
+          {/* Event Date */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              color: "#5C524E",
+              fontSize: "0.875rem",
+            }}
+          >
+            <span>📅</span>
+            <Typography variant="body2">
+              <strong>{new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</strong>
+            </Typography>
+          </Box>
+
           {/* Target Servings */}
           <Box
             sx={{

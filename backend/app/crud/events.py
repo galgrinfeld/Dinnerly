@@ -36,6 +36,7 @@ def serialize_event(db: Session, event: Event) -> EventRead:
     return EventRead(
         id=event.id,
         name=event.name,
+        event_date=event.event_date,
         target_servings=event.target_servings,
         recipes=recipes,
     )
@@ -78,6 +79,7 @@ def create_event(db: Session, data: EventCreate, owner_user_id: int) -> Event:
     
     db_event = Event(
         name=data.name,
+        event_date=data.event_date,
         target_servings=data.target_servings,
         owner_user_id=owner_user_id,
     )
@@ -168,6 +170,7 @@ def update_event(db: Session, event_id: int, data: EventUpdate, owner_user_id: i
         raise ValueError("Only event owner can update")
     
     event.name = data.name
+    event.event_date = data.event_date
     event.target_servings = data.target_servings
     
     db.commit()

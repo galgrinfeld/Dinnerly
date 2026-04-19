@@ -1,8 +1,8 @@
 """
 Event database model.
 """
-from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey
+from datetime import datetime, timezone, date
+from sqlalchemy import Column, Integer, String, DateTime, Date, func, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 
@@ -12,6 +12,7 @@ class Event(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
+    event_date = Column(Date, nullable=False)
     target_servings = Column(Integer, nullable=False)
     owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     created_at = Column(

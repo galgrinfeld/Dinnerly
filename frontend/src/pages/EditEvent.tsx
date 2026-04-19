@@ -7,6 +7,10 @@ import {
   CircularProgress,
   TextField,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { EventFormPage } from "./EventFormPage";
 import { getEvent, updateEvent } from "../api/events";
 import { EventUpdateRequest, EventRead } from "../types/api";
@@ -18,6 +22,7 @@ export const EditEvent: React.FC = () => {
   const [event, setEvent] = useState<EventRead | null>(null);
   const [formData, setFormData] = useState({
     name: "",
+    eventDate: null as Dayjs | null,
     targetServings: 0,
   });
 
@@ -39,6 +44,7 @@ export const EditEvent: React.FC = () => {
         setEvent(data);
         setFormData({
           name: data.name,
+          eventDate: dayjs(data.eventDate),
           targetServings: data.targetServings,
         });
       } catch (err) {
@@ -57,6 +63,12 @@ export const EditEvent: React.FC = () => {
     setValidationError(null);
   };
 
+  const handleDateChange = (newDate: Dayjs | null) => {
+    setFormData({ ...formData, eventDate: newDate });
+    setSaveError(null);
+    setValidationError(null);
+  };
+
   const handleServingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     setFormData({ ...formData, targetServings: isNaN(value) ? 0 : value });
@@ -67,6 +79,10 @@ export const EditEvent: React.FC = () => {
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
       setValidationError("Event name is required");
+      return false;
+    }
+    if (!formData.eventDate) {
+      setValidationError("Event date is required");
       return false;
     }
     if (formData.targetServings <= 0) {
@@ -86,6 +102,7 @@ export const EditEvent: React.FC = () => {
 
       const payload: EventUpdateRequest = {
         name: formData.name.trim(),
+        eventDate: formData.eventDate!.format("YYYY-MM-DD"),
         targetServings: formData.targetServings,
       };
 
@@ -136,48 +153,68 @@ export const EditEvent: React.FC = () => {
   const error = saveError || validationError;
 
   return (
-    <EventFormPage
-      title="Edit Event"
-      subtitle="Update the basic details of your event."
-      submitLabel="Save Changes"
-      onSubmit={handleSave}
-      onCancel={handleCancel}
-      isLoading={saving}
-      error={error}
-      success={success}
-    >
-      {/* Event Name */}
-      <TextField
-        label="Event Name"
-        fullWidth
-        value={formData.name}
-        onChange={handleNameChange}
-        error={!formData.name.trim() && validationError !== null}
-        helperText={
-          !formData.name.trim() && validationError !== null
-            ? "Event name is required"
-            : ""
-        }
-        placeholder="e.g. Dinner Party"
-        disabled={saving}
-      />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <EventFormPage
+        title="Edit Event"
+        subtitle="Update the basic details of your event."
+        submitLabel="Save Changes"
+        onSubmit={handleSave}
+        onCancel={handleCancel}
+        isLoading={saving}
+        error={error}
+        success={success}
+      >
+        {/* Event Name */}
+        <TextField
+          label="Event Name"
+          fullWidth
+          value={formData.name}
+          onChange={handleNameChange}
+          error={!formData.name.trim() && validationError !== null}
+          helperText={
+            !formData.name.trim() && validationError !== null
+              ? "Event name is required"
+              : ""
+          }
+          placeholder="e.g. Dinner Party"
+          disabled={saving}
+        />
 
-      {/* Target Servings */}
-      <TextField
-        label="Target Servings"
-        type="number"
-        value={formData.targetServings}
-        onChange={handleServingsChange}
-        error={formData.targetServings <= 0 && validationError !== null}
-        helperText={
-          formData.targetServings <= 0 && validationError !== null
-            ? "Target servings must be greater than 0"
-            : ""
-        }
-        inputProps={{ min: 1 }}
-        disabled={saving}
-      />
-    </EventFormPage>
+        {/* Event Date */}
+        <DatePicker
+          label="Event Date"
+          value={formData.eventDate}
+          onChange={handleDateChange}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              error: !formData.eventDate && validationError !== null,
+              helperText:
+                !formData.eventDate && validationError !== null
+                  ? "Event date is required"
+                  : "",
+              disabled: saving,
+            },
+          }}
+        />
+
+        {/* Target Servings */}
+        <TextField
+          label="Target Servings"
+          type="number"
+          value={formData.targetServings}
+          onChange={handleServingsChange}
+          error={formData.targetServings <= 0 && validationError !== null}
+          helperText={
+            formData.targetServings <= 0 && validationError !== null
+              ? "Target servings must be greater than 0"
+              : ""
+          }
+          inputProps={{ min: 1 }}
+          disabled={saving}
+        />
+      </EventFormPage>
+    </LocalizationProvider>
   );
 };
 

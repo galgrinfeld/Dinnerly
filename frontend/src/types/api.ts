@@ -94,11 +94,13 @@ export interface RecipeListItem {
 // Event types
 export interface EventCreateRequest {
   name: string;
+  eventDate: string; // ISO date format (YYYY-MM-DD)
   targetServings: number;
 }
 
 export interface EventUpdateRequest {
   name: string;
+  eventDate: string; // ISO date format (YYYY-MM-DD)
   targetServings: number;
 }
 
@@ -117,6 +119,7 @@ export interface EventRecipeRead {
 export interface EventRead {
   id: number;
   name: string;
+  eventDate: string; // ISO date format (YYYY-MM-DD)
   targetServings: number;
   recipes?: EventRecipeRead[];
   members?: EventMemberRead[];
