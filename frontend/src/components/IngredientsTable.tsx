@@ -3,16 +3,16 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TextField,
   Select,
   MenuItem,
   Checkbox,
   IconButton,
   Box,
+  Button,
+  Stack,
 } from "@mui/material";
 import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
 import { IngredientRow, IngredientUnit, createEmptyIngredientRow } from "../types/recipe";
@@ -46,105 +46,220 @@ export const IngredientsTable: React.FC<IngredientsTableProps> = ({ ingredients,
   };
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 2 }}>
-      <Table>
-        <TableHead>
-          <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-            <TableCell sx={{ fontWeight: "bold" }}>Ingredient</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: 100 }}>Qty</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: 110 }}>Unit</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Note</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: 100, textAlign: "center" }}>Optional</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: 60, textAlign: "center" }}>Remove</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {ingredients.map((ingredient, index) => (
-            <TableRow key={ingredient.id}>
-              <TableCell>
-                <TextField
-                  size="small"
-                  fullWidth
-                  value={ingredient.name}
-                  onChange={(e) => handleChange(index, "name", e.target.value)}
-                  placeholder="e.g. Tomato"
-                />
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box
+        sx={{
+          backgroundColor: "#FFFFFF",
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      >
+        <Table sx={{ tableLayout: "auto" }}>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "#FAFAF8", borderBottom: "1px solid #E8E4DF" }}>
+              <TableCell sx={{ fontWeight: 600, color: "#171717", py: 1.5, fontSize: "0.9rem" }}>
+                Ingredient
               </TableCell>
-              <TableCell>
-                <TextField
-                  size="small"
-                  type="number"
-                  value={ingredient.quantity}
-                  onChange={(e) => handleChange(index, "quantity", e.target.value)}
-                  placeholder="0"
-                  inputProps={{ step: "0.01" }}
-                />
-              </TableCell>
-              <TableCell>
-                <Select
-                  size="small"
-                  value={ingredient.unit}
-                  onChange={(e) => handleChange(index, "unit", e.target.value as IngredientUnit)}
-                  fullWidth
-                >
-                  {UNIT_OPTIONS.map((unit) => (
-                    <MenuItem key={unit} value={unit}>
-                      {unit}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </TableCell>
-              <TableCell>
-                <TextField
-                  size="small"
-                  fullWidth
-                  value={ingredient.note}
-                  onChange={(e) => handleChange(index, "note", e.target.value)}
-                  placeholder="Optional"
-                />
-              </TableCell>
-              <TableCell sx={{ textAlign: "center" }}>
-                <Checkbox
-                  checked={ingredient.optional}
-                  onChange={(e) => handleChange(index, "optional", e.target.checked)}
-                />
-              </TableCell>
-              <TableCell sx={{ textAlign: "center" }}>
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => handleRemove(index)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-          <TableRow
-            onClick={handleAddIngredient}
-            sx={{
-              cursor: "pointer",
-              "&:hover": { backgroundColor: "#f9f9f9" },
-            }}
-          >
-            <TableCell colSpan={6}>
-              <Box
+              <TableCell
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  py: 1,
-                  color: "#666",
-                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                  color: "#171717",
+                  width: 90,
+                  py: 1.5,
+                  fontSize: "0.9rem",
                 }}
               >
-                <AddIcon sx={{ mr: 1, fontSize: "1.2rem" }} />
-                Add Ingredient
-              </Box>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
+                Qty
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "#171717",
+                  width: 100,
+                  py: 1.5,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Unit
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "#171717",
+                  py: 1.5,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Note
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "#171717",
+                  width: 90,
+                  textAlign: "center",
+                  py: 1.5,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Optional
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "#171717",
+                  width: 70,
+                  textAlign: "center",
+                  py: 1.5,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Remove
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {ingredients.map((ingredient, index) => (
+              <TableRow
+                key={ingredient.id}
+                sx={{
+                  borderBottom: "1px solid #E8E4DF",
+                  "&:last-child": {
+                    borderBottom: "none",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#FFFBF7",
+                  },
+                  transition: "background-color 0.15s",
+                }}
+              >
+                <TableCell sx={{ py: 1.25, pl: 2, pr: 1 }}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={ingredient.name}
+                    onChange={(e) =>
+                      handleChange(index, "name", e.target.value)
+                    }
+                    placeholder="e.g. Tomato"
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        fontSize: "0.9rem",
+                      },
+                    }}
+                  />
+                </TableCell>
+                <TableCell sx={{ py: 1.25, px: 0.5 }}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={ingredient.quantity}
+                    onChange={(e) =>
+                      handleChange(index, "quantity", e.target.value)
+                    }
+                    placeholder="0"
+                    inputProps={{ step: "0.01" }}
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        fontSize: "0.9rem",
+                      },
+                    }}
+                  />
+                </TableCell>
+                <TableCell sx={{ py: 1.25, px: 0.5 }}>
+                  <Select
+                    size="small"
+                    value={ingredient.unit}
+                    onChange={(e) =>
+                      handleChange(index, "unit", e.target.value as IngredientUnit)
+                    }
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {UNIT_OPTIONS.map((unit) => (
+                      <MenuItem key={unit} value={unit}>
+                        {unit}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </TableCell>
+                <TableCell sx={{ py: 1.25, px: 0.5 }}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={ingredient.note}
+                    onChange={(e) => handleChange(index, "note", e.target.value)}
+                    placeholder="Optional"
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        fontSize: "0.9rem",
+                      },
+                    }}
+                  />
+                </TableCell>
+                <TableCell sx={{ textAlign: "center", py: 1.25, px: 0.5 }}>
+                  <Checkbox
+                    checked={ingredient.optional}
+                    onChange={(e) =>
+                      handleChange(index, "optional", e.target.checked)
+                    }
+                    sx={{
+                      color: "#8A6A2F",
+                      "&.Mui-checked": {
+                        color: "#8A6A2F",
+                      },
+                    }}
+                  />
+                </TableCell>
+                <TableCell sx={{ textAlign: "center", py: 1.25, pr: 2 }}>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => handleRemove(index)}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "rgba(211, 47, 47, 0.08)",
+                      },
+                    }}
+                  >
+                    <DeleteIcon sx={{ fontSize: "1.1rem" }} />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+
+      {/* Add Ingredient Button */}
+      <Stack sx={{ justifyContent: "flex-start", pt: 1 }}>
+        <Button
+          startIcon={<AddIcon />}
+          onClick={handleAddIngredient}
+          variant="outlined"
+          size="small"
+          sx={{
+            width: "fit-content",
+            borderColor: "#B39760",
+            color: "#2B2522",
+            textTransform: "none",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "rgba(138, 106, 47, 0.05)",
+              borderColor: "#A68B5B",
+            },
+          }}
+        >
+          Add Ingredient
+        </Button>
+      </Stack>
+    </Box>
   );
 };
