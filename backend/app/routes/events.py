@@ -38,7 +38,8 @@ def list_events(
     current_user: User = Depends(get_current_user),
 ):
     """List events accessible to current user (owned or participant in)."""
-    return events_crud.list_events_for_user(db, user_id=current_user.id)
+    events = events_crud.list_events_for_user(db, user_id=current_user.id)
+    return [events_crud.serialize_event(db, event) for event in events]
 
 
 @router.get("/{event_id}", response_model=EventRead)

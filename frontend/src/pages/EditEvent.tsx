@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
-  TextField,
-  Button,
-  Stack,
   Box,
-  Typography,
   Alert,
   CircularProgress,
+  TextField,
 } from "@mui/material";
+import { EventFormPage } from "./EventFormPage";
 import { getEvent, updateEvent } from "../api/events";
 import { EventUpdateRequest, EventRead } from "../types/api";
 
@@ -28,6 +26,7 @@ export const EditEvent: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   // Load event data on mount
   useEffect(() => {
@@ -54,11 +53,15 @@ export const EditEvent: React.FC = () => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, name: e.target.value });
+    setSaveError(null);
+    setValidationError(null);
   };
 
   const handleServingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     setFormData({ ...formData, targetServings: isNaN(value) ? 0 : value });
+    setSaveError(null);
+    setValidationError(null);
   };
 
   const validateForm = (): boolean => {
@@ -88,8 +91,10 @@ export const EditEvent: React.FC = () => {
 
       await updateEvent(event.id, payload);
 
-      // Navigate back to EventDetails on success
-      navigate(`/events/${event.id}`, { replace: true });
+      setSuccess(true);
+      setTimeout(() => {
+        navigate(`/events/${event.id}`, { replace: true });
+      }, 1500);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to update event";
       setSaveError(message);
@@ -106,85 +111,74 @@ export const EditEvent: React.FC = () => {
     }
   };
 
+  // Show loading spinner while fetching event data
   if (loading) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
           <CircularProgress />
         </Box>
       </Container>
     );
   }
 
+  // Show error if event failed to load
   if (loadError) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error">{loadError}</Alert>
-        <Button onClick={() => navigate("/")} sx={{ mt: 2 }}>
-          Back to Home
-        </Button>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {loadError}
+        </Alert>
       </Container>
     );
   }
 
+  const error = saveError || validationError;
+
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
-        Edit Event
-      </Typography>
+    <EventFormPage
+      title="Edit Event"
+      subtitle="Update the basic details of your event."
+      submitLabel="Save Changes"
+      onSubmit={handleSave}
+      onCancel={handleCancel}
+      isLoading={saving}
+      error={error}
+      success={success}
+    >
+      {/* Event Name */}
+      <TextField
+        label="Event Name"
+        fullWidth
+        value={formData.name}
+        onChange={handleNameChange}
+        error={!formData.name.trim() && validationError !== null}
+        helperText={
+          !formData.name.trim() && validationError !== null
+            ? "Event name is required"
+            : ""
+        }
+        placeholder="e.g. Dinner Party"
+        disabled={saving}
+      />
 
-      {saveError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {saveError}
-        </Alert>
-      )}
-
-      {validationError && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {validationError}
-        </Alert>
-      )}
-
-      <Stack spacing={3}>
-        <TextField
-          label="Event Name"
-          value={formData.name}
-          onChange={handleNameChange}
-          fullWidth
-          disabled={saving}
-          error={!!validationError && !formData.name.trim()}
-        />
-
-        <TextField
-          label="Target Servings"
-          type="number"
-          value={formData.targetServings}
-          onChange={handleServingsChange}
-          fullWidth
-          disabled={saving}
-          inputProps={{ min: 1 }}
-          error={!!validationError && formData.targetServings <= 0}
-        />
-
-        <Box sx={{ display: "flex", gap: 2, pt: 2 }}>
-          <Button
-            variant="contained"
-            onClick={handleSave}
-            disabled={saving}
-            fullWidth
-          >
-            {saving ? "Saving..." : "Save"}
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={handleCancel}
-            disabled={saving}
-            fullWidth
-          >
-            Cancel
-          </Button>
-        </Box>
-      </Stack>
-    </Container>
+      {/* Target Servings */}
+      <TextField
+        label="Target Servings"
+        type="number"
+        value={formData.targetServings}
+        onChange={handleServingsChange}
+        error={formData.targetServings <= 0 && validationError !== null}
+        helperText={
+          formData.targetServings <= 0 && validationError !== null
+            ? "Target servings must be greater than 0"
+            : ""
+        }
+        inputProps={{ min: 1 }}
+        disabled={saving}
+      />
+    </EventFormPage>
   );
 };
+
+export default EditEvent;

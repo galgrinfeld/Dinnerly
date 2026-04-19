@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Container,
-  TextField,
-  Button,
-  Stack,
-  Box,
-  Typography,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
-import { IngredientsTable } from "../components/IngredientsTable";
-import { RichTextEditor } from "../components/RichTextEditor";
+import { Box, CircularProgress, Container, Stack, Alert, Button } from "@mui/material";
+import { RecipeFormLayout } from "./RecipeFormLayout";
 import { getRecipe, updateRecipe } from "../api/recipes";
 import {
   RecipeFormState,
@@ -33,6 +23,7 @@ export const EditRecipe: React.FC = () => {
     imageUrl: "",
   });
 
+  const [originalFormState, setOriginalFormState] = useState<RecipeFormState | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -48,7 +39,7 @@ export const EditRecipe: React.FC = () => {
         setLoading(true);
         setLoadError(null);
         const recipe = await getRecipe(parseInt(recipeId, 10));
-        
+
         // Convert RecipeRead to RecipeFormState
         const ingredients: IngredientRow[] = (recipe.ingredients || []).map((ing, idx) => ({
           id: idx.toString(),
@@ -59,14 +50,17 @@ export const EditRecipe: React.FC = () => {
           optional: ing.optional || false,
         }));
 
-        setFormState({
+        const formData: RecipeFormState = {
           name: recipe.name,
           description: recipe.description || "",
           baseServings: recipe.baseServings,
           ingredients: ingredients.length > 0 ? ingredients : [createEmptyIngredientRow()],
           instructions: recipe.instructionsHtml || "",
           imageUrl: recipe.imageUrl || "",
-        });
+        };
+
+        setFormState(formData);
+        setOriginalFormState(formData);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to load recipe";
         setLoadError(errorMsg);
@@ -163,6 +157,20 @@ export const EditRecipe: React.FC = () => {
     }
   };
 
+  const handleReset = () => {
+    // Reset back to original loaded recipe values (not empty)
+    if (originalFormState) {
+      setFormState(originalFormState);
+    }
+    setSubmitted(false);
+    setValidationError(null);
+    setSuccessMessage(null);
+  };
+
+  const handleCancel = () => {
+    navigate(`/recipes/${recipeId}`);
+  };
+
   if (loading) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
@@ -189,118 +197,22 @@ export const EditRecipe: React.FC = () => {
   const nameError = submitted && !formState.name.trim();
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: "bold" }}>
-        Edit Recipe
-      </Typography>
-
-      <Stack spacing={3}>
-        {/* Success Alert */}
-        {successMessage && (
-          <Alert severity="success">
-            {successMessage}
-          </Alert>
-        )}
-
-        {/* Error Alert */}
-        {validationError && (
-          <Alert severity="error">
-            {validationError}
-          </Alert>
-        )}
-
-        {/* Recipe Name */}
-        <TextField
-          label="Recipe Name"
-          fullWidth
-          value={formState.name}
-          onChange={(e) => handleFieldChange("name", e.target.value)}
-          error={nameError}
-          helperText={nameError ? "Recipe name is required" : ""}
-          placeholder="e.g. Spaghetti Carbonara"
-          disabled={saving}
-        />
-
-        {/* Description */}
-        <TextField
-          label="Description"
-          fullWidth
-          multiline
-          minRows={2}
-          value={formState.description}
-          onChange={(e) => handleFieldChange("description", e.target.value)}
-          placeholder="Optional description of your recipe"
-          disabled={saving}
-        />
-
-        {/* Image URL */}
-        <TextField
-          label="Image URL (optional)"
-          fullWidth
-          value={formState.imageUrl || ""}
-          onChange={(e) =>
-            handleFieldChange("imageUrl", e.target.value.trim() || null)
-          }
-          placeholder="https://example.com/image.jpg"
-          disabled={saving}
-        />
-
-        {/* Base Servings */}
-        <TextField
-          label="Base Servings"
-          type="number"
-          value={formState.baseServings}
-          onChange={(e) => handleFieldChange("baseServings", parseInt(e.target.value) || 1)}
-          inputProps={{ min: 1 }}
-          sx={{ maxWidth: 200 }}
-          disabled={saving}
-        />
-
-        {/* Ingredients Section */}
-        <Box>
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Ingredients
-          </Typography>
-          <IngredientsTable
-            ingredients={formState.ingredients}
-            onChange={handleIngredientsChange}
-          />
-        </Box>
-
-        {/* Instructions */}
-        <Box>
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Instructions
-          </Typography>
-          <RichTextEditor
-            value={formState.instructions}
-            onChange={(nextHtml) => handleFieldChange("instructions", nextHtml)}
-            placeholder="Step-by-step cooking instructions"
-          />
-        </Box>
-
-        {/* Actions */}
-        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleSave}
-            disabled={saving}
-            sx={{ position: "relative" }}
-          >
-            {saving ? <CircularProgress size={24} /> : "Save Changes"}
-          </Button>
-          <Button
-            variant="outlined"
-            size="large"
-            onClick={() => navigate(`/recipes/${recipeId}`)}
-            disabled={saving}
-          >
-            Cancel
-          </Button>
-        </Stack>
-      </Stack>
-    </Container>
+    <RecipeFormLayout
+      title="Edit Recipe"
+      subtitle="Update your recipe details, ingredients, image, and instructions."
+      submitLabel="Save Changes"
+      formState={formState}
+      onFieldChange={handleFieldChange}
+      onIngredientsChange={handleIngredientsChange}
+      onSave={handleSave}
+      onReset={handleReset}
+      onCancel={handleCancel}
+      isLoading={saving}
+      validationError={validationError}
+      successMessage={successMessage}
+      nameError={nameError}
+      submitted={submitted}
+    />
   );
 };
 

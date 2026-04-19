@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Container,
-  TextField,
-  Button,
-  Stack,
-  Typography,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
+import { TextField } from "@mui/material";
+import { EventFormPage } from "./EventFormPage";
 import { createEvent } from "../api/events";
 
 export const CreateEvent: React.FC = () => {
@@ -42,13 +35,13 @@ export const CreateEvent: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      await createEvent({
+      const result = await createEvent({
         name,
         targetServings,
       });
       setSuccess(true);
       setTimeout(() => {
-        navigate("/");
+        navigate(`/events/${result.id}`);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create event");
@@ -57,87 +50,51 @@ export const CreateEvent: React.FC = () => {
     }
   };
 
-  const handleReset = () => {
-    setName("");
-    setTargetServings(4);
-    setError(null);
-    setSuccess(false);
-    setSubmitted(false);
+  const handleCancel = () => {
+    navigate("/");
   };
 
   const nameError = submitted && !name.trim();
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: "bold" }}>
-        Create Event
-      </Typography>
+    <EventFormPage
+      title="Create New Event"
+      subtitle="Start by naming your event and setting the target servings. You'll add participants and recipes next."
+      submitLabel="Create Event"
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+      isLoading={loading}
+      error={error}
+      success={success}
+    >
+      {/* Event Name */}
+      <TextField
+        label="Event Name"
+        fullWidth
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+          setError(null);
+        }}
+        error={nameError}
+        helperText={nameError ? "Event name is required" : ""}
+        placeholder="e.g. Dinner Party"
+        disabled={loading}
+      />
 
-      <Stack spacing={3}>
-        {/* Success Alert */}
-        {success && (
-          <Alert severity="success">
-            Event created successfully! Redirecting to home...
-          </Alert>
-        )}
-
-        {/* Error Alert */}
-        {error && (
-          <Alert severity="error">
-            {error}
-          </Alert>
-        )}
-
-        {/* Event Name */}
-        <TextField
-          label="Event Name"
-          fullWidth
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          error={nameError}
-          helperText={nameError ? "Event name is required" : ""}
-          placeholder="e.g. Dinner Party"
-          disabled={loading}
-        />
-
-        {/* Target Servings */}
-        <TextField
-          label="Target Servings"
-          type="number"
-          value={targetServings}
-          onChange={(e) => setTargetServings(Math.max(1, parseInt(e.target.value) || 1))}
-          inputProps={{ min: 1 }}
-          disabled={loading}
-        />
-
-        {/* Actions */}
-        <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleSubmit}
-            disabled={loading || success}
-            sx={{ position: "relative" }}
-          >
-            {loading ? <CircularProgress size={24} /> : "Create Event"}
-          </Button>
-          <Button
-            variant="outlined"
-            size="large"
-            onClick={handleReset}
-            disabled={loading || success}
-          >
-            Reset
-          </Button>
-          <Button
-            variant="text"
-            onClick={() => navigate("/")}
-          >
-            Back to Home
-          </Button>
-        </Stack>
-      </Stack>
-    </Container>
+      {/* Target Servings */}
+      <TextField
+        label="Target Servings"
+        type="number"
+        value={targetServings}
+        onChange={(e) => {
+          setTargetServings(Math.max(1, parseInt(e.target.value) || 1));
+          setError(null);
+        }}
+        inputProps={{ min: 1 }}
+        disabled={loading}
+      />
+    </EventFormPage>
   );
 };
 
