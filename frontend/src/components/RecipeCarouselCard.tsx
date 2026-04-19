@@ -89,9 +89,9 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
-            WebkitLineClamp: 2,
+            WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
-            minHeight: "2.4em",
+            minHeight: "1.2em",
           }}
         >
           {recipe.description || "No description provided"}

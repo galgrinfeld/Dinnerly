@@ -280,17 +280,30 @@ export const Home: React.FC = () => {
 
         {/* Events Section */}
         <Box>
-          <Typography
-            variant="h5"
-            component="h2"
-            sx={{
-              fontWeight: 700,
-              color: "#2B2522",
-              mb: 3,
-            }}
-          >
-            Events
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{
+                fontWeight: 700,
+                color: "#2B2522",
+              }}
+            >
+              Events
+            </Typography>
+            <IconButton
+              onClick={() => navigate("/events/new")}
+              sx={{
+                backgroundColor: "#8A6A2F",
+                color: "#FFFFFF",
+                "&:hover": {
+                  backgroundColor: "#7A5D29",
+                },
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+          </Box>
 
           {eventError && (
             <Alert severity="error" sx={{ mb: 3 }}>
@@ -309,16 +322,43 @@ export const Home: React.FC = () => {
               message="Create an event to bring together recipes and share them with friends. You can add recipes, manage participants, and generate shopping lists."
             />
           ) : (
-            <Grid container spacing={3}>
-              {events.map((event) => (
-                <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                  <EventSummaryCard
-                    event={event}
-                    onViewEvent={(eventId) => navigate(`/events/${eventId}`)}
-                  />
-                </Grid>
-              ))}
-            </Grid>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "stretch",
+                gap: 2,
+              }}
+            >
+              {/* Left Spacer */}
+              <Box
+                sx={{
+                  width: 48,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              />
+
+              {/* Events Grid */}
+              <Grid container spacing={2} sx={{ flex: 1 }}>
+                {events.map((event) => (
+                  <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <EventSummaryCard
+                      event={event}
+                      onViewEvent={(eventId) => navigate(`/events/${eventId}`)}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* Right Spacer */}
+              <Box
+                sx={{
+                  width: 48,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              />
+            </Box>
           )}
         </Box>
       </Container>
