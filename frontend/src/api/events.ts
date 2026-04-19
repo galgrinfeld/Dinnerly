@@ -78,3 +78,29 @@ export async function removeParticipant(eventId: number, memberId: number): Prom
   });
 }
 
+// Ingredient assignment functions
+export async function assignIngredient(
+  eventId: number,
+  ingredientId: number,
+  eventMemberId: number
+): Promise<{ status: string; assignment_id: number }> {
+  return apiFetch<{ status: string; assignment_id: number }>(
+    `/api/events/${eventId}/ingredients/${ingredientId}/assign`,
+    {
+      method: "POST",
+      body: JSON.stringify({ eventMemberId }),
+    }
+  );
+}
+
+export async function unassignIngredient(
+  eventId: number,
+  ingredientId: number
+): Promise<void> {
+  return apiFetch<void>(
+    `/api/events/${eventId}/ingredients/${ingredientId}/assign`,
+    {
+      method: "DELETE",
+    }
+  );
+}

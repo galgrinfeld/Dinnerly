@@ -28,6 +28,8 @@ class ShoppingListItem(BaseModel):
     quantity: Optional[float] = None
     optional: bool = False
     sources: list[ShoppingListSource] = []
+    assigned_member_id: Optional[int] = Field(None, alias="assignedMemberId")
+    assigned_member_email: Optional[str] = Field(None, alias="assignedMemberEmail")
     
     class Config:
         populate_by_name = True
@@ -41,3 +43,10 @@ class ShoppingListResponse(BaseModel):
     class Config:
         populate_by_name = True
         from_attributes = True
+
+class IngredientAssignmentRequest(BaseModel):
+    """Request to assign an ingredient to a participant."""
+    event_member_id: int = Field(alias="eventMemberId")
+    
+    class Config:
+        populate_by_name = True

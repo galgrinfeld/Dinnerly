@@ -11,7 +11,9 @@ from app.db.models.event_recipe import EventRecipe
 from app.db.models.recipe import Recipe
 from app.db.models.recipe_ingredient import RecipeIngredient
 from app.db.models.ingredient import Ingredient
+from app.db.models.event_member import EventMember
 from app.schemas.shopping_list import ShoppingListItem, ShoppingListSource, ShoppingListResponse
+from app.crud import event_ingredient_assignments
 
 
 def generate_shopping_list_for_event(db: Session, event_id: int) -> ShoppingListResponse:
@@ -98,12 +100,27 @@ def generate_shopping_list_for_event(db: Session, event_id: int) -> ShoppingList
                 }
             )
 
+
+    # Get all assignments for this event
+    assignments = event_ingredient_assignments.get_assignments_for_event(db, event_id)
+    # Build assignment lookup: ingredient_id -> EventMember
+    assignment_map = {}
+    for assignment in assignments:
+        member = db.query(EventMember).filter(
+            EventMember.id == assignment.event_member_id
+        ).first()
+        if member:
+            assignment_map[assignment.ingredient_id] = member
+
     # Convert merge map to shopping list items
     items: list[ShoppingListItem] = []
     for (ingredient_id, unit, optional), merge_data in merge_map.items():
         ingredient_info = ingredient_meta[ingredient_id]
         sources = [ShoppingListSource(**source) for source in merge_data["sources"]]
 
+        # Get assignment info if it exists
+        assigned_member = assignment_map.get(ingredient_id)
+        
         item = ShoppingListItem(
             ingredient_id=ingredient_id,
             ingredient_name=ingredient_info["name"],
@@ -111,6 +128,8 @@ def generate_shopping_list_for_event(db: Session, event_id: int) -> ShoppingList
             quantity=float(merge_data["quantity"]) if merge_data["quantity"] else None,
             optional=optional,
             sources=sources,
+            assigned_member_id=assigned_member.id if assigned_member else None,
+            assigned_member_email=assigned_member.email if assigned_member else None,
         )
         items.append(item)
 

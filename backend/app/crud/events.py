@@ -7,7 +7,38 @@ from app.db.models.event import Event
 from app.db.models.event_recipe import EventRecipe
 from app.db.models.event_member import EventMember
 from app.db.models.user import User
-from app.schemas.event import EventCreate, EventUpdate, EventRecipeAttach
+from app.db.models.recipe import Recipe
+from app.schemas.event import EventCreate, EventUpdate, EventRecipeAttach, EventRead, EventRecipeRead
+
+
+def serialize_event(db: Session, event: Event) -> EventRead:
+    """Convert Event model to EventRead schema with recipe details."""
+    # Get all recipes for this event with their details
+    event_recipes = (
+        db.query(EventRecipe, Recipe)
+        .filter(EventRecipe.event_id == event.id)
+        .join(Recipe, EventRecipe.recipe_id == Recipe.id)
+        .all()
+    )
+    
+    # Build recipe list with details
+    recipes = []
+    for event_recipe, recipe in event_recipes:
+        recipes.append(
+            EventRecipeRead(
+                recipe_id=recipe.id,
+                recipe_name=recipe.name,
+                base_servings=recipe.base_servings,
+                desired_servings=event_recipe.desired_servings,
+            )
+        )
+    
+    return EventRead(
+        id=event.id,
+        name=event.name,
+        target_servings=event.target_servings,
+        recipes=recipes,
+    )
 
 
 def list_events_for_user(db: Session, user_id: int, limit: int = 50) -> list[Event]:

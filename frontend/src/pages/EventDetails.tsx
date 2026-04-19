@@ -35,7 +35,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant } from '../api/events';
+import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import {
   EventRead,
@@ -78,6 +78,10 @@ const EventDetails: React.FC = () => {
   // Edit mode for recipes
   const [editingRecipeId, setEditingRecipeId] = useState<number | null>(null);
   const [editServings, setEditServings] = useState<number>(1);
+
+  // Ingredient assignment state - track pending changes
+  const [pendingAssignments, setPendingAssignments] = useState<Map<number, number | null>>(new Map());
+  const [savingAssignments, setSavingAssignments] = useState(false);
 
   // Delete event state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -209,6 +213,51 @@ const EventDetails: React.FC = () => {
       setMembers(members.filter(m => m.id !== memberId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to remove participant');
+    }
+  };
+
+  // Handle assign ingredient to participant
+  const handleAssignIngredient = (ingredientId: number, eventMemberId: number | null) => {
+    // Mark as pending change, don't save yet
+    const newPending = new Map(pendingAssignments);
+    if (eventMemberId === null) {
+      newPending.delete(ingredientId);
+    } else {
+      newPending.set(ingredientId, eventMemberId);
+    }
+    setPendingAssignments(newPending);
+  };
+
+  // Handle save all pending assignments
+  const handleSaveAssignments = async () => {
+    if (!eventId || pendingAssignments.size === 0) return;
+
+    try {
+      setSavingAssignments(true);
+      
+      // Send all pending assignments to backend
+      const savePromises = Array.from(pendingAssignments.entries()).map(
+        ([ingredientId, eventMemberId]) => {
+          if (eventMemberId === null) {
+            return unassignIngredient(parseInt(eventId, 10), ingredientId);
+          } else {
+            return assignIngredient(parseInt(eventId, 10), ingredientId, eventMemberId);
+          }
+        }
+      );
+
+      await Promise.all(savePromises);
+
+      // Clear pending changes
+      setPendingAssignments(new Map());
+
+      // Reload shopping list to reflect changes
+      const updatedShoppingList = await getShoppingList(parseInt(eventId, 10));
+      setShoppingList(updatedShoppingList);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save assignments');
+    } finally {
+      setSavingAssignments(false);
     }
   };
 
@@ -460,7 +509,6 @@ const EventDetails: React.FC = () => {
           {event.recipes && event.recipes.length > 0 ? (
             <List disablePadding>
               {event.recipes?.map((recipe: EventRecipeRead) => {
-                const recipeInfo = recipes.find(r => r.id === recipe.recipeId);
                 const isEditing = editingRecipeId === recipe.recipeId;
                 return (
                   <ListItem 
@@ -474,8 +522,17 @@ const EventDetails: React.FC = () => {
                     }}
                   >
                     <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2">
-                        {recipeInfo?.name || 'Unknown Recipe'}
+                      <Typography 
+                        variant="body2"
+                        onClick={() => navigate(`/recipes/${recipe.recipeId}`)}
+                        sx={{ 
+                          cursor: 'pointer',
+                          color: '#8A6A2F',
+                          textDecoration: 'underline',
+                          '&:hover': { textDecoration: 'underline', opacity: 0.8 }
+                        }}
+                      >
+                        {recipe.recipeName}
                       </Typography>
                     </Box>
                     {isEditing ? (
@@ -541,9 +598,24 @@ const EventDetails: React.FC = () => {
         {/* Shopping List Section */}
         {shoppingList && shoppingList.items.length > 0 && (
           <>
-            <Typography variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
-              Shopping List
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Shopping List
+              </Typography>
+              {pendingAssignments.size > 0 && (
+                <Button
+                  variant="contained"
+                  onClick={handleSaveAssignments}
+                  disabled={savingAssignments}
+                  sx={{
+                    backgroundColor: "#8A6A2F",
+                    "&:hover": { backgroundColor: "#6F5624" },
+                  }}
+                >
+                  {savingAssignments ? `Saving ${pendingAssignments.size} change(s)...` : `Save Changes (${pendingAssignments.size})`}
+                </Button>
+              )}
+            </Box>
             <TableContainer component={Paper}  sx={{  overflow: 'hidden', borderColor: 'divider' }}>
               <Table size="small">
                 <TableHead>
@@ -554,24 +626,60 @@ const EventDetails: React.FC = () => {
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600, width: '80px' }}>Unit</TableCell>
                     <TableCell sx={{ fontWeight: 600, width: '80px' }}>Optional</TableCell>
+                    <TableCell sx={{ fontWeight: 600, width: '150px' }}>Assigned To</TableCell>
                     <TableCell sx={{ fontWeight: 600, width: '60px' }}> </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {shoppingList.items.map((item: ShoppingListItem) => (
+                  {shoppingList.items.map((item: ShoppingListItem) => {
+                    const hasPendingChange = pendingAssignments.has(item.ingredientId);
+                    const displayValue = pendingAssignments.has(item.ingredientId)
+                      ? pendingAssignments.get(item.ingredientId) ?? ''
+                      : item.assignedMemberId ?? '';
+                    
+                    return (
                     <React.Fragment key={item.ingredientId}>
                       <TableRow 
                         onClick={() => toggleExpandedSources(item.ingredientId)}
                         sx={{ 
                           cursor: 'pointer',
+                          backgroundColor: hasPendingChange ? 'rgba(138, 106, 47, 0.1)' : undefined,
                           '&:hover': { backgroundColor: 'rgba(138, 106, 47, 0.05)' } 
                         }}
                       >
-                        <TableCell>{item.ingredientName}</TableCell>
+                        <TableCell>
+                          {item.ingredientName}
+                          {hasPendingChange && (
+                            <Chip label="Pending" size="small" color="warning" sx={{ ml: 1 }} />
+                          )}
+                        </TableCell>
                         <TableCell align="right">{item.quantity?.toString() ?? '—'}</TableCell>
                         <TableCell>{item.unit}</TableCell>
                         <TableCell>
                           {item.optional && <Chip label="Optional" size="small" variant="outlined" />}
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <FormControl size="small" sx={{ minWidth: 140 }} onClick={(e) => e.stopPropagation()}>
+                            <Select
+                              value={displayValue}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                handleAssignIngredient(
+                                  item.ingredientId,
+                                  value === '' ? null : (value as any as number)
+                                );
+                              }}
+                            >
+                              <MenuItem value="">
+                                <em>Unassigned</em>
+                              </MenuItem>
+                              {members.map((member) => (
+                                <MenuItem key={member.id} value={member.id}>
+                                  {member.email}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
                         </TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <IconButton
@@ -592,7 +700,7 @@ const EventDetails: React.FC = () => {
                       </TableRow>
                       {expandedSources.has(item.ingredientId) && (
                         <TableRow sx={{ backgroundColor: '#fafafa' }}>
-                          <TableCell colSpan={5} sx={{ py: 2, pl: 4 }}>
+                          <TableCell colSpan={6} sx={{ py: 2, pl: 4 }}>
                             <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 1 }}>
                               Sources:
                             </Typography>
@@ -609,7 +717,8 @@ const EventDetails: React.FC = () => {
                         </TableRow>
                       )}
                     </React.Fragment>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>

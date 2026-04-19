@@ -34,6 +34,8 @@ class EventRecipeAttach(BaseModel):
 class EventRecipeRead(BaseModel):
     """Schema for reading an event-recipe relationship."""
     recipe_id: int = Field(alias="recipeId")
+    recipe_name: str = Field(alias="recipeName")
+    base_servings: int = Field(alias="baseServings")
     desired_servings: int = Field(alias="desiredServings")
     
     class Config:

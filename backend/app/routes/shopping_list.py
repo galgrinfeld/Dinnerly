@@ -3,13 +3,16 @@ Shopping list routes.
 Note: Shopping list endpoint is now integrated into events routes as GET /events/{event_id}/shopping-list
 This module is kept for backward compatibility if needed.
 """
-from fastapi import APIRouter, Depends, HTTPException
+import logging
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.schemas.shopping_list import ShoppingListResponse
-from app.crud import events as events_crud
+from app.schemas.shopping_list import ShoppingListResponse, IngredientAssignmentRequest
+from app.crud import events as events_crud, event_ingredient_assignments
 from app.services.shopping_list_generator import generate_shopping_list_for_event
+from app.api.deps import get_current_user
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["shopping-list"])
 
 
@@ -21,3 +24,77 @@ def get_shopping_list(event_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Event not found")
     
     return generate_shopping_list_for_event(db, event_id)
+
+
+@router.post("/events/{event_id}/ingredients/{ingredient_id}/assign", status_code=200)
+def assign_ingredient(
+    event_id: int,
+    ingredient_id: int,
+    payload: IngredientAssignmentRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Assign an ingredient to a participant in an event.
+    Only event owner can do this.
+    """
+    # Verify event exists and user is owner
+    event = events_crud.get_event(db, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    if event.owner_user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only event owner can assign ingredients",
+        )
+    
+    try:
+        assignment = event_ingredient_assignments.assign_ingredient(
+            db,
+            event_id=event_id,
+            ingredient_id=ingredient_id,
+            event_member_id=payload.event_member_id,
+        )
+        return {"status": "ok", "assignment_id": assignment.id}
+    except Exception as e:
+        logger.error(f"Error assigning ingredient: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error assigning ingredient",
+        )
+
+
+@router.delete("/events/{event_id}/ingredients/{ingredient_id}/assign", status_code=204)
+def unassign_ingredient(
+    event_id: int,
+    ingredient_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Unassign an ingredient from a participant in an event.
+    Only event owner can do this.
+    """
+    # Verify event exists and user is owner
+    event = events_crud.get_event(db, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    if event.owner_user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only event owner can unassign ingredients",
+        )
+    
+    try:
+        event_ingredient_assignments.delete_assignment(
+            db, event_id, ingredient_id
+        )
+        return None
+    except Exception as e:
+        logger.error(f"Error unassigning ingredient: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error unassigning ingredient",
+        )

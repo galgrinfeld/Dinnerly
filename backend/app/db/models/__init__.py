@@ -8,6 +8,7 @@ from app.db.models.recipe_ingredient import RecipeIngredient
 from app.db.models.event import Event
 from app.db.models.event_recipe import EventRecipe
 from app.db.models.event_member import EventMember
+from app.db.models.event_ingredient_assignment import EventIngredientAssignment
 
-__all__ = ["User", "Ingredient", "Recipe", "RecipeIngredient", "Event", "EventRecipe", "EventMember"]
+__all__ = ["User", "Ingredient", "Recipe", "RecipeIngredient", "Event", "EventRecipe", "EventMember", "EventIngredientAssignment"]
 

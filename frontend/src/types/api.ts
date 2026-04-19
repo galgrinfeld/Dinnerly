@@ -109,6 +109,8 @@ export interface EventRecipeAttach {
 
 export interface EventRecipeRead {
   recipeId: number;
+  recipeName: string;
+  baseServings: number;
   desiredServings: number;
 }
 
@@ -138,6 +140,8 @@ export interface ShoppingListItem {
   quantity: number | null;
   optional: boolean;
   sources: ShoppingListSource[];
+  assignedMemberId?: number;
+  assignedMemberEmail?: string;
 }
 
 export interface ShoppingListResponse {

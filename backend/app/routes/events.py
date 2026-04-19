@@ -28,7 +28,8 @@ def create_event(
     """Create a new event."""
     if payload.target_servings <= 0:
         raise HTTPException(status_code=422, detail="targetServings must be greater than 0")
-    return events_crud.create_event(db, payload, owner_user_id=current_user.id)
+    event = events_crud.create_event(db, payload, owner_user_id=current_user.id)
+    return events_crud.serialize_event(db, event)
 
 
 @router.get("", response_model=List[EventRead])
@@ -50,7 +51,7 @@ def get_event(
     event = events_crud.get_event_for_user(db, event_id, current_user.id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found or access denied")
-    return event
+    return events_crud.serialize_event(db, event)
 
 
 @router.post("/{event_id}/recipes", response_model=EventRead)
@@ -73,7 +74,8 @@ def attach_recipe_to_event(
         raise HTTPException(status_code=403, detail="Access denied")
     
     try:
-        return events_crud.attach_recipe_to_event(db, event_id, payload)
+        event = events_crud.attach_recipe_to_event(db, event_id, payload)
+        return events_crud.serialize_event(db, event)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -107,7 +109,8 @@ def update_event(
         raise HTTPException(status_code=422, detail="targetServings must be greater than 0")
     
     try:
-        return events_crud.update_event(db, event_id, payload, owner_user_id=current_user.id)
+        event = events_crud.update_event(db, event_id, payload, owner_user_id=current_user.id)
+        return events_crud.serialize_event(db, event)
     except ValueError as e:
         if "not found" in str(e).lower() or "owner" in str(e).lower():
             raise HTTPException(status_code=404, detail=str(e))
