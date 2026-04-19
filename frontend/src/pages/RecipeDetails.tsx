@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
   Chip,
   CircularProgress,
   Container,
@@ -17,6 +16,7 @@ import {
   Stack,
   Typography,
   Alert,
+  Divider,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -113,14 +113,15 @@ const RecipeDetails: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Stack spacing={3}>
-        {/* Header with back button and actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Page Header - Top Navigation */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate('/')}
+            sx={{ color: '#5C524E', borderColor: '#E8E4DF' }}
           >
             Back to Home
           </Button>
@@ -129,6 +130,10 @@ const RecipeDetails: React.FC = () => {
               variant="contained"
               startIcon={<EditIcon />}
               onClick={() => navigate(`/recipes/${recipe.id}/edit`)}
+              sx={{
+                backgroundColor: '#2B2522',
+                '&:hover': { backgroundColor: '#1a1410' },
+              }}
             >
               Edit
             </Button>
@@ -143,145 +148,350 @@ const RecipeDetails: React.FC = () => {
           </Stack>
         </Box>
 
-        {/* Recipe Details Card */}
-        <Card sx={{ borderTop: 4, borderTopColor: '#8A6A2F' }}>
-          <CardContent>
-            <Box sx={{ position: 'relative', minHeight: 160 }}>
-              {/* Right side: Image (absolutely positioned) */}
-              {recipe.imageUrl && !imageError && (
-                <Box
-                  component="img"
-                  src={recipe.imageUrl}
-                  onError={() => setImageError(true)}
+        {/* Recipe Header Section - 2 Column Layout */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+            gap: 3,
+          }}
+        >
+          {/* Left: Recipe Details */}
+          <Card
+            sx={{
+              border: '1px solid #E8E4DF',
+              boxShadow: '0 4px 12px rgba(43, 37, 34, 0.06)',
+            }}
+          >
+            <Box sx={{ p: 3 }}>
+              {/* Title */}
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 700,
+                  color: '#171717',
+                  mb: 2,
+                }}
+              >
+                {recipe.name}
+              </Typography>
+
+              {/* Description */}
+              {recipe.description && (
+                <Typography
+                  variant="body1"
                   sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    width: 400,
-                    maxWidth: '35%',
-                    height: 'auto',
-                    maxHeight: 220,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    objectFit: 'cover',
+                    mb: 2.5,
+                    color: '#5C524E',
+                    fontSize: '0.95rem',
+                    lineHeight: 1.6,
                   }}
-                  alt={recipe.name}
-                />
+                >
+                  {recipe.description}
+                </Typography>
               )}
 
-              {/* Text content with right padding to avoid image overlap */}
-              <Box sx={{ pr: '420px' }}>
-                {/* Title and Description */}
-                <Typography variant="h4" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
-                  {recipe.name}
-                </Typography>
+              {/* Divider */}
+              <Divider sx={{ my: 2.5, borderColor: '#E8E4DF' }} />
 
-                {recipe.description && (
-                  <Typography variant="body1" sx={{ mb: 3, color: '#666' }}>
-                    {recipe.description}
-                  </Typography>
-                )}
-
-                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                  Base Servings: {recipe.baseServings}
+              {/* Base Servings Stat Badge */}
+              <Box
+                sx={{
+                  display: 'inline-block',
+                  px: 2,
+                  py: 1,
+                  borderRadius: '8px',
+                  backgroundColor: '#F9F7F4',
+                  border: '1px solid #E8E4DF',
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '0.85rem',
+                    color: '#8A6A2F',
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  Base Servings: <strong>{recipe.baseServings}</strong>
                 </Typography>
               </Box>
             </Box>
+          </Card>
 
-              {/* Ingredients */}
-              {recipe.ingredients && recipe.ingredients.length > 0 ? (
-                <>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mt: -1 }} gutterBottom={false}>
-                    Ingredients ({recipe.ingredients.length})
-                  </Typography>
-                  <List disablePadding sx={{ pt: 0, pb: 0, mt: 0 }}>
-                      {recipe.ingredients.map((ing, idx) => {
-                        // Check if note exists
-                        const hasNote = ing.note && ing.note.trim().length > 0;
+          {/* Right: Recipe Image */}
+          <Card
+            sx={{
+              border: '1px solid #E8E4DF',
+              boxShadow: '0 4px 12px rgba(43, 37, 34, 0.06)',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              height: 'fit-content',
+            }}
+          >
+            {/* Image Preview */}
+            {recipe.imageUrl && !imageError ? (
+              <Box
+                component="img"
+                src={recipe.imageUrl}
+                onError={() => setImageError(true)}
+                sx={{
+                  width: '100%',
+                  height: '220px',
+                  objectFit: 'cover',
+                }}
+                alt={recipe.name}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '220px',
+                  backgroundColor: '#F9F7F4',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography sx={{ fontSize: '3rem', opacity: 0.15, mb: 1 }}>
+                  🍳
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.85rem',
+                    color: '#8A6A2F',
+                    textAlign: 'center',
+                    px: 2,
+                  }}
+                >
+                  {imageError ? 'Image not available' : 'No image'}
+                </Typography>
+              </Box>
+            )}
+          </Card>
+        </Box>
 
-                        // Determine if we should show "to taste"
-                        const isToTaste = ing.quantity === null || ing.unit === 'to_taste';
+        {/* Ingredients Section - Full Width Card */}
+        {recipe.ingredients && recipe.ingredients.length > 0 && (
+          <Card
+            sx={{
+              border: '1px solid #E8E4DF',
+              boxShadow: '0 4px 12px rgba(43, 37, 34, 0.06)',
+            }}
+          >
+            <Box sx={{ p: 3 }}>
+              {/* Section Header */}
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  color: '#171717',
+                  mb: 2.5,
+                  fontSize: '1.05rem',
+                }}
+              >
+                Ingredients ({recipe.ingredients.length})
+              </Typography>
+              <Divider sx={{ mb: 2.5, borderColor: '#E8E4DF' }} />
 
-                        return (
-                          <ListItem key={idx} disableGutters sx={{ py: 0.5, '&:hover': { backgroundColor: 'transparent' } }}>
-                            <Stack direction="row" spacing={1.5} alignItems="baseline" sx={{ width: '100%' }}>
-                            {/* Left block for quantity + unit (fixed width for alignment) */}
-                            <Box sx={{ minWidth: 40, display: 'flex', gap: 0.5, alignItems: 'baseline' }}>
-                              {isToTaste ? (
-                                <Typography sx={{ fontSize: '0.95rem' }}>to taste</Typography>
-                              ) : (
-                                <>
-                                  <Typography sx={{ fontWeight: 600 }}>{ing.quantity}</Typography>
-                                  {ing.unit !== 'unit' && (
-                                    <Typography sx={{ fontSize: '0.95rem' }}>{ing.unit}</Typography>
-                                  )}
-                                </>
-                              )}
-                            </Box>
+              {/* Ingredients List */}
+              <List disablePadding sx={{ mt: 0 }}>
+                {recipe.ingredients.map((ing, idx) => {
+                  const hasNote = ing.note && ing.note.trim().length > 0;
+                  const isToTaste = ing.quantity === null || ing.unit === 'to_taste';
 
-                            {/* Ingredient Name */}
-                            <Typography>{ing.ingredientName}</Typography>
-
-                            {/* Note */}
-                            {hasNote && (
-                              <Typography variant="body2" color="text.secondary">
-                                * {ing.note}
+                  return (
+                    <ListItem
+                      key={idx}
+                      disableGutters
+                      sx={{
+                        py: 1.2,
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        '&:hover': { backgroundColor: 'transparent' },
+                        '&:not(:last-child)': {
+                          borderBottom: '1px solid #F0EDEB',
+                        },
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="flex-start"
+                        sx={{ width: '100%' }}
+                      >
+                        {/* Quantity and Unit - Fixed Width Column */}
+                        <Box
+                          sx={{
+                            minWidth: '70px',
+                            display: 'flex',
+                            gap: 0.75,
+                            alignItems: 'baseline',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {isToTaste ? (
+                            <Typography
+                              sx={{
+                                fontSize: '0.9rem',
+                                color: '#5C524E',
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              to taste
+                            </Typography>
+                          ) : (
+                            <>
+                              <Typography
+                                sx={{
+                                  fontWeight: 600,
+                                  fontSize: '0.95rem',
+                                  color: '#171717',
+                                }}
+                              >
+                                {ing.quantity}
                               </Typography>
-                            )}
+                              {ing.unit !== 'unit' && (
+                                <Typography
+                                  sx={{
+                                    fontSize: '0.85rem',
+                                    color: '#8A6A2F',
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {ing.unit}
+                                </Typography>
+                              )}
+                            </>
+                          )}
+                        </Box>
 
-                            {/* Optional Chip */}
-                            {ing.optional && (
-                              <Chip
-                                size="small"
-                                label="Optional"
-                                color="secondary"
-                                variant="outlined"
-                              />
-                            )}
-                          </Stack>
-                        </ListItem>
-                      );
-                    })}
-                    </List>
-                </>
-              ) : (
-                <Typography variant="body2" sx={{ mt: 3, color: '#999', fontStyle: 'italic' }}>
-                  No ingredients listed
-                </Typography>
-              )}
+                        {/* Ingredient Name - Flex */}
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontSize: '0.95rem',
+                              color: '#171717',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {ing.ingredientName}
+                          </Typography>
 
-              {/* Instructions */}
-              {recipe.instructionsHtml && recipe.instructionsHtml.trim() && (
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                    Instructions
-                  </Typography>
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      backgroundColor: '#fafafa',
-                      '& p': { m: 0, mb: 1, lineHeight: 1.6, fontSize: '0.95rem' },
-                      '& p:last-child': { mb: 0 },
-                      '& ol': { m: 0, pl: 3, lineHeight: 1.8 },
-                      '& ul': { m: 0, pl: 3, lineHeight: 1.8 },
-                      '& li': { mb: 0.5 },
-                    }}
-                  >
-                    <Box dangerouslySetInnerHTML={{ __html: recipe.instructionsHtml }} />
-                  </Box>
-                </Box>
-              )}
+                          {/* Note */}
+                          {hasNote && (
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontSize: '0.8rem',
+                                color: '#8A7660',
+                                mt: 0.5,
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              {ing.note}
+                            </Typography>
+                          )}
+                        </Box>
 
-              {/* No instructions message */}
-              {(!recipe.instructionsHtml || !recipe.instructionsHtml.trim()) && (
-                <Typography variant="body2" sx={{ mt: 3, color: '#999', fontStyle: 'italic' }}>
-                  No instructions provided
-                </Typography>
-              )}
-          </CardContent>
-        </Card>
+                        {/* Optional Badge */}
+                        {ing.optional && (
+                          <Chip
+                            size="small"
+                            label="Optional"
+                            sx={{
+                              height: '24px',
+                              fontSize: '0.75rem',
+                              backgroundColor: '#F9F7F4',
+                              color: '#8A6A2F',
+                              border: '1px solid #E8E4DF',
+                              fontWeight: 500,
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                      </Stack>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+          </Card>
+        )}
+
+        {/* Instructions Section - Full Width Card */}
+        {recipe.instructionsHtml && recipe.instructionsHtml.trim() && (
+          <Card
+            sx={{
+              border: '1px solid #E8E4DF',
+              boxShadow: '0 4px 12px rgba(43, 37, 34, 0.06)',
+            }}
+          >
+            <Box sx={{ p: 3 }}>
+              {/* Section Header */}
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  color: '#171717',
+                  mb: 2.5,
+                  fontSize: '1.05rem',
+                }}
+              >
+                Instructions
+              </Typography>
+              <Divider sx={{ mb: 2.5, borderColor: '#E8E4DF' }} />
+
+              {/* Instructions Content */}
+              <Box
+                sx={{
+                  '& p': {
+                    margin: 0,
+                    marginBottom: '1rem',
+                    lineHeight: 1.7,
+                    fontSize: '0.95rem',
+                    color: '#171717',
+                  },
+                  '& p:last-child': {
+                    marginBottom: 0,
+                  },
+                  '& ol': {
+                    margin: 0,
+                    paddingLeft: '1.5rem',
+                    lineHeight: 1.8,
+                  },
+                  '& ul': {
+                    margin: 0,
+                    paddingLeft: '1.5rem',
+                    lineHeight: 1.8,
+                  },
+                  '& li': {
+                    marginBottom: '0.5rem',
+                    color: '#171717',
+                    fontSize: '0.95rem',
+                  },
+                  '& li:last-child': {
+                    marginBottom: 0,
+                  },
+                  '& strong': {
+                    fontWeight: 600,
+                    color: '#171717',
+                  },
+                  '& em': {
+                    color: '#5C524E',
+                    fontStyle: 'italic',
+                  },
+                }}
+              >
+                <Box dangerouslySetInnerHTML={{ __html: recipe.instructionsHtml }} />
+              </Box>
+            </Box>
+          </Card>
+        )}
       </Stack>
 
       {/* Delete Confirmation Dialog */}
