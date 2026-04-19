@@ -123,6 +123,7 @@ class RecipeListItem(BaseModel):
     name: str
     description: str
     base_servings: int = Field(alias="baseServings")
+    image_url: Optional[str] = Field(alias="imageUrl", default=None)
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True, alias_priority=True)
 

@@ -89,6 +89,7 @@ export interface RecipeListItem {
   name: string;
   baseServings: number;
   description?: string;
+  imageUrl?: string | null;
 }
 
 // Event types
