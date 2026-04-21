@@ -45,7 +45,7 @@ export const Login: React.FC = () => {
       setLoading(true);
 
       const payload: LoginRequest = {
-        email: formData.email.trim(),
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       };
 

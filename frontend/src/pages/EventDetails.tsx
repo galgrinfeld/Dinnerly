@@ -29,13 +29,17 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient } from '../api/events';
+import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import {
   EventRead,
@@ -45,6 +49,7 @@ import {
   ShoppingListItem,
   EventMemberRead,
   ParticipantAddRequest,
+  EventUpdateRequest,
 } from '../types/api';
 
 /**
@@ -78,6 +83,15 @@ const EventDetails: React.FC = () => {
   // Edit mode for recipes
   const [editingRecipeId, setEditingRecipeId] = useState<number | null>(null);
   const [editServings, setEditServings] = useState<number>(1);
+
+  // Edit mode for event details
+  const [isEditingEvent, setIsEditingEvent] = useState(false);
+  const [editEventData, setEditEventData] = useState({
+    name: '',
+    eventDate: null as Dayjs | null,
+    targetServings: 0,
+  });
+  const [savingEvent, setSavingEvent] = useState(false);
 
   // Ingredient assignment state - track pending changes
   const [pendingAssignments, setPendingAssignments] = useState<Map<number, number | null>>(new Map());
@@ -193,7 +207,7 @@ const EventDetails: React.FC = () => {
     try {
       setAddingParticipant(true);
       const newMember = await addParticipant(parseInt(eventId, 10), {
-        email: newParticipantEmail.trim(),
+        email: newParticipantEmail.trim().toLowerCase(),
       });
       setMembers([...members, newMember]);
       setNewParticipantEmail('');
@@ -259,6 +273,64 @@ const EventDetails: React.FC = () => {
     } finally {
       setSavingAssignments(false);
     }
+  };
+
+  // Handle enable edit mode for event details
+  const handleEnableEditEvent = () => {
+    if (!event) return;
+    setEditEventData({
+      name: event.name,
+      eventDate: dayjs(event.eventDate),
+      targetServings: event.targetServings,
+    });
+    setIsEditingEvent(true);
+  };
+
+  // Handle save event details
+  const handleSaveEvent = async () => {
+    if (!event || !eventId) return;
+
+    if (!editEventData.name.trim()) {
+      setError('Event name is required');
+      return;
+    }
+    if (!editEventData.eventDate) {
+      setError('Event date is required');
+      return;
+    }
+    if (editEventData.targetServings <= 0) {
+      setError('Target servings must be greater than 0');
+      return;
+    }
+
+    try {
+      setSavingEvent(true);
+      setError(null);
+
+      const payload: EventUpdateRequest = {
+        name: editEventData.name.trim(),
+        eventDate: editEventData.eventDate.format('YYYY-MM-DD'),
+        targetServings: editEventData.targetServings,
+      };
+
+      const updatedEvent = await updateEvent(event.id, payload);
+      setEvent(updatedEvent);
+      setIsEditingEvent(false);
+      
+      // Navigate back to home after successful save
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update event');
+    } finally {
+      setSavingEvent(false);
+    }
+  };
+
+  // Handle cancel edit event
+  const handleCancelEditEvent = () => {
+    setIsEditingEvent(false);
   };
 
   // Check if current user is owner (we'll assume they are if they can edit/delete)
@@ -350,38 +422,89 @@ const EventDetails: React.FC = () => {
       <Stack spacing={3}>
         {/* Event Info Section */}
         <Paper variant="outlined" sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Box>
-              <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
-                {event.name}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                Date: {new Date(event.eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Target Servings: {event.targetServings}
-              </Typography>
+          {isEditingEvent ? (
+            // Edit mode
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Stack spacing={2}>
+                <TextField
+                  label="Event Name"
+                  value={editEventData.name}
+                  onChange={(e) => setEditEventData({ ...editEventData, name: e.target.value })}
+                  fullWidth
+                  size="small"
+                />
+                <DatePicker
+                  label="Event Date"
+                  value={editEventData.eventDate}
+                  onChange={(newDate) => setEditEventData({ ...editEventData, eventDate: newDate })}
+                  slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                />
+                <TextField
+                  label="Target Servings"
+                  type="number"
+                  value={editEventData.targetServings}
+                  onChange={(e) => setEditEventData({ ...editEventData, targetServings: parseInt(e.target.value, 10) || 0 })}
+                  inputProps={{ min: 1 }}
+                  fullWidth
+                  size="small"
+                />
+                <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleSaveEvent}
+                    disabled={savingEvent}
+                    sx={{
+                      backgroundColor: "#8A6A2F",
+                      "&:hover": { backgroundColor: "#6F5624" },
+                    }}
+                  >
+                    {savingEvent ? 'Saving...' : 'Save'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={handleCancelEditEvent}
+                    disabled={savingEvent}
+                  >
+                    Cancel
+                  </Button>
+                </Stack>
+              </Stack>
+            </LocalizationProvider>
+          ) : (
+            // View mode
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Box>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                  {event.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                  Date: {new Date(event.eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Target Servings: {event.targetServings}
+                </Typography>
+              </Box>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<EditIcon />}
+                  onClick={handleEnableEditEvent}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDeleteEventClick}
+                >
+                  Delete
+                </Button>
+              </Stack>
             </Box>
-            <Stack direction="row" spacing={1}>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<EditIcon />}
-                onClick={() => navigate(`/events/${event.id}/edit`)}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                size="small"
-                startIcon={<DeleteIcon />}
-                onClick={handleDeleteEventClick}
-              >
-                Delete
-              </Button>
-            </Stack>
-          </Box>
+          )}
         </Paper>
 
         {/* Participants Section */}

@@ -21,8 +21,10 @@ def register(
     db: Session = Depends(get_db),
 ):
     """Register a new user."""
+    # Normalize email to lowercase
+    email = payload.email.lower()
     # Check if user exists
-    existing = get_user_by_email(db, payload.email)
+    existing = get_user_by_email(db, email)
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -33,7 +35,7 @@ def register(
         # Create user
         user = create_user(
             db,
-            email=payload.email,
+            email=email,
             password=payload.password,
             display_name=payload.display_name,
         )
@@ -68,7 +70,9 @@ def login(
     db: Session = Depends(get_db),
 ):
     """Login with email and password."""
-    user = get_user_by_email(db, payload.email)
+    # Normalize email to lowercase
+    email = payload.email.lower()
+    user = get_user_by_email(db, email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

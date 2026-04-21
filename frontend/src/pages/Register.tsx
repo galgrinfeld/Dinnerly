@@ -63,7 +63,7 @@ export const Register: React.FC = () => {
       setLoading(true);
 
       const payload: RegisterRequest = {
-        email: formData.email.trim(),
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         displayName: formData.displayName.trim() || undefined,
       };

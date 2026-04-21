@@ -2,6 +2,7 @@
 CRUD operations for EventMembers (event sharing and participants).
 """
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.db.models.event_member import EventMember
 from app.db.models.user import User
 
@@ -13,17 +14,19 @@ def add_participant(db: Session, event_id: int, email: str, role: str = "partici
     If user exists with that email, set user_id and status="active".
     Otherwise, status="invited" (user_id=None).
     """
-    # Check if already exists
+    # Normalize email to lowercase
+    email = email.lower()
+    # Check if already exists (case-insensitive)
     existing = (
         db.query(EventMember)
-        .filter(EventMember.event_id == event_id, EventMember.email == email)
+        .filter(EventMember.event_id == event_id, func.lower(EventMember.email) == email)
         .first()
     )
     if existing:
         return existing
     
-    # Check if user with this email exists
-    user = db.query(User).filter(User.email == email).first()
+    # Check if user with this email exists (case-insensitive)
+    user = db.query(User).filter(func.lower(User.email) == email).first()
     
     member = EventMember(
         event_id=event_id,

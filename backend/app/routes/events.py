@@ -157,7 +157,9 @@ def add_participant(
         raise HTTPException(status_code=403, detail="Only event owner can add participants")
     
     try:
-        member = event_members_crud.add_participant(db, event_id, payload.email)
+        # Normalize email to lowercase
+        email = payload.email.lower()
+        member = event_members_crud.add_participant(db, event_id, email)
         return EventMemberRead.from_orm(member)
     except Exception as e:
         logger.error(f"Error adding participant: {str(e)}", exc_info=True)
