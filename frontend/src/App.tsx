@@ -20,6 +20,8 @@ function App() {
   const location = useLocation();
   const [user, setUser] = useState<UserRead | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [recipesAnchorEl, setRecipesAnchorEl] = useState<null | HTMLElement>(null);
+  const [eventsAnchorEl, setEventsAnchorEl] = useState<null | HTMLElement>(null);
   const [tokenState, setTokenState] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -65,11 +67,37 @@ function App() {
     setAnchorEl(null);
   };
 
+  const handleRecipesMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setRecipesAnchorEl(event.currentTarget);
+  };
+
+  const handleRecipesMenuClose = () => {
+    setRecipesAnchorEl(null);
+  };
+
+  const handleEventsMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setEventsAnchorEl(event.currentTarget);
+  };
+
+  const handleEventsMenuClose = () => {
+    setEventsAnchorEl(null);
+  };
+
   const handleLogout = () => {
     clearAccessToken();
     setUser(null);
     handleMenuClose();
     navigate("/login");
+  };
+
+  const navigateAndCloseRecipesMenu = (path: string) => {
+    navigate(path);
+    handleRecipesMenuClose();
+  };
+
+  const navigateAndCloseEventsMenu = (path: string) => {
+    navigate(path);
+    handleEventsMenuClose();
   };
 
   // Don't show AppBar on auth pages
@@ -105,28 +133,64 @@ function App() {
               >
                 Home
               </Button>
+
+              {/* Recipes Dropdown */}
               <Button
-                onClick={() => navigate("/addRecipe")}
+                onClick={handleRecipesMenuOpen}
                 sx={{
-                  color: location.pathname === "/addRecipe" ? "#8A6A2F" : "#171717",
-                  fontWeight: location.pathname === "/addRecipe" ? 700 : 500,
+                  color: ["/myRecipes", "/addRecipe"].includes(location.pathname)
+                    ? "#8A6A2F"
+                    : "#171717",
+                  fontWeight: ["/myRecipes", "/addRecipe"].includes(location.pathname)
+                    ? 700
+                    : 500,
                   textTransform: "none",
                   fontSize: "1rem",
                 }}
               >
-                Add Recipe
+                Recipes ▼
               </Button>
+              <Menu
+                anchorEl={recipesAnchorEl}
+                open={Boolean(recipesAnchorEl)}
+                onClose={handleRecipesMenuClose}
+              >
+                <MenuItem onClick={() => navigateAndCloseRecipesMenu("/myRecipes")}>
+                  My Recipes
+                </MenuItem>
+                <MenuItem onClick={() => navigateAndCloseRecipesMenu("/addRecipe")}>
+                  Add Recipe
+                </MenuItem>
+              </Menu>
+
+              {/* Events Dropdown */}
               <Button
-                onClick={() => navigate("/events/new")}
+                onClick={handleEventsMenuOpen}
                 sx={{
-                  color: location.pathname === "/events/new" ? "#8A6A2F" : "#171717",
-                  fontWeight: location.pathname === "/events/new" ? 700 : 500,
+                  color: ["/myEvents", "/events/new"].includes(location.pathname)
+                    ? "#8A6A2F"
+                    : "#171717",
+                  fontWeight: ["/myEvents", "/events/new"].includes(location.pathname)
+                    ? 700
+                    : 500,
                   textTransform: "none",
                   fontSize: "1rem",
                 }}
               >
-                Create Event
+                Events ▼
               </Button>
+              <Menu
+                anchorEl={eventsAnchorEl}
+                open={Boolean(eventsAnchorEl)}
+                onClose={handleEventsMenuClose}
+              >
+                <MenuItem onClick={() => navigateAndCloseEventsMenu("/myEvents")}>
+                  My Events
+                </MenuItem>
+                <MenuItem onClick={() => navigateAndCloseEventsMenu("/events/new")}>
+                  Create Event
+                </MenuItem>
+              </Menu>
 
               {/* User menu */}
               {user && (

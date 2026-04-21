@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -8,10 +8,13 @@ import {
   CircularProgress,
   Alert,
   IconButton,
+  Button,
+  Chip,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { listRecipes, getRecipe } from "../api/recipes";
 import { listEvents } from "../api/events";
 import { RecipeRead, EventRead } from "../types/api";
@@ -23,6 +26,41 @@ const ITEMS_PER_VIEW = {
   desktop: 3,
   tablet: 2,
   mobile: 1,
+};
+
+const MAX_UPCOMING_EVENTS_PREVIEW = 3;
+
+// Helper function to get date indicator (Today/Tomorrow or null)
+const getDateIndicator = (eventDate: string): string | null => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const eventDateObj = new Date(eventDate);
+  eventDateObj.setHours(0, 0, 0, 0);
+
+  if (eventDateObj.getTime() === today.getTime()) {
+    return "Today";
+  } else if (eventDateObj.getTime() === tomorrow.getTime()) {
+    return "Tomorrow";
+  }
+  return null;
+};
+
+// Helper function to filter and sort upcoming events
+const getUpcomingEvents = (events: EventRead[]): EventRead[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return events
+    .filter((event) => {
+      const eventDateObj = new Date(event.eventDate);
+      eventDateObj.setHours(0, 0, 0, 0);
+      return eventDateObj.getTime() >= today.getTime();
+    })
+    .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
 };
 
 export const Home: React.FC = () => {
@@ -89,6 +127,11 @@ export const Home: React.FC = () => {
     carouselIndex,
     carouselIndex + ITEMS_PER_VIEW.desktop
   );
+
+  // Compute upcoming events with limit
+  const upcomingEvents = useMemo(() => {
+    return getUpcomingEvents(events).slice(0, MAX_UPCOMING_EVENTS_PREVIEW);
+  }, [events]);
 
   return (
     <Box sx={{ backgroundColor: "#FAFAF8", minHeight: "100vh", py: 0 }}>
@@ -289,20 +332,39 @@ export const Home: React.FC = () => {
                 color: "#2B2522",
               }}
             >
-              Events
+              Upcoming Events
             </Typography>
-            <IconButton
-              onClick={() => navigate("/events/new")}
-              sx={{
-                backgroundColor: "#8A6A2F",
-                color: "#FFFFFF",
-                "&:hover": {
-                  backgroundColor: "#7A5D29",
-                },
-              }}
-            >
-              <AddIcon />
-            </IconButton>
+            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+              {events.length > MAX_UPCOMING_EVENTS_PREVIEW && (
+                <Button
+                  endIcon={<ArrowForwardIcon />}
+                  onClick={() => navigate("/myEvents")}
+                  sx={{
+                    color: "#8A6A2F",
+                    textTransform: "none",
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                    "&:hover": {
+                      backgroundColor: "rgba(138, 106, 47, 0.1)",
+                    },
+                  }}
+                >
+                  View All
+                </Button>
+              )}
+              <IconButton
+                onClick={() => navigate("/events/new")}
+                sx={{
+                  backgroundColor: "#8A6A2F",
+                  color: "#FFFFFF",
+                  "&:hover": {
+                    backgroundColor: "#7A5D29",
+                  },
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Box>
           </Box>
 
           {eventError && (
@@ -315,11 +377,11 @@ export const Home: React.FC = () => {
             <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
               <CircularProgress />
             </Box>
-          ) : events.length === 0 ? (
+          ) : upcomingEvents.length === 0 ? (
             <EmptyStateBlock
-              emoji="🎉"
-              title="No events yet"
-              message="Create an event to bring together recipes and share them with friends. You can add recipes, manage participants, and generate shopping lists."
+              emoji="📅"
+              title="No upcoming events"
+              message="Create an event to plan shared meals with friends. You can add recipes, manage participants, and generate shopping lists."
             />
           ) : (
             <Box
@@ -340,14 +402,34 @@ export const Home: React.FC = () => {
 
               {/* Events Grid */}
               <Grid container spacing={2} sx={{ flex: 1 }}>
-                {events.map((event) => (
-                  <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                    <EventSummaryCard
-                      event={event}
-                      onViewEvent={(eventId) => navigate(`/events/${eventId}`)}
-                    />
-                  </Grid>
-                ))}
+                {upcomingEvents.map((event) => {
+                  const dateIndicator = getDateIndicator(event.eventDate);
+                  return (
+                    <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                      <Box sx={{ position: "relative", height: "100%" }}>
+                        {dateIndicator && (
+                          <Chip
+                            label={dateIndicator}
+                            size="small"
+                            sx={{
+                              position: "absolute",
+                              top: -8,
+                              right: 8,
+                              backgroundColor: "#8A6A2F",
+                              color: "#FFFFFF",
+                              fontWeight: 600,
+                              zIndex: 10,
+                            }}
+                          />
+                        )}
+                        <EventSummaryCard
+                          event={event}
+                          onViewEvent={(eventId) => navigate(`/events/${eventId}`)}
+                        />
+                      </Box>
+                    </Grid>
+                  );
+                })}
               </Grid>
 
               {/* Right Spacer */}
