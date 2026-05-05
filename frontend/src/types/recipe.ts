@@ -24,6 +24,7 @@ export type RecipeFormState = {
   description: string;
   baseServings: number;
   imageUrl?: string | null;
+  cookingTimeMinutes?: number | null;
   ingredients: IngredientRow[];
   instructions: string;
 };

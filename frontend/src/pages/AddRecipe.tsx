@@ -13,6 +13,7 @@ const INITIAL_STATE: RecipeFormState = {
   description: "",
   baseServings: 4,
   imageUrl: "",
+  cookingTimeMinutes: null,
   ingredients: [createEmptyIngredientRow()],
   instructions: "",
 };
@@ -85,6 +86,7 @@ export const AddRecipe: React.FC = () => {
       baseServings: formState.baseServings,
       instructionsHtml: formState.instructions,
       imageUrl: formState.imageUrl?.trim() || null,
+      cookingTimeMinutes: formState.cookingTimeMinutes ?? null,
       ingredients: formState.ingredients
         .filter((ing) => ing.name.trim())
         .map((ing) => ({

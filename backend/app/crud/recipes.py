@@ -17,6 +17,7 @@ def create_recipe(db: Session, payload: RecipeCreate, owner_user_id: int) -> Rec
         base_servings=payload.baseServings,
         instructions_html=payload.instructionsHtml,
         image_url=payload.imageUrl or None,
+        cooking_time_minutes=payload.cookingTimeMinutes,
         owner_user_id=owner_user_id,
     )
     db.add(db_recipe)
@@ -86,6 +87,7 @@ def update_recipe(db: Session, recipe_id: int, payload: RecipeUpdate, owner_user
     recipe.base_servings = payload.baseServings
     recipe.instructions_html = payload.instructionsHtml
     recipe.image_url = payload.imageUrl or None
+    recipe.cooking_time_minutes = payload.cookingTimeMinutes
     
     # Remove existing ingredients
     db.query(RecipeIngredient).filter(RecipeIngredient.recipe_id == recipe_id).delete()

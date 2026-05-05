@@ -24,6 +24,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { getRecipe, deleteRecipe } from '../api/recipes';
 import { RecipeRead } from '../types/api';
+import { formatCookingTime } from '../utils/formatters';
 
 /**
  * RecipeDetails page - displays recipe with ingredients and actions to edit/delete.
@@ -195,28 +196,57 @@ const RecipeDetails: React.FC = () => {
               {/* Divider */}
               <Divider sx={{ my: 2.5, borderColor: '#E8E4DF' }} />
 
-              {/* Base Servings Stat Badge */}
-              <Box
-                sx={{
-                  display: 'inline-block',
-                  px: 2,
-                  py: 1,
-                  borderRadius: '8px',
-                  backgroundColor: '#F9F7F4',
-                  border: '1px solid #E8E4DF',
-                }}
-              >
-                <Typography
+              {/* Stats Row - Base Servings and Cooking Time */}
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                {/* Base Servings Stat Badge */}
+                <Box
                   sx={{
-                    fontSize: '0.85rem',
-                    color: '#8A6A2F',
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
+                    display: 'inline-block',
+                    px: 2,
+                    py: 1,
+                    borderRadius: '8px',
+                    backgroundColor: '#F9F7F4',
+                    border: '1px solid #E8E4DF',
                   }}
                 >
-                  Base Servings: <strong>{recipe.baseServings}</strong>
-                </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '0.85rem',
+                      color: '#8A6A2F',
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Base Servings: <strong>{recipe.baseServings}</strong>
+                  </Typography>
+                </Box>
+
+                {/* Cooking Time Stat Badge */}
+                {recipe.cookingTimeMinutes && (
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      px: 2,
+                      py: 1,
+                      borderRadius: '8px',
+                      backgroundColor: '#F9F7F4',
+                      border: '1px solid #E8E4DF',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: '0.85rem',
+                        color: '#8A6A2F',
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      Cooking Time: <strong>{formatCookingTime(recipe.cookingTimeMinutes)}</strong>
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </Box>
           </Card>

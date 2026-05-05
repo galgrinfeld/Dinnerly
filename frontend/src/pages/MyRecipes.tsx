@@ -15,15 +15,65 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ClearIcon from "@mui/icons-material/Clear";
 import { listRecipes, deleteRecipe, getRecipe } from "../api/recipes";
 import { RecipeRead } from "../types/api";
 import { RecipeCarouselCard } from "../components/RecipeCarouselCard";
 import { EmptyStateBlock } from "../components/EmptyStateBlock";
+
+// Types for sorting and filtering
+type SortOption = "newest" | "oldest" | "name-asc" | "name-desc" | "servings-low" | "servings-high";
+type ServingsFilter = "all" | "1-2" | "3-4" | "5+";
+
+// Helper function to sort recipes
+const sortRecipes = (recipes: RecipeRead[], sortOption: SortOption): RecipeRead[] => {
+  const sorted = [...recipes];
+  
+  switch (sortOption) {
+    case "newest":
+      return sorted.reverse();
+    case "oldest":
+      return sorted;
+    case "name-asc":
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    case "name-desc":
+      return sorted.sort((a, b) => b.name.localeCompare(a.name));
+    case "servings-low":
+      return sorted.sort((a, b) => a.baseServings - b.baseServings);
+    case "servings-high":
+      return sorted.sort((a, b) => b.baseServings - a.baseServings);
+    default:
+      return sorted;
+  }
+};
+
+// Helper function to filter by servings
+const filterByServings = (recipes: RecipeRead[], servingsFilter: ServingsFilter): RecipeRead[] => {
+  if (servingsFilter === "all") return recipes;
+  
+  return recipes.filter((recipe) => {
+    const servings = recipe.baseServings;
+    switch (servingsFilter) {
+      case "1-2":
+        return servings >= 1 && servings <= 2;
+      case "3-4":
+        return servings >= 3 && servings <= 4;
+      case "5+":
+        return servings >= 5;
+      default:
+        return true;
+    }
+  });
+};
 
 export const MyRecipes: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +81,8 @@ export const MyRecipes: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
+  const [servingsFilter, setServingsFilter] = useState<ServingsFilter>("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState<RecipeRead | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -75,13 +127,25 @@ export const MyRecipes: React.FC = () => {
       });
   };
 
-  // Filter recipes by search query
+  // Filter recipes by search query, sort, and servings
   const filteredRecipes = useMemo(() => {
-    if (!searchQuery) return recipes;
-    return recipes.filter((recipe) =>
-      recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [recipes, searchQuery]);
+    let result = recipes;
+    
+    // Apply search filter
+    if (searchQuery) {
+      result = result.filter((recipe) =>
+        recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply servings filter
+    result = filterByServings(result, servingsFilter);
+    
+    // Apply sorting
+    result = sortRecipes(result, sortOption);
+    
+    return result;
+  }, [recipes, searchQuery, sortOption, servingsFilter]);
 
   const handleDeleteClick = (recipe: RecipeRead) => {
     setRecipeToDelete(recipe);
@@ -122,6 +186,16 @@ export const MyRecipes: React.FC = () => {
     setDeleteDialogOpen(false);
     setRecipeToDelete(null);
     setDeleteError(null);
+  };
+
+  // Helper function to check if any filters are active
+  const hasActiveFilters = searchQuery || servingsFilter !== "all" || sortOption !== "newest";
+
+  // Helper function to clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSortOption("newest");
+    setServingsFilter("all");
   };
 
   if (loading) {
@@ -170,40 +244,159 @@ export const MyRecipes: React.FC = () => {
         />
       ) : (
         <>
-          {/* Search Input */}
-          <Box sx={{ mb: 3 }}>
+          {/* Controls Toolbar */}
+          <Box
+            sx={{
+              mb: 3,
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              alignItems: { sm: "flex-end" },
+            }}
+          >
+            {/* Search Input */}
             <TextField
-              fullWidth
               placeholder="Search recipes by title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               variant="outlined"
               size="small"
               sx={{
+                flex: 1,
+                minWidth: { xs: "100%", sm: 200 },
                 "& .MuiOutlinedInput-root": {
                   borderColor: "#B39760",
                 },
               }}
             />
-            {searchQuery && (
-              <Typography variant="caption" sx={{ color: "#5C524E", mt: 1, display: "block" }}>
-                Found {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
-              </Typography>
+
+            {/* Sort Dropdown */}
+            <FormControl
+              size="small"
+              sx={{
+                minWidth: { xs: "100%", sm: 160 },
+              }}
+            >
+              <InputLabel id="sort-label" sx={{ color: "#5C524E" }}>
+                Sort by
+              </InputLabel>
+              <Select
+                labelId="sort-label"
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as SortOption)}
+                label="Sort by"
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#B39760",
+                  },
+                }}
+              >
+                <MenuItem value="newest">Newest first</MenuItem>
+                <MenuItem value="oldest">Oldest first</MenuItem>
+                <MenuItem value="name-asc">Name A-Z</MenuItem>
+                <MenuItem value="name-desc">Name Z-A</MenuItem>
+                <MenuItem value="servings-low">Servings low to high</MenuItem>
+                <MenuItem value="servings-high">Servings high to low</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Servings Filter Dropdown */}
+            <FormControl
+              size="small"
+              sx={{
+                minWidth: { xs: "100%", sm: 160 },
+              }}
+            >
+              <InputLabel id="servings-label" sx={{ color: "#5C524E" }}>
+                Servings
+              </InputLabel>
+              <Select
+                labelId="servings-label"
+                value={servingsFilter}
+                onChange={(e) => setServingsFilter(e.target.value as ServingsFilter)}
+                label="Servings"
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#B39760",
+                  },
+                }}
+              >
+                <MenuItem value="all">All servings</MenuItem>
+                <MenuItem value="1-2">1-2 servings</MenuItem>
+                <MenuItem value="3-4">3-4 servings</MenuItem>
+                <MenuItem value="5+">5+ servings</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Clear Filters Button */}
+            {hasActiveFilters && (
+              <Button
+                size="small"
+                onClick={clearAllFilters}
+                startIcon={<ClearIcon />}
+                sx={{
+                  color: "#8A6A2F",
+                  textTransform: "none",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Clear
+              </Button>
             )}
           </Box>
+
+          {/* Results Count */}
+          {(searchQuery || servingsFilter !== "all") && (
+            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {searchQuery && (
+                <Chip
+                  label={`Search: "${searchQuery}"`}
+                  size="small"
+                  onDelete={() => setSearchQuery("")}
+                  sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
+                />
+              )}
+              {servingsFilter !== "all" && (
+                <Chip
+                  label={`Servings: ${
+                    servingsFilter === "1-2"
+                      ? "1-2"
+                      : servingsFilter === "3-4"
+                      ? "3-4"
+                      : "5+"
+                  }`}
+                  size="small"
+                  onDelete={() => setServingsFilter("all")}
+                  sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
+                />
+              )}
+            </Box>
+          )}
 
           {/* Recipes Grid */}
           {filteredRecipes.length === 0 ? (
             <EmptyStateBlock
               emoji="🔍"
               title="No recipes found"
-              message={`No recipes match "${searchQuery}". Try a different search term.`}
+              message={
+                searchQuery
+                  ? `No recipes match "${searchQuery}". Try a different search term.`
+                  : servingsFilter !== "all"
+                  ? `No recipes found with ${
+                      servingsFilter === "1-2"
+                        ? "1-2"
+                        : servingsFilter === "3-4"
+                        ? "3-4"
+                        : "5+"
+                    } servings.`
+                  : "No recipes match your filters."
+              }
             />
           ) : (
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
                 gap: 3,
               }}
             >

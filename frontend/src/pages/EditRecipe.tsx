@@ -21,6 +21,7 @@ export const EditRecipe: React.FC = () => {
     ingredients: [createEmptyIngredientRow()],
     instructions: "",
     imageUrl: "",
+    cookingTimeMinutes: null,
   });
 
   const [originalFormState, setOriginalFormState] = useState<RecipeFormState | null>(null);
@@ -57,6 +58,7 @@ export const EditRecipe: React.FC = () => {
           ingredients: ingredients.length > 0 ? ingredients : [createEmptyIngredientRow()],
           instructions: recipe.instructionsHtml || "",
           imageUrl: recipe.imageUrl || "",
+          cookingTimeMinutes: recipe.cookingTimeMinutes ?? null,
         };
 
         setFormState(formData);
@@ -130,6 +132,7 @@ export const EditRecipe: React.FC = () => {
       description: formState.description,
       baseServings: formState.baseServings,
       instructionsHtml: formState.instructions,
+      cookingTimeMinutes: formState.cookingTimeMinutes ?? null,
       imageUrl: formState.imageUrl?.trim() || null,
       ingredients: formState.ingredients
         .filter((ing) => ing.name.trim())

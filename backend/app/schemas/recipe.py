@@ -69,6 +69,7 @@ class RecipeCreate(BaseModel):
     baseServings: int = Field(..., gt=0, alias="baseServings")
     instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
     imageUrl: Optional[str] = Field(None, max_length=2000, alias="imageUrl")
+    cookingTimeMinutes: Optional[int] = Field(None, ge=0, alias="cookingTimeMinutes")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
     @field_validator("ingredients")
@@ -89,6 +90,7 @@ class RecipeUpdate(BaseModel):
     description: str = Field(default="", max_length=2000)
     baseServings: int = Field(..., gt=0, alias="baseServings")
     instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
+    cookingTimeMinutes: Optional[int] = Field(None, ge=0, alias="cookingTimeMinutes")
     imageUrl: Optional[str] = Field(None, max_length=2000, alias="imageUrl")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
@@ -110,6 +112,7 @@ class RecipeRead(BaseModel):
     name: str
     description: str
     base_servings: int = Field(alias="baseServings")
+    cooking_time_minutes: Optional[int] = Field(alias="cookingTimeMinutes", default=None)
     instructions_html: str = Field(alias="instructionsHtml", default="")
     image_url: Optional[str] = Field(alias="imageUrl", default=None)
     ingredients: List[RecipeIngredientRead] = Field(default_factory=list)
@@ -122,6 +125,7 @@ class RecipeListItem(BaseModel):
     id: int
     name: str
     description: str
+    cooking_time_minutes: Optional[int] = Field(alias="cookingTimeMinutes", default=None)
     base_servings: int = Field(alias="baseServings")
     image_url: Optional[str] = Field(alias="imageUrl", default=None)
 

@@ -9,6 +9,7 @@ import {
   Box,
 } from "@mui/material";
 import { RecipeRead } from "../types/api";
+import { formatCookingTime } from "../utils/formatters";
 
 interface RecipeCarouselCardProps {
   recipe: RecipeRead;
@@ -109,9 +110,14 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
             color: "#8A6A2F",
             fontSize: "0.875rem",
             fontWeight: 600,
+            flexWrap: "wrap",
+            gap: 1,
           }}
         >
           <span>🍽️ {recipe.baseServings} servings</span>
+          {recipe.cookingTimeMinutes && (
+            <span>⏱️ {formatCookingTime(recipe.cookingTimeMinutes)}</span>
+          )}
         </Box>
       </CardContent>
 

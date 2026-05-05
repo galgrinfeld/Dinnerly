@@ -149,6 +149,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             "name": "Garlic Butter Pasta",
             "description": "A simple and delicious Italian pasta with garlic, olive oil, and fresh basil.",
             "base_servings": 4,
+            "cooking_time_minutes": 20,
             "image_url": "https://images.food52.com/yUFovEV5knQubgZ5C6EFhePQK5k=/905edca3-b58c-45be-b588-c4a5983e7e48--2020-1215_pasta-garlic-butter-sauce_3x2_rocky-luten_023.jpg?w=400",
             "ingredients": [
                 {"name": "Pasta", "quantity": 400, "unit": "g"},
@@ -170,6 +171,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             "name": "Grilled Salmon with Lemon",
             "description": "Fresh salmon fillet grilled to perfection with lemon and herbs.",
             "base_servings": 2,
+            "cooking_time_minutes": 15,
             "image_url": "https://hips.hearstapps.com/vidthumb/images/delish-grilled-lemon-butter-salmon-wide-1-1528898035.jpg?crop=0.75xw:1xh;center,top&resize=1200:*",
             "ingredients": [
                 {"name": "Salmon Fillet", "quantity": 2, "unit": "fillets"},
@@ -190,6 +192,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             "name": "Classic Tomato Pasta",
             "description": "Traditional pasta with homemade tomato sauce and fresh herbs.",
             "base_servings": 3,
+            "cooking_time_minutes": 35,
             "image_url": "https://cdn-ilebiak.nitrocdn.com/pvZLUVBCBEdPhoZIpzQDlQTCJtXdlADr/assets/images/optimized/rev-c0a3963/thehappyfoodie.co.uk/wp-content/uploads/2021/08/classic_tomato_spaghetti_21645_s900x0_c854x499_l0x420.png?w=400",
             "ingredients": [
                 {"name": "Pasta", "quantity": 300, "unit": "g"},
@@ -211,6 +214,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             "name": "Beef Stir Fry",
             "description": "Quick and delicious beef stir fry with peppers and mushrooms.",
             "base_servings": 4,
+            "cooking_time_minutes": 20,
             "image_url": "https://www.cubesnjuliennes.com/wp-content/uploads/2021/01/Chinese-Beef-Stir-Fry-Recipe.jpg?w=400",
             "ingredients": [
                 {"name": "Ground Beef", "quantity": 500, "unit": "g"},
@@ -233,6 +237,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             "name": "Spinach and Mushroom Risotto",
             "description": "Creamy risotto with fresh spinach and sautéed mushrooms.",
             "base_servings": 3,
+            "cooking_time_minutes": 40,
             "image_url": "https://loveandgoodstuff.com/wp-content/uploads/2020/11/mushroom-spinach-risotto-1200x1200-1.jpg?w=400",
             "ingredients": [
                 {"name": "Rice", "quantity": 300, "unit": "g"},
@@ -260,6 +265,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             description=recipe_data["description"],
             base_servings=recipe_data["base_servings"],
             image_url=recipe_data["image_url"],
+            cooking_time_minutes=recipe_data.get("cooking_time_minutes"),
             instructions_html=recipe_data["instructions"],
             owner_user_id=gal.id
         )

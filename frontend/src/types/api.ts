@@ -54,6 +54,7 @@ export interface RecipeCreateRequest {
   baseServings: number;
   instructionsHtml?: string;
   imageUrl?: string | null;
+  cookingTimeMinutes?: number | null;
   ingredients: RecipeIngredient[];
 }
 
@@ -63,6 +64,7 @@ export interface RecipeRead {
   description: string;
   baseServings: number;
   instructionsHtml?: string;
+  cookingTimeMinutes?: number | null;
   imageUrl?: string | null;
   ingredients: Array<{
     id: number;
@@ -79,6 +81,7 @@ export interface RecipeUpdateRequest {
   name: string;
   description?: string;
   baseServings: number;
+  cookingTimeMinutes?: number | null;
   instructionsHtml?: string;
   imageUrl?: string | null;
   ingredients: RecipeIngredient[];
@@ -88,6 +91,7 @@ export interface RecipeListItem {
   id: number;
   name: string;
   baseServings: number;
+  cookingTimeMinutes?: number | null;
   description?: string;
   imageUrl?: string | null;
 }

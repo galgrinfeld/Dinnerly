@@ -16,6 +16,7 @@ class Recipe(Base):
     base_servings = Column(Integer, nullable=False)
     instructions_html = Column(Text, nullable=True)
     image_url = Column(String, nullable=True)
+    cooking_time_minutes = Column(Integer, nullable=True)
     owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     created_at = Column(
         DateTime(timezone=True),

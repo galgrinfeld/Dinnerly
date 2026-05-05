@@ -284,20 +284,45 @@ export const RecipeFormLayout: React.FC<RecipeFormLayoutProps> = ({
                   disabled={isLoading}
                 />
 
-                {/* Base Servings */}
-                <TextField
-                  label="Base Servings"
-                  type="number"
-                  value={formState.baseServings}
-                  onChange={(e) =>
-                    onFieldChange(
-                      "baseServings",
-                      parseInt(e.target.value) || 1
-                    )
-                  }
-                  inputProps={{ min: 1 }}
-                  disabled={isLoading}
-                />
+                {/* Base Servings and Cooking Time - Responsive Row */}
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                    gap: 2,
+                  }}
+                >
+                  {/* Base Servings */}
+                  <TextField
+                    label="Base Servings"
+                    type="number"
+                    value={formState.baseServings}
+                    onChange={(e) =>
+                      onFieldChange(
+                        "baseServings",
+                        parseInt(e.target.value) || 1
+                      )
+                    }
+                    inputProps={{ min: 1 }}
+                    disabled={isLoading}
+                  />
+
+                  {/* Cooking Time */}
+                  <TextField
+                    label="Cooking Time (minutes)"
+                    type="number"
+                    value={formState.cookingTimeMinutes ?? ""}
+                    onChange={(e) =>
+                      onFieldChange(
+                        "cookingTimeMinutes",
+                        e.target.value ? parseInt(e.target.value) : null
+                      )
+                    }
+                    inputProps={{ min: 0 }}
+                    disabled={isLoading}
+                    placeholder="e.g. 30"
+                  />
+                </Box>
               </Stack>
             </Box>
           </Card>
