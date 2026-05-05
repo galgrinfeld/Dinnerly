@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -13,9 +13,12 @@ import {
   Box,
   Button,
   Stack,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
 import { IngredientRow, IngredientUnit, createEmptyIngredientRow } from "../types/recipe";
+import { searchIngredients, IngredientOption } from "../api/ingredients";
 
 const UNIT_OPTIONS: IngredientUnit[] = ["g", "kg", "ml", "l", "tsp", "tbsp", "cup", "unit", "slice", "to_taste"];
 
@@ -25,6 +28,52 @@ interface IngredientsTableProps {
 }
 
 export const IngredientsTable: React.FC<IngredientsTableProps> = ({ ingredients, onChange }) => {
+  const [ingredientOptions, setIngredientOptions] = useState<IngredientOption[]>([]);
+  const [loading, setLoading] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setIngredientOptions([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const results = await searchIngredients(query);
+      setIngredientOptions(results);
+    } catch (error) {
+      console.error("Failed to search ingredients:", error);
+      setIngredientOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleInputChange = (value: string) => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    if (!value.trim()) {
+      setIngredientOptions([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    debounceTimer.current = setTimeout(() => {
+      handleSearch(value);
+    }, 300);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
   const handleChange = (index: number, field: keyof IngredientRow, value: any) => {
     const updated = [...ingredients];
     updated[index] = { ...updated[index], [field]: value };
@@ -134,20 +183,55 @@ export const IngredientsTable: React.FC<IngredientsTableProps> = ({ ingredients,
                 }}
               >
                 <TableCell sx={{ py: 1.25, pl: 2, pr: 1 }}>
-                  <TextField
+                  <Autocomplete
                     size="small"
                     fullWidth
-                    value={ingredient.name}
-                    onChange={(e) =>
-                      handleChange(index, "name", e.target.value)
+                    freeSolo
+                    loading={loading}
+                    options={ingredientOptions}
+                    getOptionLabel={(option) =>
+                      typeof option === "string" ? option : option.name
                     }
-                    placeholder="e.g. Tomato"
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        fontSize: "0.9rem",
-                      },
+                    value={
+                      ingredientOptions.find((opt) => opt.name === ingredient.name) ||
+                      ingredient.name ||
+                      null
+                    }
+                    inputValue={ingredient.name}
+                    onInputChange={(_, newValue) => {
+                      handleChange(index, "name", newValue);
+                      handleInputChange(newValue);
                     }}
+                    onChange={(_, newValue) => {
+                      if (typeof newValue === "string") {
+                        handleChange(index, "name", newValue);
+                      } else if (newValue) {
+                        handleChange(index, "name", newValue.name);
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="e.g. Tomato"
+                        variant="outlined"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            fontSize: "0.9rem",
+                          },
+                        }}
+                      />
+                    )}
                   />
                 </TableCell>
                 <TableCell sx={{ py: 1.25, px: 0.5 }}>

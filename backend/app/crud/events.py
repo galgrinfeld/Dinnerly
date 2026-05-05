@@ -9,6 +9,7 @@ from app.db.models.event_member import EventMember
 from app.db.models.user import User
 from app.db.models.recipe import Recipe
 from app.schemas.event import EventCreate, EventUpdate, EventRecipeAttach, EventRead, EventRecipeRead
+from app.schemas.auth import EventMemberRead
 
 
 def serialize_event(db: Session, event: Event) -> EventRead:
@@ -33,12 +34,25 @@ def serialize_event(db: Session, event: Event) -> EventRead:
             )
         )
     
+    # Get all members for this event
+    members = db.query(EventMember).filter(EventMember.event_id == event.id).all()
+    members_list = [
+        EventMemberRead(
+            id=member.id,
+            email=member.email,
+            role=member.role,
+            status=member.status,
+        )
+        for member in members
+    ]
+    
     return EventRead(
         id=event.id,
         name=event.name,
         event_date=event.event_date,
         target_servings=event.target_servings,
         recipes=recipes,
+        members=members_list,
     )
 
 

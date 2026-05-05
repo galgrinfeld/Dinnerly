@@ -3,6 +3,7 @@ Event Pydantic schemas with camelCase.
 """
 from datetime import date
 from pydantic import BaseModel, Field
+from app.schemas.auth import EventMemberRead
 
 
 class EventCreate(BaseModel):
@@ -53,6 +54,7 @@ class EventRead(BaseModel):
     event_date: date = Field(alias="eventDate")
     target_servings: int = Field(alias="targetServings")
     recipes: list[EventRecipeRead] = []
+    members: list[EventMemberRead] = []
     
     class Config:
         from_attributes = True

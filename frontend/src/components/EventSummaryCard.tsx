@@ -30,6 +30,8 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         display: "flex",
         flexDirection: "column",
         transition: "all 0.3s ease",
+        width: "100%",
+        overflow: "hidden",
         "&:hover": {
           transform: "translateY(-8px)",
           boxShadow: "0 16px 36px rgba(43, 37, 34, 0.15)",
@@ -37,7 +39,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
       }}
     >
       {/* Card Header with Event Title */}
-      <CardContent sx={{ pb: 2 }}>
+      <CardContent sx={{ pb: 2, minWidth: 0, flex: 1 }}>
         <Typography
           variant="h6"
           component="h3"
@@ -56,7 +58,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         </Typography>
 
         {/* Event Metadata */}
-        <Stack spacing={1.5}>
+        <Stack spacing={1.5} sx={{ minWidth: 0 }}>
           {/* Event Date */}
           <Box
             sx={{
@@ -65,6 +67,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
               gap: 1,
               color: "#5C524E",
               fontSize: "0.875rem",
+              minWidth: 0,
             }}
           >
             <span>📅</span>
@@ -81,6 +84,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
               gap: 1,
               color: "#5C524E",
               fontSize: "0.875rem",
+              minWidth: 0,
             }}
           >
             <span>🍽️</span>
@@ -98,6 +102,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                 gap: 1,
                 color: "#5C524E",
                 fontSize: "0.875rem",
+                minWidth: 0,
               }}
             >
               <span>📖</span>
@@ -116,6 +121,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                 gap: 1,
                 color: "#5C524E",
                 fontSize: "0.875rem",
+                minWidth: 0,
               }}
             >
               <span>👥</span>
@@ -127,7 +133,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
 
           {/* Status Chips */}
           {event.members && event.members.length > 0 && (
-            <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", mt: 1 }}>
+            <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", mt: 1, minWidth: 0 }}>
               {event.members.slice(0, 2).map((member) => (
                 <Chip
                   key={member.id}
@@ -159,7 +165,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
       </CardContent>
 
       {/* Card Actions */}
-      <CardActions sx={{ pt: 0, mt: "auto" }}>
+      <CardActions sx={{ pt: 0, mt: "auto", minWidth: 0 }}>
         <Button
           variant="contained"
           fullWidth

@@ -135,7 +135,7 @@ export const MyEvents: React.FC = () => {
           <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="event tabs">
               <Tab
-                label={`Owned by Me (${ownedEvents.length})`}
+                label={`All Events (${events.length})`}
                 sx={{
                   textTransform: "none",
                   fontSize: "1rem",
@@ -147,7 +147,7 @@ export const MyEvents: React.FC = () => {
                 }}
               />
               <Tab
-                label={`Shared with Me (${sharedEvents.length})`}
+                label={`Owned by Me (${ownedEvents.length})`}
                 sx={{
                   textTransform: "none",
                   fontSize: "1rem",
@@ -158,11 +158,50 @@ export const MyEvents: React.FC = () => {
                   },
                 }}
               />
+              <Tab
+                label={`Shared with Me (${sharedEvents.length})`}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "1rem",
+                  color: tabValue === 2 ? "#8A6A2F" : "#5C524E",
+                  fontWeight: tabValue === 2 ? 700 : 500,
+                  "&.Mui-selected": {
+                    color: "#8A6A2F",
+                  },
+                }}
+              />
             </Tabs>
           </Box>
 
-          {/* Owned Events Tab */}
+          {/* All Events Tab */}
           <TabPanel value={tabValue} index={0}>
+            {events.length === 0 ? (
+              <EmptyStateBlock
+                emoji="🎉"
+                title="No events yet"
+                message="Create or join your first event to get started with Dinnerly."
+              />
+            ) : (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 3,
+                }}
+              >
+                {events.map((event) => (
+                  <EventSummaryCard
+                    key={event.id}
+                    event={event}
+                    onViewEvent={handleViewEvent}
+                  />
+                ))}
+              </Box>
+            )}
+          </TabPanel>
+
+          {/* Owned Events Tab */}
+          <TabPanel value={tabValue} index={1}>
             {ownedEvents.length === 0 ? (
               <EmptyStateBlock
                 emoji="📝"
@@ -170,21 +209,26 @@ export const MyEvents: React.FC = () => {
                 message="Create your first event to start planning meals with friends."
               />
             ) : (
-              <Grid container spacing={3}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 3,
+                }}
+              >
                 {ownedEvents.map((event) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={event.id}>
-                    <EventSummaryCard
-                      event={event}
-                      onViewEvent={handleViewEvent}
-                    />
-                  </Grid>
+                  <EventSummaryCard
+                    key={event.id}
+                    event={event}
+                    onViewEvent={handleViewEvent}
+                  />
                 ))}
-              </Grid>
+              </Box>
             )}
           </TabPanel>
 
           {/* Shared Events Tab */}
-          <TabPanel value={tabValue} index={1}>
+          <TabPanel value={tabValue} index={2}>
             {sharedEvents.length === 0 ? (
               <EmptyStateBlock
                 emoji="🤝"
@@ -192,16 +236,21 @@ export const MyEvents: React.FC = () => {
                 message="Ask friends to invite you to their events."
               />
             ) : (
-              <Grid container spacing={3}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 3,
+                }}
+              >
                 {sharedEvents.map((event) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={event.id}>
-                    <EventSummaryCard
-                      event={event}
-                      onViewEvent={handleViewEvent}
-                    />
-                  </Grid>
+                  <EventSummaryCard
+                    key={event.id}
+                    event={event}
+                    onViewEvent={handleViewEvent}
+                  />
                 ))}
-              </Grid>
+              </Box>
             )}
           </TabPanel>
         </>

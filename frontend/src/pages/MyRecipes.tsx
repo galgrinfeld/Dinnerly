@@ -2,41 +2,41 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
-  Grid,
   Typography,
   Box,
   CircularProgress,
   Alert,
   Button,
   TextField,
-  Card,
-  CardContent,
-  CardActions,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   IconButton,
-  Tooltip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { listRecipes, deleteRecipe } from "../api/recipes";
-import { RecipeListItem } from "../types/api";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { listRecipes, deleteRecipe, getRecipe } from "../api/recipes";
+import { RecipeRead } from "../types/api";
+import { RecipeCarouselCard } from "../components/RecipeCarouselCard";
 import { EmptyStateBlock } from "../components/EmptyStateBlock";
 
 export const MyRecipes: React.FC = () => {
   const navigate = useNavigate();
-  const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
+  const [recipes, setRecipes] = useState<RecipeRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [recipeToDelete, setRecipeToDelete] = useState<RecipeListItem | null>(null);
+  const [recipeToDelete, setRecipeToDelete] = useState<RecipeRead | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null);
 
   // Fetch recipes on mount
   useEffect(() => {
@@ -47,8 +47,25 @@ export const MyRecipes: React.FC = () => {
     setLoading(true);
     setError(null);
     listRecipes()
-      .then((data) => {
-        setRecipes(data);
+      .then((listData) => {
+        // Fetch full details for each recipe to get imageUrl
+        Promise.all(listData.map((item) => getRecipe(item.id)))
+          .then((fullRecipes) => {
+            setRecipes(fullRecipes);
+            setError(null);
+          })
+          .catch((err) => {
+            setError(err instanceof Error ? err.message : "Failed to load recipe details");
+            // Fall back to list data if detail fetch fails
+            setRecipes(
+              listData.map((item) => ({
+                ...item,
+                description: item.description || "",
+                instructionsHtml: "",
+                ingredients: [],
+              }))
+            );
+          });
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load recipes");
@@ -66,9 +83,20 @@ export const MyRecipes: React.FC = () => {
     );
   }, [recipes, searchQuery]);
 
-  const handleDeleteClick = (recipe: RecipeListItem) => {
+  const handleDeleteClick = (recipe: RecipeRead) => {
     setRecipeToDelete(recipe);
     setDeleteDialogOpen(true);
+    setMenuAnchor(null);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, recipeId: number) => {
+    setMenuAnchor(event.currentTarget);
+    setSelectedRecipeId(recipeId);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setSelectedRecipeId(null);
   };
 
   const handleDeleteConfirm = async () => {
@@ -172,114 +200,83 @@ export const MyRecipes: React.FC = () => {
               message={`No recipes match "${searchQuery}". Try a different search term.`}
             />
           ) : (
-            <Grid container spacing={3}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 3,
+              }}
+            >
               {filteredRecipes.map((recipe) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={recipe.id}>
-                  <Card
+                <Box
+                  key={recipe.id}
+                  sx={{
+                    position: "relative",
+                    "&:hover .recipe-menu-button": {
+                      opacity: 1,
+                    },
+                  }}
+                >
+                  <RecipeCarouselCard
+                    recipe={recipe}
+                    onViewDetails={(recipeId) => navigate(`/recipes/${recipeId}`)}
+                  />
+                  {/* Menu Button Overlay */}
+                  <IconButton
+                    className="recipe-menu-button"
+                    size="small"
+                    onClick={(e) => handleMenuOpen(e, recipe.id)}
                     sx={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      transition: "all 0.3s ease",
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      color: "#8A6A2F",
+                      opacity: 0,
+                      transition: "opacity 0.2s",
                       "&:hover": {
-                        transform: "translateY(-8px)",
-                        boxShadow: "0 16px 36px rgba(43, 37, 34, 0.15)",
+                        backgroundColor: "rgba(255, 255, 255, 1)",
                       },
                     }}
                   >
-                    {/* Card Content */}
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        sx={{
-                          fontWeight: 700,
-                          color: "#2B2522",
-                          mb: 1,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          minHeight: "2.8em",
-                        }}
-                      >
-                        {recipe.name}
-                      </Typography>
-
-                      {/* Description */}
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "#5C524E",
-                          mb: 2,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          minHeight: "2.4em",
-                        }}
-                      >
-                        {recipe.description || "No description provided"}
-                      </Typography>
-
-                      {/* Metadata */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          color: "#8A6A2F",
-                          fontSize: "0.875rem",
-                          fontWeight: 600,
-                          pt: 1,
-                          borderTop: "1px solid #E8DCC8",
-                        }}
-                      >
-                        <span>🍽️ {recipe.baseServings} servings</span>
-                      </Box>
-                    </CardContent>
-
-                    {/* Card Actions */}
-                    <CardActions sx={{ pt: 0, justifyContent: "flex-end", gap: 1 }}>
-                      <Tooltip title="View">
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => navigate(`/recipes/${recipe.id}`)}
-                          sx={{ color: "#8A6A2F" }}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit">
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => navigate(`/recipes/${recipe.id}/edit`)}
-                          sx={{ color: "#8A6A2F" }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteClick(recipe)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </CardActions>
-                  </Card>
-                </Grid>
+                    <MoreVertIcon />
+                  </IconButton>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
         </>
       )}
+
+      {/* Context Menu */}
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem
+          onClick={() => {
+            if (selectedRecipeId) {
+              navigate(`/recipes/${selectedRecipeId}/edit`);
+              handleMenuClose();
+            }
+          }}
+        >
+          <EditIcon sx={{ mr: 1, fontSize: "1.2rem" }} />
+          Edit
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            const recipeToDelete = recipes.find((r) => r.id === selectedRecipeId);
+            if (recipeToDelete) {
+              handleDeleteClick(recipeToDelete);
+            }
+          }}
+        >
+          <DeleteIcon sx={{ mr: 1, fontSize: "1.2rem", color: "error.main" }} />
+          Delete
+        </MenuItem>
+      </Menu>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
