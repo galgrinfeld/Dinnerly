@@ -221,6 +221,10 @@ function App() {
                   </Button>
                   <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                     <MenuItem disabled>{user.displayName || user.email}</MenuItem>
+                    <MenuItem onClick={() => {
+                      navigate("/friends");
+                      handleMenuClose();
+                    }}>Friends</MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </Menu>
                 </Box>

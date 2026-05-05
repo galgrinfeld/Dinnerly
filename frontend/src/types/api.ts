@@ -25,6 +25,28 @@ export interface AuthResponse {
   accessToken: string;
 }
 
+// Friend types
+export interface FriendRequestRead {
+  id: number;
+  senderUserId: number;
+  receiverUserId: number;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
+  updatedAt: string;
+  sender?: UserRead;
+  receiver?: UserRead;
+}
+
+export interface FriendRequestResponse {
+  message: string;
+  request?: FriendRequestRead;
+}
+
+export interface FriendsListResponse {
+  friends: UserRead[];
+  count: number;
+}
+
 // Participant types
 export interface ParticipantAddRequest {
   email: string;

@@ -12,6 +12,7 @@ import { EditRecipe } from "../pages/EditRecipe";
 import { EditEvent } from "../pages/EditEvent";
 import { MyEvents } from "../pages/MyEvents";
 import { MyRecipes } from "../pages/MyRecipes";
+import { Friends } from "../pages/Friends";
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const token = getAccessToken();
@@ -29,6 +30,7 @@ const AppRouter: React.FC = () => {
       <Route path="/" element={<ProtectedRoute element={<Home />} />} />
       <Route path="/myEvents" element={<ProtectedRoute element={<MyEvents />} />} />
       <Route path="/myRecipes" element={<ProtectedRoute element={<MyRecipes />} />} />
+      <Route path="/friends" element={<ProtectedRoute element={<Friends />} />} />
       <Route path="/addRecipe" element={<ProtectedRoute element={<AddRecipe />} />} />
       <Route path="/events/new" element={<ProtectedRoute element={<CreateEvent />} />} />
       <Route path="/events/:eventId" element={<ProtectedRoute element={<EventDetails />} />} />

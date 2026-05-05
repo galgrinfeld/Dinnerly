@@ -12,6 +12,7 @@ from app.schemas.auth import ParticipantAddRequest, EventMemberRead
 from app.schemas.shopping_list import ShoppingListResponse
 from app.crud import events as events_crud
 from app.crud import event_members as event_members_crud
+from app.crud import notifications as notifications_crud
 from app.services.shopping_list_generator import generate_shopping_list_for_event
 from app.api.deps import get_current_user, is_event_owner, is_event_member
 

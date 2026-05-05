@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine
 from app.db.base import Base
-from app.db.models import User, EventMember, Ingredient, Recipe, RecipeIngredient, Event, EventRecipe, EventIngredientAssignment
+from app.db.models import User, EventMember, Ingredient, Recipe, RecipeIngredient, Event, EventRecipe, EventIngredientAssignment, FriendRequest, Notification
 from app.api.router import router as api_router
 
 # Create database tables at startup (development only)

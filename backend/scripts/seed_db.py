@@ -35,7 +35,7 @@ from app.db.session import SessionLocal, engine
 from app.db.base import Base
 from app.db.models import (
     User, Ingredient, Recipe, RecipeIngredient, Event, EventRecipe,
-    EventMember, EventIngredientAssignment
+    EventMember, EventIngredientAssignment, FriendRequest
 )
 from app.services.security import hash_password
 
@@ -65,6 +65,7 @@ def clear_all_data(db: Session) -> None:
         "recipe_ingredients",
         "recipes",
         "events",
+        "friend_requests",
         "ingredients",
         "users"
     ]
@@ -395,6 +396,61 @@ def create_events(db: Session, users_map: dict, recipes: List[Recipe]) -> dict:
     return events_map
 
 
+def create_friend_requests(db: Session, users_map: dict) -> None:
+    """Create demo friend requests between users."""
+    print("\n👫 Creating friend connections...")
+    
+    gal = users_map["Gal@example.com"]
+    noga = users_map["Noga@example.com"]
+    adi = users_map["Adi@example.com"]
+    libi = users_map["Libi@example.com"]
+    ran = users_map["Ran@example.com"]
+    
+    # Create some accepted friend connections
+    # Gal <-> Noga (accepted)
+    freq1 = FriendRequest(
+        sender_user_id=gal.id,
+        receiver_user_id=noga.id,
+        status="accepted"
+    )
+    db.add(freq1)
+    
+    # Gal <-> Adi (accepted)
+    freq2 = FriendRequest(
+        sender_user_id=gal.id,
+        receiver_user_id=adi.id,
+        status="accepted"
+    )
+    db.add(freq2)
+    
+    # Noga <-> Libi (accepted)
+    freq3 = FriendRequest(
+        sender_user_id=noga.id,
+        receiver_user_id=libi.id,
+        status="accepted"
+    )
+    db.add(freq3)
+    
+    # Adi -> Ran (pending incoming for Ran)
+    freq4 = FriendRequest(
+        sender_user_id=adi.id,
+        receiver_user_id=ran.id,
+        status="pending"
+    )
+    db.add(freq4)
+    
+    # Libi -> Gal (pending incoming for Gal)
+    freq5 = FriendRequest(
+        sender_user_id=libi.id,
+        receiver_user_id=gal.id,
+        status="pending"
+    )
+    db.add(freq5)
+    
+    db.commit()
+    print("✓ Created friend connections")
+
+
 def assign_ingredients(db: Session, events_map: dict, ingredients_map: dict) -> None:
     """Assign shopping list ingredients to event participants."""
     print("\n🛒 Assigning ingredients to participants...")
@@ -447,7 +503,9 @@ def print_demo_credentials() -> None:
     print("\nKey Features to Test:")
     print("  • Login with any demo user account")
     print("  • Create and edit recipes")
-    print("  • Create events and invite participants")
+    print("  • Send and manage friend requests")
+    print("  • View your friends list")
+    print("  • Create events and invite participants (including friends)")
     print("  • View event details with attached recipes")
     print("  • Generate shopping lists")
     print("  • Assign ingredients to participants")
@@ -476,6 +534,7 @@ def seed_database() -> None:
         users_map = create_users(db)
         recipes = create_recipes(db, users_map, ingredients_map)
         events_map = create_events(db, users_map, recipes)
+        create_friend_requests(db, users_map)
         assign_ingredients(db, events_map, ingredients_map)
         
         # Print credentials

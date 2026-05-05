@@ -38,6 +38,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import PeopleIcon from '@mui/icons-material/People';
 
 import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent } from '../api/events';
 import { listRecipes } from '../api/recipes';
@@ -48,10 +49,10 @@ import {
   ShoppingListResponse,
   ShoppingListItem,
   EventMemberRead,
-  ParticipantAddRequest,
   EventUpdateRequest,
 } from '../types/api';
 import { PageHeader } from '../components/PageHeader';
+import { FriendsInviteDialog } from '../components/FriendsInviteDialog';
 
 /**
  * EventDetails page - displays event with attached recipes and unified shopping list.
@@ -77,6 +78,7 @@ const EventDetails: React.FC = () => {
   // Participants form state
   const [newParticipantEmail, setNewParticipantEmail] = useState('');
   const [addingParticipant, setAddingParticipant] = useState(false);
+  const [friendsInviteDialogOpen, setFriendsInviteDialogOpen] = useState(false);
 
   // Expanded sources rows
   const [expandedSources, setExpandedSources] = useState<Set<number>>(new Set());
@@ -216,6 +218,22 @@ const EventDetails: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Failed to add participant');
     } finally {
       setAddingParticipant(false);
+    }
+  };
+
+  // Handle invite multiple friends from FriendsInviteDialog
+  const handleInviteFriends = async (emails: string[]): Promise<void> => {
+    if (!eventId) return;
+
+    try {
+      for (const email of emails) {
+        const newMember = await addParticipant(parseInt(eventId, 10), {
+          email: email.trim().toLowerCase(),
+        });
+        setMembers((prev) => [...prev, newMember]);
+      }
+    } catch (err) {
+      throw err;
     }
   };
 
@@ -418,7 +436,7 @@ const EventDetails: React.FC = () => {
             if (event) {
               const confirmed = window.confirm('Are you sure you want to delete this event?');
               if (confirmed) {
-                handleDeleteEvent();
+                handleDeleteEventClick();
               }
             }
           },
@@ -555,6 +573,22 @@ const EventDetails: React.FC = () => {
                 }}
               >
                 {addingParticipant ? 'Adding...' : 'Add'}
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<PeopleIcon />}
+                onClick={() => setFriendsInviteDialogOpen(true)}
+                disabled={addingParticipant}
+                sx={{
+                  color: "#8A6A2F",
+                  borderColor: "#8A6A2F",
+                  "&:hover": { 
+                    backgroundColor: "#f5f1eb",
+                    borderColor: "#6F5624",
+                  },
+                }}
+              >
+                Invite Friends
               </Button>
             </Stack>
           )}
@@ -834,8 +868,8 @@ const EventDetails: React.FC = () => {
                   {shoppingList.items.map((item: ShoppingListItem) => {
                     const hasPendingChange = pendingAssignments.has(item.ingredientId);
                     const displayValue = pendingAssignments.has(item.ingredientId)
-                      ? pendingAssignments.get(item.ingredientId) ?? ''
-                      : item.assignedMemberId ?? '';
+                      ? (pendingAssignments.get(item.ingredientId) ?? '').toString()
+                      : (item.assignedMemberId ?? '').toString();
                     
                     return (
                     <React.Fragment key={item.ingredientId}>
@@ -899,10 +933,10 @@ const EventDetails: React.FC = () => {
                             <Select
                               value={displayValue}
                               onChange={(e) => {
-                                const value = e.target.value;
+                                const value = (e.target.value as string);
                                 handleAssignIngredient(
                                   item.ingredientId,
-                                  value === '' ? null : (value as any as number)
+                                  value === "" ? null : parseInt(value, 10)
                                 );
                               }}
                               sx={{
@@ -1002,6 +1036,14 @@ const EventDetails: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Friends Invite Dialog */}
+      <FriendsInviteDialog
+        open={friendsInviteDialogOpen}
+        onClose={() => setFriendsInviteDialogOpen(false)}
+        onInvite={handleInviteFriends}
+        currentMembers={members.map((m) => m.email.toLowerCase())}
+      />
     </Container>
   );
 };
