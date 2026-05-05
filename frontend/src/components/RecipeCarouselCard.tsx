@@ -28,12 +28,13 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        transition: "all 0.3s ease",
-        "&:hover": {
-          transform: "translateY(-8px)",
-          boxShadow: "0 16px 36px rgba(43, 37, 34, 0.15)",
-        },
         cursor: "pointer",
+        overflow: "hidden",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "&:hover": {
+          transform: "translateY(-3px)",
+          boxShadow: "0 16px 40px rgba(0, 0, 0, 0.1)",
+        },
       }}
     >
       {/* Recipe Image or Placeholder */}

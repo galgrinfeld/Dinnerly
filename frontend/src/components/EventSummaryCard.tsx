@@ -35,14 +35,9 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        transition: "all 0.3s ease",
         width: "100%",
         overflow: "visible",
         position: "relative",
-        "&:hover": {
-          transform: "translateY(-8px)",
-          boxShadow: "0 16px 36px rgba(43, 37, 34, 0.15)",
-        },
       }}
     >
       {/* Badge */}

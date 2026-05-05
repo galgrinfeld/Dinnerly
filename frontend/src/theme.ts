@@ -111,13 +111,18 @@ export const theme = createTheme({
         },
       },
     },
-    // Card styling with top accent border
+    // Card styling - subtle modern design
     MuiCard: {
       styleOverrides: {
         root: {
-          border: "1px solid #B39760",
-          borderTop: "4px solid #8A6A2F",
-          boxShadow: "0 10px 26px rgba(43, 37, 34, 0.08)",
+          border: "1px solid rgba(151, 111, 39, 0.18)",
+          boxShadow: "0 10px 28px rgba(0, 0, 0, 0.06)",
+          borderRadius: "16px",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          "&:hover": {
+            transform: "translateY(-3px)",
+            boxShadow: "0 16px 40px rgba(0, 0, 0, 0.1)",
+          },
         },
       },
     },

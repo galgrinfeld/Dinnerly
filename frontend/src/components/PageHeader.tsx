@@ -1,125 +1,44 @@
-import React from 'react';
-import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import React from "react";
+import { Box, Typography, Button, Stack } from "@mui/material";
 
-export interface PageHeaderAction {
+interface PageHeaderAction {
   label: string;
   onClick: () => void;
-  variant?: 'contained' | 'outlined';
-  color?: 'primary' | 'error' | 'inherit';
-  icon?: React.ReactNode;
-  disabled?: boolean;
+  variant?: "contained" | "outlined";
+  color?: "primary" | "error";
 }
 
-export interface PageHeaderProps {
+interface PageHeaderProps {
   title: string;
   subtitle?: string;
   primaryAction?: PageHeaderAction;
   secondaryAction?: PageHeaderAction;
 }
 
-/**
- * PageHeader - A reusable, responsive page header component
- * 
- * Features:
- * - Responsive layout (desktop: actions on right, mobile: actions below text)
- * - Supports title, subtitle, and optional primary/secondary action buttons
- * - Maintains beige/earthy theme consistency
- * 
- * @example
- * <PageHeader
- *   title="My Recipes"
- *   primaryAction={{
- *     label: "Create Recipe",
- *     onClick: () => navigate("/addRecipe"),
- *     icon: <AddIcon />
- *   }}
- * />
- */
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
   primaryAction,
   secondaryAction,
 }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const actionButtons = (
-    <Stack
-      direction="row"
-      spacing={1}
-      sx={{
-        width: isMobile ? '100%' : 'auto',
-        justifyContent: isMobile ? 'flex-start' : 'flex-end',
-      }}
-    >
-      {secondaryAction && (
-        <Button
-          variant={secondaryAction.variant || 'outlined'}
-          color={secondaryAction.color || 'primary'}
-          onClick={secondaryAction.onClick}
-          disabled={secondaryAction.disabled}
-          startIcon={secondaryAction.icon}
-          fullWidth={isMobile}
-          sx={{
-            textTransform: 'none',
-            ...(secondaryAction.variant === 'outlined' && {
-              borderColor: '#B39760',
-              color: '#2B2522',
-              '&:hover': {
-                backgroundColor: 'rgba(138, 106, 47, 0.05)',
-              },
-            }),
-          }}
-        >
-          {secondaryAction.label}
-        </Button>
-      )}
-      {primaryAction && (
-        <Button
-          variant={primaryAction.variant || 'contained'}
-          color={primaryAction.color || 'primary'}
-          onClick={primaryAction.onClick}
-          disabled={primaryAction.disabled}
-          startIcon={primaryAction.icon}
-          fullWidth={isMobile}
-          sx={{
-            textTransform: 'none',
-            ...(primaryAction.variant === 'contained' && primaryAction.color !== 'error' && {
-              backgroundColor: '#8A6A2F',
-              color: '#fff',
-              '&:hover': {
-                backgroundColor: '#6F5623',
-              },
-            }),
-          }}
-        >
-          {primaryAction.label}
-        </Button>
-      )}
-    </Stack>
-  );
-
   return (
     <Box
       sx={{
-        mb: 4,
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: 'space-between',
-        alignItems: isMobile ? 'flex-start' : 'center',
-        gap: isMobile ? 2 : 0,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        marginBottom: 4,
+        flexDirection: { xs: "column", sm: "row" },
+        gap: { xs: 2, sm: 0 },
       }}
     >
-      {/* Text Content */}
       <Box sx={{ flex: 1 }}>
         <Typography
           variant="h4"
-          component="h1"
           sx={{
             fontWeight: 700,
-            color: '#2B2522',
-            mb: subtitle ? 1 : 0,
+            color: "#2B2522",
+            marginBottom: subtitle ? 0.5 : 0,
           }}
         >
           {title}
@@ -128,8 +47,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           <Typography
             variant="body1"
             sx={{
-              color: '#5C524E',
-              fontSize: '0.95rem',
+              color: "#666",
+              fontSize: "0.95rem",
             }}
           >
             {subtitle}
@@ -137,14 +56,77 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         )}
       </Box>
 
-      {/* Actions */}
-      {(primaryAction || secondaryAction) && !isMobile && actionButtons}
+      {(primaryAction || secondaryAction) && (
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+          }}
+        >
+          {primaryAction && (
+            <Button
+              variant={primaryAction.variant || "contained"}
+              onClick={primaryAction.onClick}
+              sx={{
+                backgroundColor:
+                  primaryAction.variant === "outlined"
+                    ? "transparent"
+                    : "#8A6A2F",
+                color:
+                  primaryAction.variant === "outlined" ? "#B39760" : "white",
+                border:
+                  primaryAction.variant === "outlined"
+                    ? "1px solid #B39760"
+                    : "none",
+                "&:hover": {
+                  backgroundColor:
+                    primaryAction.variant === "outlined"
+                      ? "rgba(179, 151, 96, 0.1)"
+                      : "#6F5623",
+                },
+                textTransform: "none",
+                fontSize: "1rem",
+                padding: "10px 24px",
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              {primaryAction.label}
+            </Button>
+          )}
 
-      {/* Mobile Actions */}
-      {(primaryAction || secondaryAction) && isMobile && (
-        <Box sx={{ width: '100%' }}>
-          {actionButtons}
-        </Box>
+          {secondaryAction && (
+            <Button
+              variant={secondaryAction.variant || "outlined"}
+              onClick={secondaryAction.onClick}
+              color={secondaryAction.color || "inherit"}
+              sx={{
+                backgroundColor:
+                  secondaryAction.variant === "outlined"
+                    ? "transparent"
+                    : undefined,
+                borderColor:
+                  secondaryAction.variant === "outlined" ? "#B39760" : undefined,
+                color:
+                  secondaryAction.variant === "outlined"
+                    ? "#B39760"
+                    : undefined,
+                "&:hover": {
+                  backgroundColor:
+                    secondaryAction.variant === "outlined"
+                      ? "rgba(179, 151, 96, 0.1)"
+                      : undefined,
+                },
+                textTransform: "none",
+                fontSize: "1rem",
+                padding: "10px 24px",
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              {secondaryAction.label}
+            </Button>
+          )}
+        </Stack>
       )}
     </Box>
   );

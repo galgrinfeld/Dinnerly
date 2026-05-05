@@ -11,8 +11,6 @@ import {
   Card,
   Divider,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
 import { IngredientsTable } from "../components/IngredientsTable";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { PageHeader } from "../components/PageHeader";
@@ -56,9 +54,7 @@ export const RecipeFormLayout: React.FC<RecipeFormLayoutProps> = ({
   validationError,
   successMessage,
   nameError,
-  submitted,
 }) => {
-  const navigate = useNavigate();
   const [imageLoadError, setImageLoadError] = useState(false);
   const hasValidUrl = formState.imageUrl?.trim();
 

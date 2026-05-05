@@ -10,7 +10,6 @@ import {
   Divider,
   CircularProgress,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { PageHeader } from "../components/PageHeader";
 
 interface EventFormPageProps {
