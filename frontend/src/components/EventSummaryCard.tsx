@@ -14,11 +14,13 @@ import { EventRead } from "../types/api";
 interface EventSummaryCardProps {
   event: EventRead;
   onViewEvent: (eventId: number) => void;
+  badge?: string;
 }
 
 export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
   event,
   onViewEvent,
+  badge,
 }) => {
   const recipeCount = event.recipes?.length || 0;
   const memberCount = event.members?.length || 0;
@@ -31,13 +33,30 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         flexDirection: "column",
         transition: "all 0.3s ease",
         width: "100%",
-        overflow: "hidden",
+        overflow: "visible",
+        position: "relative",
         "&:hover": {
           transform: "translateY(-8px)",
           boxShadow: "0 16px 36px rgba(43, 37, 34, 0.15)",
         },
       }}
     >
+      {/* Badge */}
+      {badge && (
+        <Chip
+          label={badge}
+          size="small"
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            backgroundColor: "#8A6A2F",
+            color: "#FFFFFF",
+            fontWeight: 600,
+            zIndex: 10,
+          }}
+        />
+      )}
       {/* Card Header with Event Title */}
       <CardContent sx={{ pb: 2, minWidth: 0, flex: 1 }}>
         <Typography

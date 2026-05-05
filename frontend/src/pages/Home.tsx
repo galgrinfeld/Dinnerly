@@ -9,7 +9,6 @@ import {
   Alert,
   IconButton,
   Button,
-  Chip,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -406,27 +405,11 @@ export const Home: React.FC = () => {
                   const dateIndicator = getDateIndicator(event.eventDate);
                   return (
                     <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                      <Box sx={{ position: "relative", height: "100%" }}>
-                        {dateIndicator && (
-                          <Chip
-                            label={dateIndicator}
-                            size="small"
-                            sx={{
-                              position: "absolute",
-                              top: -8,
-                              right: 8,
-                              backgroundColor: "#8A6A2F",
-                              color: "#FFFFFF",
-                              fontWeight: 600,
-                              zIndex: 10,
-                            }}
-                          />
-                        )}
-                        <EventSummaryCard
-                          event={event}
-                          onViewEvent={(eventId) => navigate(`/events/${eventId}`)}
-                        />
-                      </Box>
+                      <EventSummaryCard
+                        event={event}
+                        onViewEvent={(eventId) => navigate(`/events/${eventId}`)}
+                        badge={dateIndicator || undefined}
+                      />
                     </Grid>
                   );
                 })}
