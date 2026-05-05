@@ -26,6 +26,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ClearIcon from "@mui/icons-material/Clear";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import SearchIcon from "@mui/icons-material/Search";
 import { listRecipes, deleteRecipe, getRecipe } from "../api/recipes";
 import { RecipeRead } from "../types/api";
 import { RecipeCarouselCard } from "../components/RecipeCarouselCard";
@@ -229,7 +231,7 @@ export const MyRecipes: React.FC = () => {
       {/* Empty State */}
       {recipes.length === 0 ? (
         <EmptyStateBlock
-          emoji="👨‍🍳"
+          icon={<MenuBookIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
           title="No recipes yet"
           message="Create your first recipe to start building your collection."
         />
@@ -367,7 +369,7 @@ export const MyRecipes: React.FC = () => {
           {/* Recipes Grid */}
           {filteredRecipes.length === 0 ? (
             <EmptyStateBlock
-              emoji="🔍"
+              icon={<SearchIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
               title="No recipes found"
               message={
                 searchQuery

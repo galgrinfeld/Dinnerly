@@ -14,6 +14,8 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import EventIcon from "@mui/icons-material/Event";
 import { listRecipes, getRecipe } from "../api/recipes";
 import { listEvents } from "../api/events";
 import { RecipeRead, EventRead } from "../types/api";
@@ -211,7 +213,7 @@ export const Home: React.FC = () => {
             </Box>
           ) : recipes.length === 0 ? (
             <EmptyStateBlock
-              emoji="📖"
+              icon={<MenuBookIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
               title="No recipes yet"
               message="Start by creating your first recipe. You'll be able to organize, share, and use them across your events."
             />
@@ -378,7 +380,7 @@ export const Home: React.FC = () => {
             </Box>
           ) : upcomingEvents.length === 0 ? (
             <EmptyStateBlock
-              emoji="📅"
+              icon={<EventIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
               title="No upcoming events"
               message="Create an event to plan shared meals with friends. You can add recipes, manage participants, and generate shopping lists."
             />

@@ -1,14 +1,17 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import InboxIcon from "@mui/icons-material/Inbox";
 
 interface EmptyStateBlockProps {
   emoji?: string;
+  icon?: React.ReactNode;
   title: string;
   message: string;
 }
 
 export const EmptyStateBlock: React.FC<EmptyStateBlockProps> = ({
-  emoji = "📭",
+  emoji,
+  icon,
   title,
   message,
 }) => {
@@ -34,7 +37,7 @@ export const EmptyStateBlock: React.FC<EmptyStateBlockProps> = ({
           opacity: 0.7,
         }}
       >
-        {emoji}
+        {icon || emoji || <InboxIcon sx={{ fontSize: "3rem" }} />}
       </Box>
       <Typography
         variant="h6"

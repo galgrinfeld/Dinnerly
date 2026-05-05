@@ -8,6 +8,8 @@ import {
   Button,
   Box,
 } from "@mui/material";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { RecipeRead } from "../types/api";
 import { formatCookingTime } from "../utils/formatters";
 
@@ -114,9 +116,15 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
             gap: 1,
           }}
         >
-          <span>🍽️ {recipe.baseServings} servings</span>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <RestaurantIcon sx={{ fontSize: "1rem" }} />
+            <span>{recipe.baseServings} servings</span>
+          </Box>
           {recipe.cookingTimeMinutes && (
-            <span>⏱️ {formatCookingTime(recipe.cookingTimeMinutes)}</span>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <AccessTimeIcon sx={{ fontSize: "1rem" }} />
+              <span>{formatCookingTime(recipe.cookingTimeMinutes)}</span>
+            </Box>
           )}
         </Box>
       </CardContent>

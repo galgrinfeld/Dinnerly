@@ -2,8 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
-  Grid,
-  Typography,
   Box,
   CircularProgress,
   Alert,
@@ -19,9 +17,12 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
+import EventIcon from "@mui/icons-material/Event";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import PeopleIcon from "@mui/icons-material/People";
 import { PageHeader } from "../components/PageHeader";
 import { listEvents } from "../api/events";
-import { EventRead, EventMemberRead } from "../types/api";
+import { EventRead } from "../types/api";
 import { EventSummaryCard } from "../components/EventSummaryCard";
 import { EmptyStateBlock } from "../components/EmptyStateBlock";
 import { me } from "../api/auth";
@@ -132,9 +133,6 @@ export const MyEvents: React.FC = () => {
     return ownerMember?.email === currentUser.email;
   };
 
-  const ownedEvents = events.filter((event) => isOwner(event));
-  const sharedEvents = events.filter((event) => !isOwner(event));
-
   // Apply filtering and sorting to events based on current controls
   const filteredAndSortedEvents = useMemo(() => {
     let result = events;
@@ -165,7 +163,7 @@ export const MyEvents: React.FC = () => {
     return filteredAndSortedEvents.filter((event) => !isOwner(event));
   }, [filteredAndSortedEvents, currentUser]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -213,7 +211,7 @@ export const MyEvents: React.FC = () => {
       {/* Empty State */}
       {events.length === 0 ? (
         <EmptyStateBlock
-          emoji="🎉"
+          icon={<EventIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
           title="No events yet"
           message="Create or join your first event to get started with Dinnerly."
         />
@@ -388,7 +386,7 @@ export const MyEvents: React.FC = () => {
           <TabPanel value={tabValue} index={0}>
             {filteredAndSortedEvents.length === 0 ? (
               <EmptyStateBlock
-                emoji="🎉"
+                icon={<EventIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
                 title="No events found"
                 message={
                   searchQuery
@@ -421,7 +419,7 @@ export const MyEvents: React.FC = () => {
           <TabPanel value={tabValue} index={1}>
             {filteredOwnedEvents.length === 0 ? (
               <EmptyStateBlock
-                emoji="📝"
+                icon={<EditNoteIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
                 title="No events owned yet"
                 message={
                   searchQuery
@@ -454,7 +452,7 @@ export const MyEvents: React.FC = () => {
           <TabPanel value={tabValue} index={2}>
             {filteredSharedEvents.length === 0 ? (
               <EmptyStateBlock
-                emoji="🤝"
+                icon={<PeopleIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
                 title="No events shared yet"
                 message={
                   searchQuery

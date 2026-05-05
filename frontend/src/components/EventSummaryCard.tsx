@@ -9,6 +9,10 @@ import {
   Stack,
   Chip,
 } from "@mui/material";
+import EventIcon from "@mui/icons-material/Event";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import PeopleIcon from "@mui/icons-material/People";
 import { EventRead } from "../types/api";
 
 interface EventSummaryCardProps {
@@ -89,7 +93,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
               minWidth: 0,
             }}
           >
-            <span>📅</span>
+            <EventIcon sx={{ fontSize: "1rem", flexShrink: 0 }} />
             <Typography variant="body2">
               <strong>{new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</strong>
             </Typography>
@@ -106,7 +110,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
               minWidth: 0,
             }}
           >
-            <span>🍽️</span>
+            <RestaurantIcon sx={{ fontSize: "1rem", flexShrink: 0 }} />
             <Typography variant="body2">
               Target: <strong>{event.targetServings} servings</strong>
             </Typography>
@@ -124,7 +128,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                 minWidth: 0,
               }}
             >
-              <span>📖</span>
+              <MenuBookIcon sx={{ fontSize: "1rem", flexShrink: 0 }} />
               <Typography variant="body2">
                 <strong>{recipeCount}</strong> {recipeCount === 1 ? "recipe" : "recipes"}
               </Typography>
@@ -143,7 +147,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                 minWidth: 0,
               }}
             >
-              <span>👥</span>
+              <PeopleIcon sx={{ fontSize: "1rem", flexShrink: 0 }} />
               <Typography variant="body2">
                 <strong>{memberCount}</strong> {memberCount === 1 ? "participant" : "participants"}
               </Typography>
