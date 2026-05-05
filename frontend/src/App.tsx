@@ -10,6 +10,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { getAccessToken, clearAccessToken } from "./api/http";
 import { me } from "./api/auth";
 import { UserRead } from "./types/api";
@@ -146,9 +147,19 @@ function App() {
                     : 500,
                   textTransform: "none",
                   fontSize: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
                 }}
               >
-                Recipes ▼
+                Recipes
+                <KeyboardArrowDownIcon
+                  sx={{
+                    fontSize: "1.2rem",
+                    transition: "transform 0.2s ease",
+                    transform: Boolean(recipesAnchorEl) ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
               </Button>
               <Menu
                 anchorEl={recipesAnchorEl}
@@ -175,9 +186,19 @@ function App() {
                     : 500,
                   textTransform: "none",
                   fontSize: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
                 }}
               >
-                Events ▼
+                Events
+                <KeyboardArrowDownIcon
+                  sx={{
+                    fontSize: "1.2rem",
+                    transition: "transform 0.2s ease",
+                    transform: Boolean(eventsAnchorEl) ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
               </Button>
               <Menu
                 anchorEl={eventsAnchorEl}
