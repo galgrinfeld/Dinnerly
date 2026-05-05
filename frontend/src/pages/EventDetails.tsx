@@ -51,6 +51,7 @@ import {
   ParticipantAddRequest,
   EventUpdateRequest,
 } from '../types/api';
+import { PageHeader } from '../components/PageHeader';
 
 /**
  * EventDetails page - displays event with attached recipes and unified shopping list.
@@ -392,19 +393,37 @@ const EventDetails: React.FC = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* Back button and page title */}
-      <Box sx={{ mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/')}
-          sx={{ textTransform: 'none', mb: 2 }}
-        >
-          Back to Home
-        </Button>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-          Event Details
-        </Typography>
-      </Box>
+      {/* Back button and page header */}
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/')}
+        sx={{ textTransform: 'none', mb: 3 }}
+      >
+        Back to Home
+      </Button>
+
+      <PageHeader
+        title={event?.name || 'Event Details'}
+        subtitle="Manage event details, recipes, and shopping list."
+        primaryAction={{
+          label: 'Edit',
+          icon: <EditIcon />,
+          onClick: () => setIsEditingEvent(!isEditingEvent),
+        }}
+        secondaryAction={{
+          label: 'Delete',
+          icon: <DeleteIcon />,
+          color: 'error',
+          onClick: () => {
+            if (event) {
+              const confirmed = window.confirm('Are you sure you want to delete this event?');
+              if (confirmed) {
+                handleDeleteEvent();
+              }
+            }
+          },
+        }}
+      />
 
       {/* Error alert */}
       {error && (

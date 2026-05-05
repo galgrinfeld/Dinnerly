@@ -21,6 +21,7 @@ import {
   Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { PageHeader } from "../components/PageHeader";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -208,25 +209,15 @@ export const MyRecipes: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: "#2B2522" }}>
-          My Recipes
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate("/addRecipe")}
-          sx={{
-            backgroundColor: "#8A6A2F",
-            color: "#fff",
-            textTransform: "none",
-            "&:hover": { backgroundColor: "#6F5623" },
-          }}
-        >
-          Create Recipe
-        </Button>
-      </Box>
+      <PageHeader
+        title="My Recipes"
+        subtitle="Browse and manage your recipe collection."
+        primaryAction={{
+          label: "Create Recipe",
+          icon: <AddIcon />,
+          onClick: () => navigate("/addRecipe"),
+        }}
+      />
 
       {/* Error State */}
       {error && (

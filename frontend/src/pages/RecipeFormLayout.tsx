@@ -15,6 +15,7 @@ import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { IngredientsTable } from "../components/IngredientsTable";
 import { RichTextEditor } from "../components/RichTextEditor";
+import { PageHeader } from "../components/PageHeader";
 import {
   RecipeFormState,
   IngredientRow,
@@ -189,27 +190,10 @@ export const RecipeFormLayout: React.FC<RecipeFormLayoutProps> = ({
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Page Header */}
-      <Stack spacing={1} sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            color: "#171717",
-          }}
-        >
-          {title}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "#5C524E",
-            fontSize: "0.95rem",
-          }}
-        >
-          {subtitle}
-        </Typography>
-      </Stack>
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+      />
 
       {/* Alerts */}
       <Stack spacing={2} sx={{ mb: 3 }}>

@@ -25,6 +25,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getRecipe, deleteRecipe } from '../api/recipes';
 import { RecipeRead } from '../types/api';
 import { formatCookingTime } from '../utils/formatters';
+import { PageHeader } from '../components/PageHeader';
 
 /**
  * RecipeDetails page - displays recipe with ingredients and actions to edit/delete.
@@ -116,38 +117,32 @@ const RecipeDetails: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Stack spacing={3}>
-        {/* Page Header - Top Navigation */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/')}
-            sx={{ color: '#5C524E', borderColor: '#E8E4DF' }}
-          >
-            Back to Home
-          </Button>
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="contained"
-              startIcon={<EditIcon />}
-              onClick={() => navigate(`/recipes/${recipe.id}/edit`)}
-              sx={{
-                backgroundColor: '#2B2522',
-                '&:hover': { backgroundColor: '#1a1410' },
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={handleDeleteClick}
-            >
-              Delete
-            </Button>
-          </Stack>
-        </Box>
+        {/* Back Button */}
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate('/')}
+          sx={{ color: '#5C524E', borderColor: '#E8E4DF', alignSelf: 'flex-start' }}
+        >
+          Back to Home
+        </Button>
+
+        {/* Page Header - Title with Actions */}
+        <PageHeader
+          title={recipe.name}
+          subtitle="View recipe details, ingredients, and instructions."
+          primaryAction={{
+            label: 'Edit',
+            icon: <EditIcon />,
+            onClick: () => navigate(`/recipes/${recipe.id}/edit`),
+          }}
+          secondaryAction={{
+            label: 'Delete',
+            icon: <DeleteIcon />,
+            color: 'error',
+            onClick: handleDeleteClick,
+          }}
+        />
 
         {/* Recipe Header Section - 2 Column Layout */}
         <Box
@@ -165,19 +160,6 @@ const RecipeDetails: React.FC = () => {
             }}
           >
             <Box sx={{ p: 3 }}>
-              {/* Title */}
-              <Typography
-                variant="h4"
-                component="h1"
-                sx={{
-                  fontWeight: 700,
-                  color: '#171717',
-                  mb: 2,
-                }}
-              >
-                {recipe.name}
-              </Typography>
-
               {/* Description */}
               {recipe.description && (
                 <Typography

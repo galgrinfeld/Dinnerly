@@ -11,6 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import { PageHeader } from "../components/PageHeader";
 
 interface EventFormPageProps {
   title: string;
@@ -38,27 +39,10 @@ export const EventFormPage: React.FC<EventFormPageProps> = ({
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       {/* Page Header */}
-      <Stack spacing={1} sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            color: "#171717",
-          }}
-        >
-          {title}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "#5C524E",
-            fontSize: "0.95rem",
-          }}
-        >
-          {subtitle}
-        </Typography>
-      </Stack>
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+      />
 
       {/* Alerts */}
       <Stack spacing={2} sx={{ mb: 3 }}>
