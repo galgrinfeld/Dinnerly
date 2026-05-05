@@ -15,6 +15,7 @@ import { getAccessToken, clearAccessToken } from "./api/http";
 import { me } from "./api/auth";
 import { UserRead } from "./types/api";
 import AppRouter from "./routes/AppRouter";
+import { NotificationBell } from "./components/NotificationBell";
 
 function App() {
   const navigate = useNavigate();
@@ -215,19 +216,22 @@ function App() {
 
               {/* User menu */}
               {user && (
-                <Box>
-                  <Button onClick={handleMenuOpen} sx={{ color: "#171717", textTransform: "none" }}>
-                    {user.email}
-                  </Button>
-                  <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                    <MenuItem disabled>{user.displayName || user.email}</MenuItem>
-                    <MenuItem onClick={() => {
-                      navigate("/friends");
-                      handleMenuClose();
-                    }}>Friends</MenuItem>
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </Menu>
-                </Box>
+                <>
+                  <NotificationBell />
+                  <Box>
+                    <Button onClick={handleMenuOpen} sx={{ color: "#171717", textTransform: "none", fontSize: "1rem" }}>
+                      Hello, {user.displayName}
+                    </Button>
+                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                      <MenuItem disabled>{user.email}</MenuItem>
+                      <MenuItem onClick={() => {
+                        navigate("/friends");
+                        handleMenuClose();
+                      }}>Friends</MenuItem>
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </Menu>
+                  </Box>
+                </>
               )}
             </Stack>
           </Toolbar>

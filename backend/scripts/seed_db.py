@@ -35,7 +35,7 @@ from app.db.session import SessionLocal, engine
 from app.db.base import Base
 from app.db.models import (
     User, Ingredient, Recipe, RecipeIngredient, Event, EventRecipe,
-    EventMember, EventIngredientAssignment, FriendRequest
+    EventMember, EventIngredientAssignment, FriendRequest, Notification
 )
 from app.services.security import hash_password
 

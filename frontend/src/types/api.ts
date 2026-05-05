@@ -177,3 +177,21 @@ export interface ShoppingListItem {
 export interface ShoppingListResponse {
   items: ShoppingListItem[];
 }
+
+// Notification types
+export interface NotificationRead {
+  id: number;
+  userId: number;
+  type: "friend_request_received" | "friend_request_accepted" | "event_member_added" | "recipe_attached";
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string; // ISO datetime format
+  relatedEventId?: number | null;
+  relatedRecipeId?: number | null;
+  relatedUserId?: number | null;
+}
+
+export interface UnreadCountResponse {
+  count: number;
+}

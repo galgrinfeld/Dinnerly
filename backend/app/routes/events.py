@@ -13,6 +13,7 @@ from app.schemas.shopping_list import ShoppingListResponse
 from app.crud import events as events_crud
 from app.crud import event_members as event_members_crud
 from app.crud import notifications as notifications_crud
+from app.crud import recipes as recipes_crud
 from app.services.shopping_list_generator import generate_shopping_list_for_event
 from app.api.deps import get_current_user, is_event_owner, is_event_member
 
@@ -77,6 +78,26 @@ def attach_recipe_to_event(
     
     try:
         event = events_crud.attach_recipe_to_event(db, event_id, payload)
+        
+        # Get recipe for notification message
+        recipe = recipes_crud.get_recipe(db, payload.recipe_id)
+        recipe_name = recipe.name if recipe else "Unknown Recipe"
+        
+        # Create notifications for all event members except the user who added the recipe
+        members = event_members_crud.list_members(db, event_id)
+        for member in members:
+            if member.user_id != current_user.id:
+                notifications_crud.create_notification(
+                    db,
+                    user_id=member.user_id,
+                    notification_type="recipe_attached",
+                    title="Recipe Added to Event",
+                    message=f"{current_user.display_name or current_user.email} added {recipe_name} to {event.name}",
+                    related_event_id=event_id,
+                    related_recipe_id=payload.recipe_id,
+                    related_user_id=current_user.id,
+                )
+        
         return events_crud.serialize_event(db, event)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -161,6 +182,19 @@ def add_participant(
         # Normalize email to lowercase
         email = payload.email.lower()
         member = event_members_crud.add_participant(db, event_id, email)
+        
+        # Create notification if user already exists
+        if member.user_id:
+            notifications_crud.create_notification(
+                db,
+                user_id=member.user_id,
+                notification_type="event_member_added",
+                title="Added to Event",
+                message=f"You were added to {event.name} by {current_user.display_name or current_user.email}",
+                related_event_id=event_id,
+                related_user_id=current_user.id,
+            )
+        
         return EventMemberRead.from_orm(member)
     except Exception as e:
         logger.error(f"Error adding participant: {str(e)}", exc_info=True)
