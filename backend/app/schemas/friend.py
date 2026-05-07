@@ -50,6 +50,25 @@ class UserBasic(BaseModel):
         populate_by_name = True
 
 
+class UserProfileRead(BaseModel):
+    """Schema for reading user profile with friendship status and shared events."""
+    id: int
+    email: str
+    display_name: Optional[str] = Field(None, alias="displayName")
+    friendship_status: str = Field(..., alias="friendshipStatus")  # "friend", "pending", "blocked", "none"
+    shared_event_count: int = Field(..., alias="sharedEventCount")
+    
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+
+
+class FriendsListResponse(BaseModel):
+    """Response for listing friends."""
+    friends: list[UserBasic]
+    count: int
+
+
 # Update forward references
 FriendRequestRead.model_rebuild()
 

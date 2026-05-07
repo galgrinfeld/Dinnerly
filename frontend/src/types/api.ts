@@ -47,6 +47,15 @@ export interface FriendsListResponse {
   count: number;
 }
 
+export interface UserProfileRead {
+  id: number;
+  email: string;
+  displayName?: string;
+  friendshipStatus: "friend" | "pending" | "blocked" | "none";
+  sharedEventCount: number;
+  isCurrentUser?: boolean;
+}
+
 // Participant types
 export interface ParticipantAddRequest {
   email: string;
@@ -57,6 +66,7 @@ export interface EventMemberRead {
   email: string;
   role: "owner" | "participant";
   status: "active" | "invited";
+  userId?: number;
 }
 
 // Recipe types

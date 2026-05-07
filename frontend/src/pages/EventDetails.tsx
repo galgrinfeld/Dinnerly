@@ -44,7 +44,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent, leaveEvent } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import { me } from '../api/auth';
-import { getFriends, getOutgoingRequests, getIncomingRequests, sendFriendRequest } from '../api/friends';
+import { getFriends, getOutgoingRequests, sendFriendRequest, getUserProfile } from '../api/friends';
 import {
   EventRead,
   EventRecipeRead,
@@ -56,9 +56,10 @@ import {
   UserRead,
   FriendRequestRead,
   FriendsListResponse,
+  UserProfileRead,
 } from '../types/api';
-import { PageHeader } from '../components/PageHeader';
 import { FriendsInviteDialog } from '../components/FriendsInviteDialog';
+import { FriendProfilePopover } from '../components/FriendProfilePopover';
 
 /**
  * EventDetails page - displays event with attached recipes and unified shopping list.
@@ -120,9 +121,12 @@ const EventDetails: React.FC = () => {
   // Friends state
   const [friendsData, setFriendsData] = useState<FriendsListResponse | null>(null);
   const [outgoingRequests, setOutgoingRequests] = useState<FriendRequestRead[]>([]);
-  const [incomingRequests, setIncomingRequests] = useState<FriendRequestRead[]>([]);
-  const [loadingFriends, setLoadingFriends] = useState(false);
   const [sendingFriendRequest, setSendingFriendRequest] = useState<Record<string, boolean>>({});
+
+  // Profile popover state
+  const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
+  const [profilePopoverAnchor, setProfilePopoverAnchor] = useState<HTMLElement | null>(null);
+  const [selectedMemberProfile, setSelectedMemberProfile] = useState<UserProfileRead | null>(null);
 
   // Calculate current user's role
   const currentUserRole = currentUser
@@ -133,8 +137,8 @@ const EventDetails: React.FC = () => {
   const isParticipant = currentUserRole === 'participant';
 
   // Determine friend status of a participant
-  const getFriendStatus = (email: string): 'friend' | 'pending' | 'not-friend' => {
-    if (!friendsData) return 'not-friend';
+  const getFriendStatus = (email: string): 'friend' | 'pending' | 'blocked' | 'none' => {
+    if (!friendsData) return 'none';
     
     // Check if user is in friends list
     if (friendsData.friends.some(f => f.email === email)) {
@@ -146,7 +150,7 @@ const EventDetails: React.FC = () => {
       return 'pending';
     }
     
-    return 'not-friend';
+    return 'none';
   };
 
   // Load event, recipes, shopping list, participants, current user, and friends
@@ -176,20 +180,15 @@ const EventDetails: React.FC = () => {
 
         // Load friends data in background
         try {
-          setLoadingFriends(true);
-          const [friendsResponse, outgoing, incoming] = await Promise.all([
+          const [friendsResponse, outgoing] = await Promise.all([
             getFriends(),
             getOutgoingRequests(),
-            getIncomingRequests(),
           ]);
           setFriendsData(friendsResponse);
           setOutgoingRequests(outgoing);
-          setIncomingRequests(incoming);
         } catch (friendErr) {
           console.error('Failed to load friends:', friendErr);
           // Don't show error - friends loading is secondary
-        } finally {
-          setLoadingFriends(false);
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load event';
@@ -357,6 +356,63 @@ const EventDetails: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Failed to send friend request');
     } finally {
       setSendingFriendRequest(prev => ({ ...prev, [email]: false }));
+    }
+  };
+
+  // Handle open profile popover
+  const handleOpenProfilePopover = async (event: React.MouseEvent<HTMLElement>, member: EventMemberRead) => {
+    setProfilePopoverAnchor(event.currentTarget);
+    
+    try {
+      const isCurrentUser = currentUser && currentUser.email.toLowerCase() === member.email.toLowerCase();
+      
+      // Try to find display name from friends list
+      let displayName = undefined;
+      if (friendsData) {
+        const friend = friendsData.friends.find(f => f.email.toLowerCase() === member.email.toLowerCase());
+        displayName = friend?.displayName;
+      }
+      
+      // Fetch full profile data if userId is available
+      let profile: UserProfileRead = {
+        id: member.id,
+        email: member.email,
+        displayName,
+        friendshipStatus: getFriendStatus(member.email) || 'none',
+        sharedEventCount: 0,
+        isCurrentUser: isCurrentUser || undefined,
+      };
+      
+      // If we have userId, fetch the full profile
+      if (member.userId) {
+        try {
+          profile = await getUserProfile(member.userId);
+          profile.isCurrentUser = isCurrentUser || undefined;
+        } catch (err) {
+          console.error('Failed to fetch full profile, using basic info:', err);
+          // Fall back to basic profile
+        }
+      }
+      
+      setSelectedMemberProfile(profile);
+      setProfilePopoverOpen(true);
+    } catch (err) {
+      console.error('Failed to load member profile:', err);
+    }
+  };
+
+  // Handle close profile popover
+  const handleCloseProfilePopover = () => {
+    setProfilePopoverOpen(false);
+    setProfilePopoverAnchor(null);
+    setSelectedMemberProfile(null);
+  };
+
+  // Handle view shared events
+  const handleViewSharedEvents = () => {
+    if (selectedMemberProfile) {
+      // Navigate to events page filtered by this user
+      navigate('/my-events');
     }
   };
 
@@ -777,7 +833,7 @@ const EventDetails: React.FC = () => {
               {members.map((member) => {
                 const friendStatus = getFriendStatus(member.email);
                 const isCurrentUser = currentUser && currentUser.email.toLowerCase() === member.email.toLowerCase();
-                const showAddFriendButton = !isCurrentUser && member.role !== 'owner' && friendStatus === 'not-friend';
+                const showAddFriendButton = !isCurrentUser && member.role !== 'owner' && friendStatus === 'none';
                 
                 return (
                   <ListItem
@@ -793,8 +849,17 @@ const EventDetails: React.FC = () => {
                       alignItems: 'center',
                     }}
                   >
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2">{member.email}</Typography>
+                    <Box sx={{ flex: 1, cursor: 'pointer' }} onClick={(e) => handleOpenProfilePopover(e, member)}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: '#8A6A2F',
+                          '&:hover': { textDecoration: 'underline' },
+                          fontWeight: 500,
+                        }}
+                      >
+                        {member.email}
+                      </Typography>
                       <Stack direction="row" spacing={1} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
                         {isCurrentUser ? (
                           <>
@@ -829,7 +894,7 @@ const EventDetails: React.FC = () => {
                             {friendStatus === 'pending' && (
                               <Chip label="Pending invite" size="small" color="info" variant="outlined" />
                             )}
-                            {friendStatus === 'not-friend' && (
+                            {friendStatus === 'none' && (
                               <Typography variant="caption" sx={{ color: '#999', fontStyle: 'italic' }}>
                                 Not a friend
                               </Typography>
@@ -1306,6 +1371,21 @@ const EventDetails: React.FC = () => {
         onInvite={handleInviteFriends}
         currentMembers={members.map((m) => m.email.toLowerCase())}
       />
+
+      {/* Profile Popover */}
+      {selectedMemberProfile && (
+        <FriendProfilePopover
+          open={profilePopoverOpen}
+          anchorEl={profilePopoverAnchor}
+          onClose={handleCloseProfilePopover}
+          userEmail={selectedMemberProfile.email}
+          userName={selectedMemberProfile.displayName}
+          friendshipStatus={selectedMemberProfile.friendshipStatus as "friend" | "pending" | "blocked" | "none"}
+          sharedEventCount={selectedMemberProfile.sharedEventCount}
+          isCurrentUser={selectedMemberProfile.isCurrentUser}
+          onViewSharedEvents={selectedMemberProfile.sharedEventCount > 0 ? handleViewSharedEvents : undefined}
+        />
+      )}
     </Container>
   );
 };

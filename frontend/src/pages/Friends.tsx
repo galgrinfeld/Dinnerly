@@ -31,6 +31,7 @@ import {
   People as PeopleIcon,
 } from "@mui/icons-material";
 import { PageHeader } from "../components/PageHeader";
+import { FriendProfilePopover } from "../components/FriendProfilePopover";
 import {
   sendFriendRequest,
   getIncomingRequests,
@@ -38,10 +39,12 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
   getFriends,
+  getUserProfile,
 } from "../api/friends";
 import {
   FriendRequestRead,
   UserRead,
+  UserProfileRead,
 } from "../types/api";
 
 interface TabPanelProps {
@@ -80,6 +83,11 @@ export const Friends: React.FC = () => {
     []
   );
   const [friends, setFriends] = useState<UserRead[]>([]);
+
+  // Profile popover state
+  const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
+  const [profilePopoverAnchor, setProfilePopoverAnchor] = useState<HTMLElement | null>(null);
+  const [selectedFriendProfile, setSelectedFriendProfile] = useState<UserProfileRead | null>(null);
 
   // Load data on mount
   useEffect(() => {
@@ -167,6 +175,46 @@ export const Friends: React.FC = () => {
       setError(errorMsg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle open profile popover
+  const handleOpenProfilePopover = async (event: React.MouseEvent<HTMLElement>, friend: UserRead) => {
+    setProfilePopoverAnchor(event.currentTarget);
+    
+    try {
+      // Fetch full profile with shared events count
+      const fullProfile = await getUserProfile(friend.id);
+      setSelectedFriendProfile(fullProfile);
+      setProfilePopoverOpen(true);
+    } catch (err) {
+      console.error('Failed to load friend profile:', err);
+      // Fall back to basic profile
+      const basicProfile: UserProfileRead = {
+        id: friend.id,
+        email: friend.email,
+        displayName: friend.displayName,
+        friendshipStatus: "friend",
+        sharedEventCount: 0,
+      };
+      setSelectedFriendProfile(basicProfile);
+      setProfilePopoverOpen(true);
+    }
+  };
+
+  // Handle close profile popover
+  const handleCloseProfilePopover = () => {
+    setProfilePopoverOpen(false);
+    setProfilePopoverAnchor(null);
+    setSelectedFriendProfile(null);
+  };
+
+  // Handle view shared events
+  const handleViewSharedEvents = () => {
+    if (selectedFriendProfile) {
+      // Navigate to shared events or show filter
+      // For now, just close the popover
+      handleCloseProfilePopover();
     }
   };
 
@@ -286,13 +334,29 @@ export const Friends: React.FC = () => {
               {friends.map((friend, idx) => (
                 <React.Fragment key={friend.id}>
                   {idx > 0 && <Divider />}
-                  <ListItem>
+                  <ListItem 
+                    sx={{ 
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                    onClick={(e) => handleOpenProfilePopover(e, friend)}
+                  >
                     <Avatar sx={{ mr: 2, backgroundColor: "#8b7355" }}>
                       {friend.displayName?.[0]?.toUpperCase() ||
                         friend.email[0].toUpperCase()}
                     </Avatar>
                     <ListItemText
-                      primary={friend.displayName || "Unknown"}
+                      primary={
+                        <Typography 
+                          sx={{ 
+                            color: '#8A6A2F',
+                            fontWeight: 500,
+                            '&:hover': { textDecoration: 'underline' }
+                          }}
+                        >
+                          {friend.displayName || "Unknown"}
+                        </Typography>
+                      }
                       secondary={friend.email}
                     />
                     <Chip
@@ -393,6 +457,20 @@ export const Friends: React.FC = () => {
           )}
         </TabPanel>
       </Paper>
+
+      {/* Profile Popover */}
+      {selectedFriendProfile && (
+        <FriendProfilePopover
+          open={profilePopoverOpen}
+          anchorEl={profilePopoverAnchor}
+          onClose={handleCloseProfilePopover}
+          userEmail={selectedFriendProfile.email}
+          userName={selectedFriendProfile.displayName}
+          friendshipStatus={selectedFriendProfile.friendshipStatus as "friend" | "pending" | "blocked" | "none"}
+          sharedEventCount={selectedFriendProfile.sharedEventCount}
+          onViewSharedEvents={selectedFriendProfile.sharedEventCount > 0 ? handleViewSharedEvents : undefined}
+        />
+      )}
     </Container>
   );
 };

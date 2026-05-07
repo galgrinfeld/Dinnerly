@@ -6,6 +6,7 @@ import {
   FriendRequestRead,
   FriendRequestResponse,
   FriendsListResponse,
+  UserProfileRead,
 } from "../types/api";
 
 export async function sendFriendRequest(email: string): Promise<FriendRequestResponse> {
@@ -47,4 +48,8 @@ export async function rejectFriendRequest(
 
 export async function getFriends(): Promise<FriendsListResponse> {
   return apiFetch<FriendsListResponse>("/api/friends");
+}
+
+export async function getUserProfile(userId: number): Promise<UserProfileRead> {
+  return apiFetch<UserProfileRead>(`/api/friends/users/${userId}`);
 }

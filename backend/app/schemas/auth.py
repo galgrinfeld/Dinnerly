@@ -59,6 +59,7 @@ class EventMemberRead(BaseModel):
     email: str
     role: str  # "owner" or "participant"
     status: str  # "active" or "invited"
+    user_id: Optional[int] = Field(None, alias="userId")  # nullable for invited users
     
     class Config:
         from_attributes = True

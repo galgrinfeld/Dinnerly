@@ -5,8 +5,12 @@ import logging
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import and_, or_
 from app.db.session import get_db
 from app.db.models.user import User
+from app.db.models.friend_request import FriendRequest
+from app.db.models.event import Event
+from app.db.models.event_member import EventMember
 from app.schemas.friend import (
     FriendRequestCreate,
     FriendRequestRead,
@@ -14,6 +18,7 @@ from app.schemas.friend import (
     FriendRequestAddByEmail,
     UserBasic,
     FriendsListResponse,
+    UserProfileRead,
 )
 from app.crud import friend_requests as friend_requests_crud
 from app.crud import notifications as notifications_crud
@@ -196,6 +201,82 @@ def get_friends(
     return FriendsListResponse(
         friends=[UserBasic.model_validate(f) for f in friends],
         count=len(friends)
+    )
+
+
+@router.get("/users/{user_id}", response_model=UserProfileRead)
+def get_user_profile(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get user profile with friendship status and shared events count."""
+    # Get target user
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Determine friendship status
+    friendship_status = "none"
+    
+    # Check if they're friends (accepted friend request)
+    friend_connection = db.query(FriendRequest).filter(
+        or_(
+            and_(
+                FriendRequest.sender_user_id == current_user.id,
+                FriendRequest.receiver_user_id == user_id,
+                FriendRequest.status == "accepted"
+            ),
+            and_(
+                FriendRequest.sender_user_id == user_id,
+                FriendRequest.receiver_user_id == current_user.id,
+                FriendRequest.status == "accepted"
+            )
+        )
+    ).first()
+    
+    if friend_connection:
+        friendship_status = "friend"
+    else:
+        # Check if there's a pending request
+        pending_request = db.query(FriendRequest).filter(
+            or_(
+                and_(
+                    FriendRequest.sender_user_id == current_user.id,
+                    FriendRequest.receiver_user_id == user_id,
+                    FriendRequest.status == "pending"
+                ),
+                and_(
+                    FriendRequest.sender_user_id == user_id,
+                    FriendRequest.receiver_user_id == current_user.id,
+                    FriendRequest.status == "pending"
+                )
+            )
+        ).first()
+        
+        if pending_request:
+            friendship_status = "pending"
+    
+    # Count shared events
+    # Find events where both users are members or participants
+    shared_events = db.query(Event).join(
+        EventMember, Event.id == EventMember.event_id
+    ).filter(
+        EventMember.user_id == current_user.id
+    ).filter(
+        Event.id.in_(
+            db.query(Event.id).join(
+                EventMember, Event.id == EventMember.event_id
+            ).filter(EventMember.user_id == user_id)
+        )
+    ).count()
+    
+    return UserProfileRead(
+        id=target_user.id,
+        email=target_user.email,
+        display_name=target_user.display_name,
+        friendship_status=friendship_status,
+        shared_event_count=shared_events,
     )
 
 
