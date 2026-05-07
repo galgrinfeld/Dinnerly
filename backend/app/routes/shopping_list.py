@@ -36,17 +36,19 @@ def assign_ingredient(
 ):
     """
     Assign an ingredient to a participant in an event.
-    Only event owner can do this.
+    Owner or participant can assign ingredients.
     """
-    # Verify event exists and user is owner
+    from app.api.deps import is_event_owner, is_event_member
+    
+    # Verify event exists and user is owner or participant
     event = events_crud.get_event(db, event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
-    if event.owner_user_id != current_user.id:
+    if not (is_event_owner(event, current_user) or is_event_member(db, event_id, current_user.id)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only event owner can assign ingredients",
+            detail="Access denied. Only event participants can assign ingredients.",
         )
     
     try:
@@ -74,17 +76,19 @@ def unassign_ingredient(
 ):
     """
     Unassign an ingredient from a participant in an event.
-    Only event owner can do this.
+    Owner or participant can unassign ingredients.
     """
-    # Verify event exists and user is owner
+    from app.api.deps import is_event_owner, is_event_member
+    
+    # Verify event exists and user is owner or participant
     event = events_crud.get_event(db, event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
-    if event.owner_user_id != current_user.id:
+    if not (is_event_owner(event, current_user) or is_event_member(db, event_id, current_user.id)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only event owner can unassign ingredients",
+            detail="Access denied. Only event participants can unassign ingredients.",
         )
     
     try:

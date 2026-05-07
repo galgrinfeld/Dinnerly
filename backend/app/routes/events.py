@@ -7,6 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.db.models.user import User
+from app.db.models.event_member import EventMember
+from app.db.models.event_ingredient_assignment import EventIngredientAssignment
 from app.schemas.event import EventCreate, EventUpdate, EventRead, EventRecipeAttach
 from app.schemas.auth import ParticipantAddRequest, EventMemberRead
 from app.schemas.shopping_list import ShoppingListResponse
@@ -237,3 +239,45 @@ def remove_participant(
     success = event_members_crud.remove_member(db, event_id, member_id)
     if not success:
         raise HTTPException(status_code=404, detail="Participant not found")
+
+
+@router.post("/{event_id}/leave", status_code=204)
+def leave_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Leave an event (participants only - owners cannot leave without transferring ownership)."""
+    event = events_crud.get_event(db, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Check if current user is the owner
+    if is_event_owner(event, current_user):
+        raise HTTPException(status_code=400, detail="Event owner cannot leave without deleting the event")
+    
+    # Check if current user is a member
+    if not is_event_member(db, event_id, current_user.id):
+        raise HTTPException(status_code=404, detail="You are not a participant in this event")
+    
+    # Find the member record
+    member = (
+        db.query(EventMember)
+        .filter(
+            EventMember.event_id == event_id,
+            EventMember.user_id == current_user.id,
+        )
+        .first()
+    )
+    
+    if not member:
+        raise HTTPException(status_code=404, detail="Participant not found")
+    
+    # Delete ingredient assignments for this member first
+    db.query(EventIngredientAssignment).filter(
+        EventIngredientAssignment.event_member_id == member.id
+    ).delete()
+    
+    # Delete the member
+    db.delete(member)
+    db.commit()

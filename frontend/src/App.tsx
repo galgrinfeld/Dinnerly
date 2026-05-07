@@ -227,7 +227,7 @@ function App() {
                       <MenuItem onClick={() => {
                         navigate("/friends");
                         handleMenuClose();
-                      }}>Friends</MenuItem>
+                      }}> My Friends</MenuItem>
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
                     </Menu>
                   </Box>

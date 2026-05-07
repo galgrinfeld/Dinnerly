@@ -38,7 +38,9 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         width: "100%",
         overflow: "visible",
         position: "relative",
+        cursor: "pointer",
       }}
+      onClick={() => onViewEvent(event.id)}
     >
       {/* Badge */}
       {badge && (

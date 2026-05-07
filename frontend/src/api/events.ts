@@ -78,6 +78,12 @@ export async function removeParticipant(eventId: number, memberId: number): Prom
   });
 }
 
+export async function leaveEvent(eventId: number): Promise<void> {
+  return apiFetch<void>(`/api/events/${eventId}/leave`, {
+    method: "POST",
+  });
+}
+
 // Ingredient assignment functions
 export async function assignIngredient(
   eventId: number,

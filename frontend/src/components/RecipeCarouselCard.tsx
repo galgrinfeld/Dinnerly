@@ -36,6 +36,7 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
           boxShadow: "0 16px 40px rgba(0, 0, 0, 0.1)",
         },
       }}
+      onClick={() => onViewDetails(recipe.id)}
     >
       {/* Recipe Image or Placeholder */}
       {recipe.imageUrl ? (

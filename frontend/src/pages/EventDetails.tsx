@@ -39,9 +39,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PeopleIcon from '@mui/icons-material/People';
+import LogoutIcon from '@mui/icons-material/Logout';
 
-import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent } from '../api/events';
+import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent, leaveEvent } from '../api/events';
 import { listRecipes } from '../api/recipes';
+import { me } from '../api/auth';
+import { getFriends, getOutgoingRequests, getIncomingRequests, sendFriendRequest } from '../api/friends';
 import {
   EventRead,
   EventRecipeRead,
@@ -50,6 +53,9 @@ import {
   ShoppingListItem,
   EventMemberRead,
   EventUpdateRequest,
+  UserRead,
+  FriendRequestRead,
+  FriendsListResponse,
 } from '../types/api';
 import { PageHeader } from '../components/PageHeader';
 import { FriendsInviteDialog } from '../components/FriendsInviteDialog';
@@ -63,6 +69,7 @@ const EventDetails: React.FC = () => {
   const navigate = useNavigate();
 
   // State
+  const [currentUser, setCurrentUser] = useState<UserRead | null>(null);
   const [event, setEvent] = useState<EventRead | null>(null);
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListResponse | null>(null);
@@ -105,7 +112,44 @@ const EventDetails: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Load event, recipes, shopping list, and participants
+  // Leave event state
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+
+  // Friends state
+  const [friendsData, setFriendsData] = useState<FriendsListResponse | null>(null);
+  const [outgoingRequests, setOutgoingRequests] = useState<FriendRequestRead[]>([]);
+  const [incomingRequests, setIncomingRequests] = useState<FriendRequestRead[]>([]);
+  const [loadingFriends, setLoadingFriends] = useState(false);
+  const [sendingFriendRequest, setSendingFriendRequest] = useState<Record<string, boolean>>({});
+
+  // Calculate current user's role
+  const currentUserRole = currentUser
+    ? members.find(m => m.email === currentUser.email)?.role
+    : undefined;
+
+  const isOwner = currentUserRole === 'owner';
+  const isParticipant = currentUserRole === 'participant';
+
+  // Determine friend status of a participant
+  const getFriendStatus = (email: string): 'friend' | 'pending' | 'not-friend' => {
+    if (!friendsData) return 'not-friend';
+    
+    // Check if user is in friends list
+    if (friendsData.friends.some(f => f.email === email)) {
+      return 'friend';
+    }
+    
+    // Check if there's an outgoing request
+    if (outgoingRequests.some(r => r.receiver?.email === email)) {
+      return 'pending';
+    }
+    
+    return 'not-friend';
+  };
+
+  // Load event, recipes, shopping list, participants, current user, and friends
   useEffect(() => {
     const loadData = async () => {
       if (!eventId) return;
@@ -113,6 +157,10 @@ const EventDetails: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
+
+        // Load current user first
+        const userData = await me();
+        setCurrentUser(userData);
 
         const [eventData, recipesData, shoppingListData, membersData] = await Promise.all([
           getEvent(parseInt(eventId, 10)),
@@ -125,15 +173,41 @@ const EventDetails: React.FC = () => {
         setRecipes(recipesData);
         setShoppingList(shoppingListData);
         setMembers(membersData);
+
+        // Load friends data in background
+        try {
+          setLoadingFriends(true);
+          const [friendsResponse, outgoing, incoming] = await Promise.all([
+            getFriends(),
+            getOutgoingRequests(),
+            getIncomingRequests(),
+          ]);
+          setFriendsData(friendsResponse);
+          setOutgoingRequests(outgoing);
+          setIncomingRequests(incoming);
+        } catch (friendErr) {
+          console.error('Failed to load friends:', friendErr);
+          // Don't show error - friends loading is secondary
+        } finally {
+          setLoadingFriends(false);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load event');
+        const message = err instanceof Error ? err.message : 'Failed to load event';
+        setError(message);
+        
+        // If it's a 403 error, redirect to home
+        if (message.includes('Access denied') || message.includes('403')) {
+          setTimeout(() => {
+            navigate('/');
+          }, 2000);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [eventId]);
+  }, [eventId, navigate]);
 
   // Handle attaching recipe
   const handleAttachRecipe = async () => {
@@ -141,6 +215,7 @@ const EventDetails: React.FC = () => {
 
     try {
       setAttachingRecipe(true);
+      setError(null);
       const updatedEvent = await attachRecipe(parseInt(eventId, 10), {
         recipeId: selectedRecipeId as number,
         desiredServings,
@@ -154,7 +229,13 @@ const EventDetails: React.FC = () => {
       const updatedShoppingList = await getShoppingList(parseInt(eventId, 10));
       setShoppingList(updatedShoppingList);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to attach recipe');
+      const message = err instanceof Error ? err.message : 'Failed to attach recipe';
+      setError(message);
+      
+      // Show specific error for 403
+      if (message.includes('Access denied') || message.includes('permission')) {
+        setError('You do not have permission to attach recipes to this event.');
+      }
     } finally {
       setAttachingRecipe(false);
     }
@@ -209,13 +290,20 @@ const EventDetails: React.FC = () => {
 
     try {
       setAddingParticipant(true);
+      setError(null);
       const newMember = await addParticipant(parseInt(eventId, 10), {
         email: newParticipantEmail.trim().toLowerCase(),
       });
       setMembers([...members, newMember]);
       setNewParticipantEmail('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add participant');
+      const message = err instanceof Error ? err.message : 'Failed to add participant';
+      setError(message);
+      
+      // Show specific error for 403
+      if (message.includes('Access denied') || message.includes('Only event owner')) {
+        setError('Only the event owner can add participants.');
+      }
     } finally {
       setAddingParticipant(false);
     }
@@ -245,7 +333,30 @@ const EventDetails: React.FC = () => {
       await removeParticipant(parseInt(eventId, 10), memberId);
       setMembers(members.filter(m => m.id !== memberId));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove participant');
+      const message = err instanceof Error ? err.message : 'Failed to remove participant';
+      setError(message);
+      
+      // Show specific error for 403
+      if (message.includes('Access denied') || message.includes('Only event owner')) {
+        setError('Only the event owner can remove participants.');
+      }
+    }
+  };
+
+  // Handle send friend request
+  const handleSendFriendRequest = async (email: string) => {
+    try {
+      setSendingFriendRequest(prev => ({ ...prev, [email]: true }));
+      const response = await sendFriendRequest(email);
+      
+      // Update outgoing requests list
+      if (response.request) {
+        setOutgoingRequests(prev => [...prev, response.request!]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send friend request');
+    } finally {
+      setSendingFriendRequest(prev => ({ ...prev, [email]: false }));
     }
   };
 
@@ -296,7 +407,10 @@ const EventDetails: React.FC = () => {
 
   // Handle enable edit mode for event details
   const handleEnableEditEvent = () => {
-    if (!event) return;
+    if (!event || !isOwner) {
+      setError('Only event owner can edit event details');
+      return;
+    }
     setEditEventData({
       name: event.name,
       eventDate: dayjs(event.eventDate),
@@ -341,7 +455,13 @@ const EventDetails: React.FC = () => {
         navigate('/', { replace: true });
       }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update event');
+      const message = err instanceof Error ? err.message : 'Failed to update event';
+      setError(message);
+      
+      // Show specific error for 403
+      if (message.includes('Access denied') || message.includes('permission') || message.includes('owner')) {
+        setError('Only the event owner can edit event details.');
+      }
     } finally {
       setSavingEvent(false);
     }
@@ -351,9 +471,6 @@ const EventDetails: React.FC = () => {
   const handleCancelEditEvent = () => {
     setIsEditingEvent(false);
   };
-
-  // Check if current user is owner (we'll assume they are if they can edit/delete)
-  const isOwner = true; // This would normally check against current user
 
   // Handle delete event
   const handleDeleteEventClick = () => {
@@ -376,6 +493,12 @@ const EventDetails: React.FC = () => {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete event';
       setDeleteError(message);
+      
+      // If 403, show error that only owner can delete
+      if (message.includes('Access denied') || message.includes('permission')) {
+        setDeleteError('You do not have permission to delete this event. Only the owner can delete events.');
+      }
+      
       // Reopen dialog on error so user can retry
       setTimeout(() => {
         setDeleteConfirmOpen(true);
@@ -388,6 +511,39 @@ const EventDetails: React.FC = () => {
   const handleCancelDeleteEvent = () => {
     setDeleteConfirmOpen(false);
     setDeleteError(null);
+  };
+
+  // Handle leave event
+  const handleLeaveEventClick = () => {
+    setLeaveConfirmOpen(true);
+  };
+
+  const handleConfirmLeaveEvent = async () => {
+    if (!eventId) return;
+    try {
+      setLeaving(true);
+      setLeaveError(null);
+      setLeaveConfirmOpen(false);
+      await leaveEvent(parseInt(eventId, 10));
+      // Navigate to home after successfully leaving
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to leave event';
+      setLeaveError(message);
+      // Reopen dialog on error
+      setTimeout(() => {
+        setLeaveConfirmOpen(true);
+      }, 100);
+    } finally {
+      setLeaving(false);
+    }
+  };
+
+  const handleCancelLeaveEvent = () => {
+    setLeaveConfirmOpen(false);
+    setLeaveError(null);
   };
 
   if (loading) {
@@ -420,30 +576,31 @@ const EventDetails: React.FC = () => {
         Back to Home
       </Button>
 
-      <PageHeader
-        title={event?.name || 'Event Details'}
-        subtitle="Manage event details, recipes, and shopping list."
-        primaryAction={{
-          label: 'Edit',
-          icon: <EditIcon />,
-          onClick: () => setIsEditingEvent(!isEditingEvent),
-        }}
-        secondaryAction={{
-          label: 'Delete',
-          icon: <DeleteIcon />,
-          color: 'error',
-          onClick: () => {
-            if (event) {
-              const confirmed = window.confirm('Are you sure you want to delete this event?');
-              if (confirmed) {
-                handleDeleteEventClick();
-              }
-            }
-          },
-        }}
-      />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 600, mb: 0.5 }}>
+            {event?.name || 'Event Details'}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Manage event details, recipes, and shopping list.
+          </Typography>
+        </Box>
+        
+        {/* Role badge */}
+        {currentUserRole && (
+          <Chip
+            label={currentUserRole === 'owner' ? 'Owner' : 'Participant'}
+            color={currentUserRole === 'owner' ? 'primary' : 'default'}
+            sx={{
+              backgroundColor: currentUserRole === 'owner' ? '#8A6A2F' : '#e8e8e8',
+              color: currentUserRole === 'owner' ? '#fff' : '#171717',
+              fontWeight: 600,
+            }}
+          />
+        )}
+      </Box>
 
-      {/* Error alert */}
+      {/* Error alerts */}
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
@@ -456,11 +613,17 @@ const EventDetails: React.FC = () => {
         </Alert>
       )}
 
+      {leaveError && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {leaveError}
+        </Alert>
+      )}
+
       <Stack spacing={3}>
         {/* Event Info Section */}
         <Paper variant="outlined" sx={{ p: 3 }}>
-          {isEditingEvent ? (
-            // Edit mode
+          {isEditingEvent && isOwner ? (
+            // Edit mode (only for owner)
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Stack spacing={2}>
                 <TextField
@@ -522,23 +685,38 @@ const EventDetails: React.FC = () => {
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<EditIcon />}
-                  onClick={handleEnableEditEvent}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  startIcon={<DeleteIcon />}
-                  onClick={handleDeleteEventClick}
-                >
-                  Delete
-                </Button>
+                {isOwner && (
+                  <>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<EditIcon />}
+                      onClick={handleEnableEditEvent}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      startIcon={<DeleteIcon />}
+                      onClick={handleDeleteEventClick}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                )}
+                {isParticipant && (
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    size="small"
+                    startIcon={<LogoutIcon />}
+                    onClick={handleLeaveEventClick}
+                  >
+                    Leave Event
+                  </Button>
+                )}
               </Stack>
             </Box>
           )}
@@ -596,49 +774,105 @@ const EventDetails: React.FC = () => {
           {/* Participants list */}
           {members && members.length > 0 ? (
             <List disablePadding>
-              {members.map((member) => (
-                <ListItem
-                  key={member.id}
-                  disableGutters
-                  sx={{
-                    py: 1,
-                    px: 1,
-                    borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Box>
-                    <Typography variant="body2">{member.email}</Typography>
-                    <Stack direction="row" spacing={1}>
-                      <Chip
-                        label={member.role}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          mt: 0.5,
-                          backgroundColor: member.role === 'owner' ? 'rgba(138, 106, 47, 0.1)' : undefined,
-                        }}
-                      />
-                      {member.status === 'invited' && (
-                        <Chip label="Invited" size="small" color="warning" variant="outlined" />
+              {members.map((member) => {
+                const friendStatus = getFriendStatus(member.email);
+                const isCurrentUser = currentUser && currentUser.email.toLowerCase() === member.email.toLowerCase();
+                const showAddFriendButton = !isCurrentUser && member.role !== 'owner' && friendStatus === 'not-friend';
+                
+                return (
+                  <ListItem
+                    key={member.id}
+                    disableGutters
+                    sx={{
+                      py: 1,
+                      px: 1,
+                      borderRadius: 1,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body2">{member.email}</Typography>
+                      <Stack direction="row" spacing={1} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                        {isCurrentUser ? (
+                          <>
+                            <Chip label="Me" size="small" variant="outlined" sx={{ borderColor: '#8A6A2F', color: '#8A6A2F', fontWeight: 500 }} />
+                            {member.role === 'owner' && (
+                              <Chip
+                                label="owner"
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  backgroundColor: 'rgba(138, 106, 47, 0.1)',
+                                }}
+                              />
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <Chip
+                              label={member.role}
+                              size="small"
+                              variant="outlined"
+                              sx={{
+                                backgroundColor: member.role === 'owner' ? 'rgba(138, 106, 47, 0.1)' : undefined,
+                              }}
+                            />
+                            {member.status === 'invited' && (
+                              <Chip label="Invited" size="small" color="warning" variant="outlined" />
+                            )}
+                            {friendStatus === 'friend' && (
+                              <Chip label="Friend" size="small" variant="outlined" sx={{ borderColor: '#4CAF50', color: '#2E7D32' }} />
+                            )}
+                            {friendStatus === 'pending' && (
+                              <Chip label="Pending invite" size="small" color="info" variant="outlined" />
+                            )}
+                            {friendStatus === 'not-friend' && (
+                              <Typography variant="caption" sx={{ color: '#999', fontStyle: 'italic' }}>
+                                Not a friend
+                              </Typography>
+                            )}
+                          </>
+                        )}
+                      </Stack>
+                    </Box>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      {showAddFriendButton && (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => handleSendFriendRequest(member.email)}
+                          disabled={sendingFriendRequest[member.email]}
+                          sx={{
+                            textTransform: 'none',
+                            fontSize: '0.75rem',
+                            color: '#8A6A2F',
+                            borderColor: '#8A6A2F',
+                            '&:hover': {
+                              backgroundColor: 'rgba(138, 106, 47, 0.08)',
+                              borderColor: '#6F5624',
+                            },
+                          }}
+                        >
+                          {sendingFriendRequest[member.email] ? 'Sending...' : 'Add Friend'}
+                        </Button>
+                      )}
+                      {isOwner && member.role !== 'owner' && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleRemoveParticipant(member.id)}
+                          sx={{ p: 0.5 }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
                       )}
                     </Stack>
-                  </Box>
-                  {isOwner && member.role !== 'owner' && (
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleRemoveParticipant(member.id)}
-                      sx={{ p: 0.5 }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                </ListItem>
-              ))}
+                  </ListItem>
+                );
+              })}
             </List>
           ) : (
             <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
@@ -1033,6 +1267,34 @@ const EventDetails: React.FC = () => {
             disabled={deleting}
           >
             {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Leave Event Confirmation Dialog */}
+      <Dialog open={leaveConfirmOpen} onClose={handleCancelLeaveEvent}>
+        <DialogTitle>Leave Event?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to leave this event? You will no longer have access to it.
+          </Typography>
+          {leaveError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {leaveError}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelLeaveEvent} disabled={leaving}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmLeaveEvent}
+            color="error"
+            variant="contained"
+            disabled={leaving}
+          >
+            {leaving ? 'Leaving...' : 'Leave'}
           </Button>
         </DialogActions>
       </Dialog>
