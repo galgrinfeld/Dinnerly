@@ -11,6 +11,7 @@ import {
   Card,
   Divider,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { IngredientsTable } from "../components/IngredientsTable";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { PageHeader } from "../components/PageHeader";
