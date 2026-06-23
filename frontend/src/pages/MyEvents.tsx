@@ -100,7 +100,7 @@ export const MyEvents: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserRead | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<EventSortOption>("soonest");
-  const [filterOption, setFilterOption] = useState<EventFilterOption>("all");
+  const [filterOption, setFilterOption] = useState<EventFilterOption>("upcoming");
 
   useEffect(() => {
     // Fetch current user
@@ -191,13 +191,13 @@ export const MyEvents: React.FC = () => {
   };
 
   // Helper function to check if any filters are active
-  const hasActiveFilters = searchQuery || filterOption !== "all" || sortOption !== "soonest";
+  const hasActiveFilters = searchQuery || filterOption !== "upcoming" || sortOption !== "soonest";
 
   // Helper function to clear all filters
   const clearAllFilters = () => {
     setSearchQuery("");
     setSortOption("soonest");
-    setFilterOption("all");
+    setFilterOption("upcoming");
   };
 
   if (loading) {
@@ -392,7 +392,7 @@ export const MyEvents: React.FC = () => {
           </Box>
 
           {/* Active Filters Display */}
-          {(searchQuery || filterOption !== "all") && (
+          {(searchQuery || filterOption !== "upcoming") && (
             <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
               {searchQuery && (
                 <Chip
@@ -402,11 +402,11 @@ export const MyEvents: React.FC = () => {
                   sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
                 />
               )}
-              {filterOption !== "all" && (
+              {filterOption !== "upcoming" && (
                 <Chip
-                  label={`${filterOption === "upcoming" ? "Upcoming" : "Past"} events`}
+                  label={`${filterOption === "past" ? "Past" : "All"} events`}
                   size="small"
-                  onDelete={() => setFilterOption("all")}
+                  onDelete={() => setFilterOption("upcoming")}
                   sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
                 />
               )}
