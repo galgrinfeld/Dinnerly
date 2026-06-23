@@ -59,6 +59,7 @@ def clear_all_data(db: Session) -> None:
     # Delete in reverse order of dependencies using raw SQL
     # This handles cases where tables don't exist yet
     tables_to_clear = [
+        "notifications",
         "event_ingredient_assignments",
         "event_members",
         "event_recipes",
@@ -194,7 +195,7 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             "description": "Traditional pasta with homemade tomato sauce and fresh herbs.",
             "base_servings": 3,
             "cooking_time_minutes": 35,
-            "image_url": "https://cdn-ilebiak.nitrocdn.com/pvZLUVBCBEdPhoZIpzQDlQTCJtXdlADr/assets/images/optimized/rev-c0a3963/thehappyfoodie.co.uk/wp-content/uploads/2021/08/classic_tomato_spaghetti_21645_s900x0_c854x499_l0x420.png?w=400",
+            "image_url": "https://www.servingdumplings.com/wp-content/uploads/2024/02/garlic-butter-tomato-spaghetti-tn-3478fd2e.jpg",
             "ingredients": [
                 {"name": "Pasta", "quantity": 300, "unit": "g"},
                 {"name": "Tomato", "quantity": 5, "unit": "whole"},
