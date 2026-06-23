@@ -133,8 +133,8 @@ export const MyEvents: React.FC = () => {
     return ownerMember?.email === currentUser.email;
   };
 
-  // Apply filtering and sorting to events based on current controls
-  const filteredAndSortedEvents = useMemo(() => {
+  // Apply search and sorting (without date filter) - used for archive
+  const searchAndSortedEvents = useMemo(() => {
     let result = events;
     
     // Apply search filter
@@ -144,14 +144,21 @@ export const MyEvents: React.FC = () => {
       );
     }
     
-    // Apply date filter (upcoming/past)
-    result = filterEventsByDate(result, filterOption);
-    
     // Apply sorting
     result = sortEvents(result, sortOption);
     
     return result;
-  }, [events, searchQuery, sortOption, filterOption]);
+  }, [events, searchQuery, sortOption]);
+
+  // Apply filtering and sorting to events based on current controls (with date filter)
+  const filteredAndSortedEvents = useMemo(() => {
+    let result = searchAndSortedEvents;
+    
+    // Apply date filter (upcoming/past)
+    result = filterEventsByDate(result, filterOption);
+    
+    return result;
+  }, [searchAndSortedEvents, filterOption]);
 
   // Apply filtering and sorting to owned events
   const filteredOwnedEvents = useMemo(() => {
@@ -163,17 +170,17 @@ export const MyEvents: React.FC = () => {
     return filteredAndSortedEvents.filter((event) => !isOwner(event));
   }, [filteredAndSortedEvents, currentUser]);
 
-  // Apply filtering and sorting to archived events (past events only)
+  // Apply filtering and sorting to archived events (past events only) - independent of date filter
   const filteredArchivedEvents = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    return filteredAndSortedEvents.filter((event) => {
+    return searchAndSortedEvents.filter((event) => {
       const eventDate = new Date(event.eventDate);
       eventDate.setHours(0, 0, 0, 0);
       return eventDate < today;
     });
-  }, [filteredAndSortedEvents]);
+  }, [searchAndSortedEvents]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
