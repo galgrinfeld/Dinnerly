@@ -163,6 +163,23 @@ export interface EventRead {
   createdAt?: string; // ISO datetime format
 }
 
+export interface AiRecipeSuggestion {
+  name: string;
+  category: string;
+  reason: string;
+}
+
+export interface AiSuggestionsResponse {
+  suggestions: AiRecipeSuggestion[];
+}
+
+export interface AiCreateRecipeResponse {
+  recipeId: number;
+  eventId: number;
+  message: string;
+  recipe: RecipeRead;
+}
+
 // Shopping list types
 export interface ShoppingListSource {
   recipeId: number;

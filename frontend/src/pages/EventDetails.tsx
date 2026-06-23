@@ -43,7 +43,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent, leaveEvent, autoAssignShoppingItems } from '../api/events';
+import { getEvent, attachRecipe, removeRecipeFromEvent, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent, leaveEvent, autoAssignShoppingItems, suggestEventRecipes, createAiRecipeForEvent } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import { me } from '../api/auth';
 import { getFriends, getOutgoingRequests, sendFriendRequest, getUserProfile } from '../api/friends';
@@ -59,6 +59,7 @@ import {
   FriendRequestRead,
   FriendsListResponse,
   UserProfileRead,
+  AiRecipeSuggestion,
 } from '../types/api';
 import { FriendsInviteDialog } from '../components/FriendsInviteDialog';
 import { FriendProfilePopover } from '../components/FriendProfilePopover';
@@ -96,6 +97,7 @@ const EventDetails: React.FC = () => {
   // Edit mode for recipes
   const [editingRecipeId, setEditingRecipeId] = useState<number | null>(null);
   const [editServings, setEditServings] = useState<number>(1);
+  const [removingRecipeId, setRemovingRecipeId] = useState<number | null>(null);
 
   // Edit mode for event details
   const [isEditingEvent, setIsEditingEvent] = useState(false);
@@ -112,6 +114,13 @@ const EventDetails: React.FC = () => {
   const [autoAssigning, setAutoAssigning] = useState(false);
   const [autoAssignSuccess, setAutoAssignSuccess] = useState<string | null>(null);
   const [autoAssignError, setAutoAssignError] = useState<string | null>(null);
+
+  // AI menu assistant state
+  const [aiSuggestions, setAiSuggestions] = useState<AiRecipeSuggestion[]>([]);
+  const [loadingAiSuggestions, setLoadingAiSuggestions] = useState(false);
+  const [creatingAiRecipe, setCreatingAiRecipe] = useState<string | null>(null);
+  const [aiSuccess, setAiSuccess] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // Delete event state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -245,6 +254,44 @@ const EventDetails: React.FC = () => {
     }
   };
 
+  const handleSuggestRecipes = async () => {
+    if (!eventId) return;
+    try {
+      setLoadingAiSuggestions(true);
+      setAiError(null);
+      const result = await suggestEventRecipes(parseInt(eventId, 10));
+      setAiSuggestions(result.suggestions);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Failed to generate dish suggestions');
+    } finally {
+      setLoadingAiSuggestions(false);
+    }
+  };
+
+  const handleCreateAiRecipe = async (suggestion: AiRecipeSuggestion) => {
+    if (!eventId) return;
+    try {
+      setCreatingAiRecipe(suggestion.name);
+      setAiError(null);
+      const numericEventId = parseInt(eventId, 10);
+      const result = await createAiRecipeForEvent(numericEventId, suggestion);
+      const [updatedEvent, updatedRecipes, updatedShoppingList] = await Promise.all([
+        getEvent(numericEventId),
+        listRecipes(),
+        getShoppingList(numericEventId),
+      ]);
+      setEvent(updatedEvent);
+      setRecipes(updatedRecipes);
+      setShoppingList(updatedShoppingList);
+      setAiSuggestions(current => current.filter(item => item.name !== suggestion.name));
+      setAiSuccess(result.message);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Failed to create and attach recipe');
+    } finally {
+      setCreatingAiRecipe(null);
+    }
+  };
+
   // Toggle expanded sources row
   const toggleExpandedSources = (ingredientId: number) => {
     const newExpanded = new Set(expandedSources);
@@ -282,10 +329,25 @@ const EventDetails: React.FC = () => {
     }
   };
 
-  // Handle delete recipe (placeholder for now)
-  const handleDeleteRecipe = () => {
-    // TODO: Implement backend endpoint for deleting recipes from events
-    setError('Delete recipe feature coming soon - need backend support');
+  // Detach the recipe from this event; the saved recipe remains in My Recipes.
+  const handleDeleteRecipe = async (recipeId: number) => {
+    if (!eventId) return;
+    try {
+      setRemovingRecipeId(recipeId);
+      setError(null);
+      const numericEventId = parseInt(eventId, 10);
+      await removeRecipeFromEvent(numericEventId, recipeId);
+      const [updatedEvent, updatedShoppingList] = await Promise.all([
+        getEvent(numericEventId),
+        getShoppingList(numericEventId),
+      ]);
+      setEvent(updatedEvent);
+      setShoppingList(updatedShoppingList);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove recipe from event');
+    } finally {
+      setRemovingRecipeId(null);
+    }
   };
 
   // Handle add participant
@@ -994,6 +1056,60 @@ const EventDetails: React.FC = () => {
             </Typography>
           )}
         </Paper>
+        <Paper variant="outlined" sx={{ p: 2.5, mt: 3, borderColor: '#D9C7A3' }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={2}>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                AI Menu Assistant
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Discover dishes that complement the recipes already planned for this dinner.
+              </Typography>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={loadingAiSuggestions ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon />}
+              onClick={handleSuggestRecipes}
+              disabled={loadingAiSuggestions || Boolean(creatingAiRecipe)}
+              sx={{ alignSelf: { xs: 'stretch', sm: 'center' }, textTransform: 'none' }}
+            >
+              {loadingAiSuggestions ? 'Finding dishes...' : 'Suggest Dishes with AI'}
+            </Button>
+          </Stack>
+
+          {aiError && <Alert severity="error" sx={{ mt: 2 }}>{aiError}</Alert>}
+
+          {aiSuggestions.length > 0 && (
+            <Stack spacing={1.5} sx={{ mt: 2.5 }}>
+              {aiSuggestions.map(suggestion => {
+                const isCreating = creatingAiRecipe === suggestion.name;
+                return (
+                  <Paper key={suggestion.name} variant="outlined" sx={{ p: 2 }}>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between">
+                      <Box>
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{suggestion.name}</Typography>
+                          <Chip label={suggestion.category} size="small" />
+                        </Stack>
+                        <Typography variant="body2" color="text.secondary">{suggestion.reason}</Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleCreateAiRecipe(suggestion)}
+                        disabled={Boolean(creatingAiRecipe)}
+                        startIcon={isCreating ? <CircularProgress size={16} /> : undefined}
+                        sx={{ minWidth: 205, alignSelf: { xs: 'stretch', sm: 'center' }, textTransform: 'none' }}
+                      >
+                        {isCreating ? 'Creating recipe...' : 'Create & Add to Event'}
+                      </Button>
+                    </Stack>
+                  </Paper>
+                );
+              })}
+            </Stack>
+          )}
+        </Paper>
+
         <Typography variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
           Attached Recipes
         </Typography>
@@ -1104,10 +1220,13 @@ const EventDetails: React.FC = () => {
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleDeleteRecipe()}
+                          onClick={() => handleDeleteRecipe(recipe.recipeId)}
+                          disabled={removingRecipeId !== null}
                           sx={{ p: 0.5 }}
                         >
-                          <DeleteIcon fontSize="small" />
+                          {removingRecipeId === recipe.recipeId
+                            ? <CircularProgress size={16} />
+                            : <DeleteIcon fontSize="small" />}
                         </IconButton>
                       </Stack>
                     )}
@@ -1453,6 +1572,16 @@ const EventDetails: React.FC = () => {
       >
         <Alert severity="error" onClose={() => setAutoAssignError(null)}>
           {autoAssignError}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={Boolean(aiSuccess)}
+        autoHideDuration={5000}
+        onClose={() => setAiSuccess(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={() => setAiSuccess(null)}>
+          {aiSuccess}
         </Alert>
       </Snackbar>
 

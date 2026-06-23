@@ -11,12 +11,31 @@ import {
   EventMemberRead,
   ParticipantAddRequest,
   AutoAssignShoppingListResponse,
+  AiRecipeSuggestion,
+  AiSuggestionsResponse,
+  AiCreateRecipeResponse,
 } from "../types/api";
 
 export async function createEvent(payload: EventCreateRequest): Promise<EventRead> {
   return apiFetch<EventRead>("/api/events", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export async function suggestEventRecipes(eventId: number): Promise<AiSuggestionsResponse> {
+  return apiFetch<AiSuggestionsResponse>(`/api/events/${eventId}/ai/suggest-recipes`, {
+    method: "POST",
+  });
+}
+
+export async function createAiRecipeForEvent(
+  eventId: number,
+  suggestion: Pick<AiRecipeSuggestion, "name" | "category">
+): Promise<AiCreateRecipeResponse> {
+  return apiFetch<AiCreateRecipeResponse>(`/api/events/${eventId}/ai/create-recipe`, {
+    method: "POST",
+    body: JSON.stringify(suggestion),
   });
 }
 
@@ -51,6 +70,12 @@ export async function attachRecipe(
   return apiFetch<EventRead>(`/api/events/${eventId}/recipes`, {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export async function removeRecipeFromEvent(eventId: number, recipeId: number): Promise<void> {
+  return apiFetch<void>(`/api/events/${eventId}/recipes/${recipeId}`, {
+    method: "DELETE",
   });
 }
 

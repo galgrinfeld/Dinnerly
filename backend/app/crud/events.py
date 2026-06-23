@@ -174,6 +174,26 @@ def attach_recipe_to_event(
     return event
 
 
+def remove_recipe_from_event(db: Session, event_id: int, recipe_id: int) -> Event:
+    """Detach a recipe from an event without deleting the user's saved recipe."""
+    event = get_event(db, event_id)
+    if not event:
+        raise ValueError(f"Event {event_id} not found")
+
+    event_recipe = (
+        db.query(EventRecipe)
+        .filter(EventRecipe.event_id == event_id, EventRecipe.recipe_id == recipe_id)
+        .first()
+    )
+    if not event_recipe:
+        raise ValueError("Recipe is not attached to this event")
+
+    db.delete(event_recipe)
+    db.commit()
+    db.refresh(event)
+    return event
+
+
 def update_event(db: Session, event_id: int, data: EventUpdate, owner_user_id: int) -> Event:
     """Update an event (owner only)."""
     event = get_event(db, event_id)

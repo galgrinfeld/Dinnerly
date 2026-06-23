@@ -9,19 +9,133 @@ from app.db.session import get_db
 from app.db.models.user import User
 from app.db.models.event_member import EventMember
 from app.db.models.event_ingredient_assignment import EventIngredientAssignment
+from app.db.models.event_recipe import EventRecipe
+from app.db.models.recipe import Recipe
+from app.db.models.recipe_ingredient import RecipeIngredient
 from app.schemas.event import EventCreate, EventUpdate, EventRead, EventRecipeAttach
 from app.schemas.auth import ParticipantAddRequest, EventMemberRead
 from app.schemas.shopping_list import ShoppingListResponse, AutoAssignShoppingListResponse
+from app.schemas.ai_menu import AiCreateRecipeRequest, AiCreateRecipeResponse, AiSuggestionsResponse
+from app.schemas.recipe import RecipeIngredientRead, RecipeRead
 from app.crud import events as events_crud
 from app.crud import event_members as event_members_crud
 from app.crud import notifications as notifications_crud
 from app.crud import recipes as recipes_crud
 from app.services.shopping_list_generator import generate_shopping_list_for_event
 from app.services.smart_auto_assignment import auto_assign_shopping_items
+from app.services import ai_menu_service
+from app.crud.ingredients import create_ingredient
 from app.api.deps import get_current_user, is_event_owner, is_event_member
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/events", tags=["events"])
+
+
+def _require_event_access(db: Session, event_id: int, current_user: User):
+    event = events_crud.get_event(db, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if not (is_event_owner(event, current_user) or is_event_member(db, event_id, current_user.id)):
+        raise HTTPException(status_code=403, detail="Access denied")
+    return event
+
+
+@router.post("/{event_id}/ai/suggest-recipes", response_model=AiSuggestionsResponse)
+def suggest_ai_recipes(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Suggest complementary dishes without creating any database records."""
+    _require_event_access(db, event_id, current_user)
+    names = [
+        row[0] for row in (
+            db.query(Recipe.name)
+            .join(EventRecipe, EventRecipe.recipe_id == Recipe.id)
+            .filter(EventRecipe.event_id == event_id)
+            .all()
+        )
+    ]
+    try:
+        return ai_menu_service.suggest_recipes(names)
+    except ai_menu_service.AiServiceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.post("/{event_id}/ai/create-recipe", response_model=AiCreateRecipeResponse, status_code=201)
+def create_ai_recipe(
+    event_id: int,
+    payload: AiCreateRecipeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate, validate, atomically save, and attach the selected recipe."""
+    event = _require_event_access(db, event_id, current_user)
+    existing_names = [
+        row[0] for row in (
+            db.query(Recipe.name)
+            .join(EventRecipe, EventRecipe.recipe_id == Recipe.id)
+            .filter(EventRecipe.event_id == event_id)
+            .all()
+        )
+    ]
+    try:
+        generated = ai_menu_service.generate_recipe(
+            payload.name.strip(),
+            payload.category.strip(),
+            event.target_servings,
+            existing_names,
+        )
+        image_url = ai_menu_service.resolve_image_url(generated.image_url, generated.name)
+    except ai_menu_service.AiServiceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    try:
+        recipe = Recipe(
+            name=generated.name,
+            description=generated.description,
+            base_servings=generated.base_servings,
+            cooking_time_minutes=generated.cooking_time_minutes,
+            instructions_html=generated.instructions_html,
+            image_url=image_url,
+            owner_user_id=current_user.id,
+        )
+        db.add(recipe)
+        db.flush()
+        for item in generated.ingredients:
+            ingredient = create_ingredient(db, item.name)
+            db.add(RecipeIngredient(
+                recipe_id=recipe.id,
+                ingredient_id=ingredient.id,
+                quantity=item.quantity,
+                unit=item.unit,
+                note=item.note,
+                optional=item.optional,
+            ))
+        db.add(EventRecipe(event_id=event_id, recipe_id=recipe.id, desired_servings=event.target_servings))
+        db.commit()
+        recipe = recipes_crud.get_recipe_with_ingredients(db, recipe.id, current_user.id)
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to persist generated recipe")
+        raise HTTPException(status_code=500, detail="Failed to save and attach generated recipe")
+
+    recipe_read = RecipeRead(
+        id=recipe.id,
+        name=recipe.name,
+        description=recipe.description or "",
+        base_servings=recipe.base_servings,
+        cooking_time_minutes=recipe.cooking_time_minutes,
+        instructions_html=recipe.instructions_html or "",
+        image_url=recipe.image_url,
+        ingredients=[RecipeIngredientRead.from_orm(item) for item in recipe.ingredients],
+    )
+    return AiCreateRecipeResponse(
+        recipe_id=recipe.id,
+        event_id=event_id,
+        message="Recipe created and attached to event",
+        recipe=recipe_read,
+    )
 
 
 @router.post("", response_model=EventRead, status_code=201)
@@ -104,6 +218,21 @@ def attach_recipe_to_event(
         return events_crud.serialize_event(db, event)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.delete("/{event_id}/recipes/{recipe_id}", status_code=204)
+def remove_recipe_from_event(
+    event_id: int,
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Detach a recipe from an event (owner or active participant)."""
+    _require_event_access(db, event_id, current_user)
+    try:
+        events_crud.remove_recipe_from_event(db, event_id, recipe_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get("/{event_id}/shopping-list", response_model=ShoppingListResponse)
