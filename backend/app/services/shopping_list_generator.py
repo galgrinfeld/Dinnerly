@@ -75,6 +75,7 @@ def generate_shopping_list_for_event(db: Session, event_id: int) -> ShoppingList
             )
 
             # Calculate scaled quantity
+            original_qty = None
             if recipe_ingredient.quantity is not None:
                 original_qty = Decimal(str(recipe_ingredient.quantity))
                 scaled_qty = original_qty * scaling_factor
@@ -92,8 +93,8 @@ def generate_shopping_list_for_event(db: Session, event_id: int) -> ShoppingList
                 {
                     "recipe_id": recipe.id,
                     "recipe_name": recipe.name,
-                    "original_quantity": float(original_qty) if original_qty else None,
-                    "scaled_quantity": float(scaled_qty) if scaled_qty else None,
+                    "original_quantity": float(original_qty) if original_qty is not None else None,
+                    "scaled_quantity": float(scaled_qty) if scaled_qty is not None else None,
                     "scale_factor": float(scaling_factor),
                     "desired_servings": event_recipe.desired_servings,
                     "base_servings": recipe.base_servings,

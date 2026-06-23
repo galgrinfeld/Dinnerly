@@ -11,12 +11,13 @@ from app.db.models.event_member import EventMember
 from app.db.models.event_ingredient_assignment import EventIngredientAssignment
 from app.schemas.event import EventCreate, EventUpdate, EventRead, EventRecipeAttach
 from app.schemas.auth import ParticipantAddRequest, EventMemberRead
-from app.schemas.shopping_list import ShoppingListResponse
+from app.schemas.shopping_list import ShoppingListResponse, AutoAssignShoppingListResponse
 from app.crud import events as events_crud
 from app.crud import event_members as event_members_crud
 from app.crud import notifications as notifications_crud
 from app.crud import recipes as recipes_crud
 from app.services.shopping_list_generator import generate_shopping_list_for_event
+from app.services.smart_auto_assignment import auto_assign_shopping_items
 from app.api.deps import get_current_user, is_event_owner, is_event_member
 
 logger = logging.getLogger(__name__)
@@ -120,6 +121,32 @@ def get_shopping_list(
         raise HTTPException(status_code=403, detail="Access denied")
     
     return generate_shopping_list_for_event(db, event_id)
+
+
+@router.post(
+    "/{event_id}/shopping-list/auto-assign",
+    response_model=AutoAssignShoppingListResponse,
+)
+def auto_assign_event_shopping_list(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Auto-assign unassigned shopping-list items (event owner only)."""
+    event = events_crud.get_event(db, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    if not is_event_owner(event, current_user):
+        raise HTTPException(
+            status_code=403,
+            detail="Only the event owner can auto-assign shopping-list items",
+        )
+
+    try:
+        return auto_assign_shopping_items(db, event_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.put("/{event_id}", response_model=EventRead)

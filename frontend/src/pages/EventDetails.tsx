@@ -28,9 +28,7 @@ import {
   TextField,
   Typography,
   Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Snackbar,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -43,8 +41,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent, leaveEvent } from '../api/events';
+import { getEvent, attachRecipe, getShoppingList, deleteEvent, listParticipants, addParticipant, removeParticipant, assignIngredient, unassignIngredient, updateEvent, leaveEvent, autoAssignShoppingItems } from '../api/events';
 import { listRecipes } from '../api/recipes';
 import { me } from '../api/auth';
 import { getFriends, getOutgoingRequests, sendFriendRequest, getUserProfile } from '../api/friends';
@@ -110,6 +109,9 @@ const EventDetails: React.FC = () => {
   // Ingredient assignment state - track pending changes
   const [pendingAssignments, setPendingAssignments] = useState<Map<number, number | null>>(new Map());
   const [savingAssignments, setSavingAssignments] = useState(false);
+  const [autoAssigning, setAutoAssigning] = useState(false);
+  const [autoAssignSuccess, setAutoAssignSuccess] = useState<string | null>(null);
+  const [autoAssignError, setAutoAssignError] = useState<string | null>(null);
 
   // Delete event state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -420,10 +422,14 @@ const EventDetails: React.FC = () => {
   };
 
   // Handle assign ingredient to participant
-  const handleAssignIngredient = (ingredientId: number, eventMemberId: number | null) => {
+  const handleAssignIngredient = (
+    ingredientId: number,
+    eventMemberId: number | null,
+    savedEventMemberId: number | null
+  ) => {
     // Mark as pending change, don't save yet
     const newPending = new Map(pendingAssignments);
-    if (eventMemberId === null) {
+    if (eventMemberId === savedEventMemberId) {
       newPending.delete(ingredientId);
     } else {
       newPending.set(ingredientId, eventMemberId);
@@ -461,6 +467,29 @@ const EventDetails: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Failed to save assignments');
     } finally {
       setSavingAssignments(false);
+    }
+  };
+
+  const handleAutoAssign = async () => {
+    if (!eventId) return;
+
+    try {
+      setAutoAssigning(true);
+      setAutoAssignError(null);
+      const result = await autoAssignShoppingItems(parseInt(eventId, 10));
+      setShoppingList(result.shoppingList);
+      setPendingAssignments(new Map());
+      setAutoAssignSuccess(
+        result.assignedCount === 1
+          ? 'Automatically assigned 1 shopping-list item.'
+          : `Automatically assigned ${result.assignedCount} shopping-list items.`
+      );
+    } catch (err) {
+      setAutoAssignError(
+        err instanceof Error ? err.message : 'Failed to auto-assign shopping-list items'
+      );
+    } finally {
+      setAutoAssigning(false);
     }
   };
 
@@ -1093,133 +1122,6 @@ const EventDetails: React.FC = () => {
           )}
         </Paper>
 
-        {/* Event History & Archive Section */}
-        <Accordion defaultExpanded={false} sx={{ mt: 2 }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Event History & Archive
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Stack spacing={2}>
-              {/* Event Timeline */}
-              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-                  📋 Event Timeline
-                </Typography>
-                <Stack spacing={1.5}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                    <Box sx={{ color: '#8A6A2F', fontWeight: 600, minWidth: 100 }}>
-                      Created:
-                    </Box>
-                    <Typography variant="body2" color="textSecondary">
-                      {formatDate(event.createdAt)}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Paper>
-
-              {/* Recipes Archive */}
-              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-                  🍳 Recipe Archive
-                </Typography>
-                {event.recipes && event.recipes.length > 0 ? (
-                  <Stack spacing={1}>
-                    {event.recipes.map((recipe: EventRecipeRead, idx: number) => (
-                      <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderRadius: 1, backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {recipe.recipeName}
-                          </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            Base: {recipe.baseServings} | Current: {recipe.desiredServings} servings
-                          </Typography>
-                        </Box>
-                      </Box>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
-                    No recipes archived yet
-                  </Typography>
-                )}
-              </Paper>
-
-              {/* Participants Archive */}
-              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-                  👥 Participant History
-                </Typography>
-                {members && members.length > 0 ? (
-                  <Stack spacing={1}>
-                    {members.map((member: EventMemberRead) => (
-                      <Box key={member.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderRadius: 1, backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
-                        <Box>
-                          <Typography variant="body2">{member.email}</Typography>
-                          <Stack direction="row" spacing={0.5} sx={{ mt: 0.5 }}>
-                            <Chip
-                              label={member.role}
-                              size="small"
-                              variant="outlined"
-                              sx={{
-                                backgroundColor: member.role === 'owner' ? 'rgba(138, 106, 47, 0.1)' : undefined,
-                              }}
-                            />
-                            {member.status === 'invited' && (
-                              <Chip label="Invited" size="small" color="warning" variant="outlined" />
-                            )}
-                            {member.status === 'active' && (
-                              <Chip label="Active" size="small" color="success" variant="outlined" />
-                            )}
-                          </Stack>
-                        </Box>
-                      </Box>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
-                    No participants in history
-                  </Typography>
-                )}
-              </Paper>
-
-              {/* Event Summary Stats */}
-              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-                  📊 Event Summary
-                </Typography>
-                <Stack spacing={1} direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 2 }}>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" color="textSecondary">
-                      Total Recipes
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {event.recipes?.length || 0}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" color="textSecondary">
-                      Total Participants
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {members?.length || 0}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" color="textSecondary">
-                      Target Servings
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {event.targetServings}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Paper>
-            </Stack>
-          </AccordionDetails>
-        </Accordion>
-
         {/* Shopping List Section */}
         {shoppingList && shoppingList.items.length > 0 && (
           <>
@@ -1227,21 +1129,34 @@ const EventDetails: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 600, color: '#2B2522', fontSize: '1.05rem' }}>
                 Shopping List
               </Typography>
-              {pendingAssignments.size > 0 && (
-                <Button
-                  variant="contained"
-                  onClick={handleSaveAssignments}
-                  disabled={savingAssignments}
-                  sx={{
-                    backgroundColor: "#8A6A2F",
-                    "&:hover": { backgroundColor: "#6F5624" },
-                    textTransform: 'none',
-                    fontWeight: 500,
-                  }}
-                >
-                  {savingAssignments ? `Saving ${pendingAssignments.size} change(s)...` : `Save Changes (${pendingAssignments.size})`}
-                </Button>
-              )}
+              <Stack direction="row" spacing={1}>
+                {isOwner && (
+                  <Button
+                    variant="outlined"
+                    startIcon={autoAssigning ? <CircularProgress size={16} /> : <AutoAwesomeIcon />}
+                    onClick={handleAutoAssign}
+                    disabled={autoAssigning || savingAssignments || pendingAssignments.size > 0}
+                    sx={{ textTransform: 'none', borderColor: '#8A6A2F', color: '#8A6A2F' }}
+                  >
+                    {autoAssigning ? 'Auto Assigning...' : 'Auto Assign'}
+                  </Button>
+                )}
+                {pendingAssignments.size > 0 && (
+                  <Button
+                    variant="contained"
+                    onClick={handleSaveAssignments}
+                    disabled={savingAssignments}
+                    sx={{
+                      backgroundColor: "#8A6A2F",
+                      "&:hover": { backgroundColor: "#6F5624" },
+                      textTransform: 'none',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {savingAssignments ? `Saving ${pendingAssignments.size} change(s)...` : `Save Changes (${pendingAssignments.size})`}
+                  </Button>
+                )}
+              </Stack>
             </Box>
             <TableContainer 
               component={Paper}
@@ -1382,7 +1297,8 @@ const EventDetails: React.FC = () => {
                                 const value = (e.target.value as string);
                                 handleAssignIngredient(
                                   item.ingredientId,
-                                  value === "" ? null : parseInt(value, 10)
+                                  value === "" ? null : parseInt(value, 10),
+                                  item.assignedMemberId ?? null
                                 );
                               }}
                               sx={{
@@ -1518,6 +1434,27 @@ const EventDetails: React.FC = () => {
         onInvite={handleInviteFriends}
         currentMembers={members.map((m) => m.email.toLowerCase())}
       />
+
+      <Snackbar
+        open={Boolean(autoAssignSuccess)}
+        autoHideDuration={5000}
+        onClose={() => setAutoAssignSuccess(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={() => setAutoAssignSuccess(null)}>
+          {autoAssignSuccess}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={Boolean(autoAssignError)}
+        autoHideDuration={7000}
+        onClose={() => setAutoAssignError(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setAutoAssignError(null)}>
+          {autoAssignError}
+        </Alert>
+      </Snackbar>
 
       {/* Profile Popover */}
       {selectedMemberProfile && (

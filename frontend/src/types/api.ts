@@ -189,6 +189,11 @@ export interface ShoppingListResponse {
   items: ShoppingListItem[];
 }
 
+export interface AutoAssignShoppingListResponse {
+  assignedCount: number;
+  shoppingList: ShoppingListResponse;
+}
+
 // Notification types
 export interface NotificationRead {
   id: number;

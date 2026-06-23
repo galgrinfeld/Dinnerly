@@ -44,6 +44,16 @@ class ShoppingListResponse(BaseModel):
         populate_by_name = True
         from_attributes = True
 
+
+class AutoAssignShoppingListResponse(BaseModel):
+    """Result of automatically assigning unassigned shopping-list items."""
+    assigned_count: int = Field(alias="assignedCount")
+    shopping_list: ShoppingListResponse = Field(alias="shoppingList")
+
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+
 class IngredientAssignmentRequest(BaseModel):
     """Request to assign an ingredient to a participant."""
     event_member_id: int = Field(alias="eventMemberId")

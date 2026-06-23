@@ -10,6 +10,7 @@ import {
   ShoppingListResponse,
   EventMemberRead,
   ParticipantAddRequest,
+  AutoAssignShoppingListResponse,
 } from "../types/api";
 
 export async function createEvent(payload: EventCreateRequest): Promise<EventRead> {
@@ -55,6 +56,15 @@ export async function attachRecipe(
 
 export async function getShoppingList(eventId: number): Promise<ShoppingListResponse> {
   return apiFetch<ShoppingListResponse>(`/api/events/${eventId}/shopping-list`);
+}
+
+export async function autoAssignShoppingItems(
+  eventId: number
+): Promise<AutoAssignShoppingListResponse> {
+  return apiFetch<AutoAssignShoppingListResponse>(
+    `/api/events/${eventId}/shopping-list/auto-assign`,
+    { method: "POST" }
+  );
 }
 
 // Participant functions
