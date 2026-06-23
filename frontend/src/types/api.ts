@@ -160,6 +160,7 @@ export interface EventRead {
   targetServings: number;
   recipes?: EventRecipeRead[];
   members?: EventMemberRead[];
+  createdAt?: string; // ISO datetime format
 }
 
 // Shopping list types

@@ -28,6 +28,9 @@ import {
   TextField,
   Typography,
   Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -602,6 +605,23 @@ const EventDetails: React.FC = () => {
     setLeaveError(null);
   };
 
+  // Helper function to format date
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
@@ -1072,6 +1092,133 @@ const EventDetails: React.FC = () => {
             </Typography>
           )}
         </Paper>
+
+        {/* Event History & Archive Section */}
+        <Accordion defaultExpanded={false} sx={{ mt: 2 }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Event History & Archive
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2}>
+              {/* Event Timeline */}
+              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
+                  📋 Event Timeline
+                </Typography>
+                <Stack spacing={1.5}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <Box sx={{ color: '#8A6A2F', fontWeight: 600, minWidth: 100 }}>
+                      Created:
+                    </Box>
+                    <Typography variant="body2" color="textSecondary">
+                      {formatDate(event.createdAt)}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Paper>
+
+              {/* Recipes Archive */}
+              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
+                  🍳 Recipe Archive
+                </Typography>
+                {event.recipes && event.recipes.length > 0 ? (
+                  <Stack spacing={1}>
+                    {event.recipes.map((recipe: EventRecipeRead, idx: number) => (
+                      <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderRadius: 1, backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {recipe.recipeName}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            Base: {recipe.baseServings} | Current: {recipe.desiredServings} servings
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
+                    No recipes archived yet
+                  </Typography>
+                )}
+              </Paper>
+
+              {/* Participants Archive */}
+              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
+                  👥 Participant History
+                </Typography>
+                {members && members.length > 0 ? (
+                  <Stack spacing={1}>
+                    {members.map((member: EventMemberRead) => (
+                      <Box key={member.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderRadius: 1, backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
+                        <Box>
+                          <Typography variant="body2">{member.email}</Typography>
+                          <Stack direction="row" spacing={0.5} sx={{ mt: 0.5 }}>
+                            <Chip
+                              label={member.role}
+                              size="small"
+                              variant="outlined"
+                              sx={{
+                                backgroundColor: member.role === 'owner' ? 'rgba(138, 106, 47, 0.1)' : undefined,
+                              }}
+                            />
+                            {member.status === 'invited' && (
+                              <Chip label="Invited" size="small" color="warning" variant="outlined" />
+                            )}
+                            {member.status === 'active' && (
+                              <Chip label="Active" size="small" color="success" variant="outlined" />
+                            )}
+                          </Stack>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
+                    No participants in history
+                  </Typography>
+                )}
+              </Paper>
+
+              {/* Event Summary Stats */}
+              <Paper variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(138, 106, 47, 0.03)' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
+                  📊 Event Summary
+                </Typography>
+                <Stack spacing={1} direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 2 }}>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="textSecondary">
+                      Total Recipes
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      {event.recipes?.length || 0}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="textSecondary">
+                      Total Participants
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      {members?.length || 0}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="textSecondary">
+                      Target Servings
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      {event.targetServings}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Paper>
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
 
         {/* Shopping List Section */}
         {shoppingList && shoppingList.items.length > 0 && (
