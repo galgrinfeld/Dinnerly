@@ -163,6 +163,18 @@ export const MyEvents: React.FC = () => {
     return filteredAndSortedEvents.filter((event) => !isOwner(event));
   }, [filteredAndSortedEvents, currentUser]);
 
+  // Apply filtering and sorting to archived events (past events only)
+  const filteredArchivedEvents = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return filteredAndSortedEvents.filter((event) => {
+      const eventDate = new Date(event.eventDate);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate < today;
+    });
+  }, [filteredAndSortedEvents]);
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
@@ -251,6 +263,18 @@ export const MyEvents: React.FC = () => {
                   fontSize: "1rem",
                   color: tabValue === 2 ? "#8A6A2F" : "#5C524E",
                   fontWeight: tabValue === 2 ? 700 : 500,
+                  "&.Mui-selected": {
+                    color: "#8A6A2F",
+                  },
+                }}
+              />
+              <Tab
+                label={`Archive (${filteredArchivedEvents.length})`}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "1rem",
+                  color: tabValue === 3 ? "#8A6A2F" : "#5C524E",
+                  fontWeight: tabValue === 3 ? 700 : 500,
                   "&.Mui-selected": {
                     color: "#8A6A2F",
                   },
@@ -471,6 +495,37 @@ export const MyEvents: React.FC = () => {
                 }}
               >
                 {filteredSharedEvents.map((event) => (
+                  <EventSummaryCard
+                    key={event.id}
+                    event={event}
+                    onViewEvent={handleViewEvent}
+                  />
+                ))}
+              </Box>
+            )}
+          </TabPanel>
+
+          {/* Archive Tab */}
+          <TabPanel value={tabValue} index={3}>
+            {filteredArchivedEvents.length === 0 ? (
+              <EmptyStateBlock
+                icon={<EventIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
+                title="No past events"
+                message={
+                  searchQuery
+                    ? `No archived events match "${searchQuery}".`
+                    : "Your past events will appear here once they've occurred."
+                }
+              />
+            ) : (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
+                  gap: 3,
+                }}
+              >
+                {filteredArchivedEvents.map((event) => (
                   <EventSummaryCard
                     key={event.id}
                     event={event}
