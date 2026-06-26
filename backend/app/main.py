@@ -4,6 +4,7 @@ FastAPI application initialization.
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 from app.db.session import engine
 from app.db.base import Base
 from app.db.models import User, EventMember, Ingredient, Recipe, RecipeIngredient, Event, EventRecipe, EventIngredientAssignment, FriendRequest, Notification
@@ -21,6 +22,29 @@ def create_tables():
     auto_create = os.getenv("AUTO_CREATE_TABLES", "true").lower() == "true"
     if auto_create:
         Base.metadata.create_all(bind=engine)
+        ensure_recipe_public_columns()
+
+
+def ensure_recipe_public_columns():
+    """Apply the small development schema update needed without Alembic."""
+    inspector = inspect(engine)
+    if "recipes" not in inspector.get_table_names():
+        return
+
+    existing_columns = {column["name"] for column in inspector.get_columns("recipes")}
+    statements = []
+    if "is_public" not in existing_columns:
+        if engine.dialect.name == "postgresql":
+            statements.append("ALTER TABLE recipes ADD COLUMN is_public BOOLEAN NOT NULL DEFAULT FALSE")
+        else:
+            statements.append("ALTER TABLE recipes ADD COLUMN is_public BOOLEAN NOT NULL DEFAULT 0")
+    if "source_recipe_id" not in existing_columns:
+        statements.append("ALTER TABLE recipes ADD COLUMN source_recipe_id INTEGER")
+
+    if statements:
+        with engine.begin() as connection:
+            for statement in statements:
+                connection.execute(text(statement))
 
 
 app = FastAPI(title="Dinnerly")

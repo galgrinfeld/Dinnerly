@@ -8,6 +8,8 @@ import { AddRecipe } from "../pages/AddRecipe";
 import { CreateEvent } from "../pages/CreateEvent";
 import { EventDetails } from "../pages/EventDetails";
 import { RecipeDetails } from "../pages/RecipeDetails";
+import { PublicRecipes } from "../pages/PublicRecipes";
+import { PublicRecipeDetails } from "../pages/PublicRecipeDetails";
 import { EditRecipe } from "../pages/EditRecipe";
 import { EditEvent } from "../pages/EditEvent";
 import { MyEvents } from "../pages/MyEvents";
@@ -30,6 +32,8 @@ const AppRouter: React.FC = () => {
       <Route path="/" element={<ProtectedRoute element={<Home />} />} />
       <Route path="/myEvents" element={<ProtectedRoute element={<MyEvents />} />} />
       <Route path="/myRecipes" element={<ProtectedRoute element={<MyRecipes />} />} />
+      <Route path="/recipe-pool" element={<ProtectedRoute element={<PublicRecipes />} />} />
+      <Route path="/recipe-pool/:recipeId" element={<ProtectedRoute element={<PublicRecipeDetails />} />} />
       <Route path="/friends" element={<ProtectedRoute element={<Friends />} />} />
       <Route path="/addRecipe" element={<ProtectedRoute element={<AddRecipe />} />} />
       <Route path="/events/new" element={<ProtectedRoute element={<CreateEvent />} />} />

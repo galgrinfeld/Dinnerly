@@ -9,7 +9,9 @@ import {
   Alert,
   CircularProgress,
   Card,
+  Checkbox,
   Divider,
+  FormControlLabel,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { IngredientsTable } from "../components/IngredientsTable";
@@ -304,6 +306,23 @@ export const RecipeFormLayout: React.FC<RecipeFormLayoutProps> = ({
                     placeholder="e.g. 30"
                   />
                 </Box>
+
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formState.isPublic}
+                      onChange={(e) => onFieldChange("isPublic", e.target.checked)}
+                      disabled={isLoading}
+                      sx={{ color: "#8A6A2F", "&.Mui-checked": { color: "#7A5E2B" } }}
+                    />
+                  }
+                  label="Share to public recipe pool"
+                  sx={{
+                    color: "#3A332F",
+                    alignSelf: "flex-start",
+                    ".MuiFormControlLabel-label": { fontWeight: 600 },
+                  }}
+                />
               </Stack>
             </Box>
           </Card>

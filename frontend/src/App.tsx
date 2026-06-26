@@ -114,6 +114,8 @@ function App() {
   // Don't show AppBar on auth pages
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
   const recipeActive = ["/myRecipes", "/addRecipe"].includes(location.pathname);
+  const publicRecipesActive = location.pathname === "/recipe-pool"
+    || location.pathname.startsWith("/recipe-pool/");
   const eventActive = ["/myEvents", "/events/new"].includes(location.pathname);
 
   const navigateAndCloseMobileMenu = (path: string) => {
@@ -161,6 +163,12 @@ function App() {
                 sx={navButtonSx(location.pathname === "/")}
               >
                 Home
+              </Button>
+              <Button
+                onClick={() => navigate("/recipe-pool")}
+                sx={navButtonSx(publicRecipesActive)}
+              >
+                Public Recipes
               </Button>
 
               {/* Recipes Dropdown */}
@@ -261,6 +269,7 @@ function App() {
               PaperProps={{ sx: { minWidth: 240 } }}
             >
               <MenuItem onClick={() => navigateAndCloseMobileMenu("/")}>Home</MenuItem>
+              <MenuItem onClick={() => navigateAndCloseMobileMenu("/recipe-pool")}>Public Recipes</MenuItem>
               <Divider />
               <MenuItem onClick={() => navigateAndCloseMobileMenu("/myRecipes")}>My Recipes</MenuItem>
               <MenuItem onClick={() => navigateAndCloseMobileMenu("/addRecipe")}>Add Recipe</MenuItem>

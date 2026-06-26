@@ -105,6 +105,8 @@ def create_ai_recipe(
             cooking_time_minutes=recipe.cooking_time_minutes,
             instructions_html=recipe.instructions_html or "",
             image_url=recipe.image_url,
+            is_public=recipe.is_public,
+            source_recipe_id=recipe.source_recipe_id,
             ingredients=[RecipeIngredientRead.from_orm(item) for item in recipe.ingredients],
         )
         return AiCreateRecipeResponse(
@@ -146,6 +148,7 @@ def create_ai_recipe(
             instructions_html=generated.instructions_html,
             image_url=image_url,
             owner_user_id=current_user.id,
+            is_public=False,
         )
         db.add(recipe)
         db.flush()
@@ -175,6 +178,8 @@ def create_ai_recipe(
         cooking_time_minutes=recipe.cooking_time_minutes,
         instructions_html=recipe.instructions_html or "",
         image_url=recipe.image_url,
+        is_public=recipe.is_public,
+        source_recipe_id=recipe.source_recipe_id,
         ingredients=[RecipeIngredientRead.from_orm(item) for item in recipe.ingredients],
     )
     return AiCreateRecipeResponse(

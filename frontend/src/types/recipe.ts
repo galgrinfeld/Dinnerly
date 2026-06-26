@@ -25,6 +25,7 @@ export type RecipeFormState = {
   baseServings: number;
   imageUrl?: string | null;
   cookingTimeMinutes?: number | null;
+  isPublic: boolean;
   ingredients: IngredientRow[];
   instructions: string;
 };

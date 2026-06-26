@@ -70,6 +70,7 @@ class RecipeCreate(BaseModel):
     instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
     imageUrl: Optional[str] = Field(None, max_length=2000, alias="imageUrl")
     cookingTimeMinutes: Optional[int] = Field(None, ge=0, alias="cookingTimeMinutes")
+    isPublic: bool = Field(False, alias="isPublic")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
     @field_validator("ingredients")
@@ -92,6 +93,7 @@ class RecipeUpdate(BaseModel):
     instructionsHtml: str = Field(default="", max_length=5000, alias="instructionsHtml")
     cookingTimeMinutes: Optional[int] = Field(None, ge=0, alias="cookingTimeMinutes")
     imageUrl: Optional[str] = Field(None, max_length=2000, alias="imageUrl")
+    isPublic: bool = Field(False, alias="isPublic")
     ingredients: List[RecipeIngredientCreate] = Field(min_length=1)
     
     @field_validator("ingredients")
@@ -115,6 +117,8 @@ class RecipeRead(BaseModel):
     cooking_time_minutes: Optional[int] = Field(alias="cookingTimeMinutes", default=None)
     instructions_html: str = Field(alias="instructionsHtml", default="")
     image_url: Optional[str] = Field(alias="imageUrl", default=None)
+    is_public: bool = Field(alias="isPublic", default=False)
+    source_recipe_id: Optional[int] = Field(alias="sourceRecipeId", default=None)
     ingredients: List[RecipeIngredientRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True, alias_priority=True)
@@ -128,6 +132,13 @@ class RecipeListItem(BaseModel):
     cooking_time_minutes: Optional[int] = Field(alias="cookingTimeMinutes", default=None)
     base_servings: int = Field(alias="baseServings")
     image_url: Optional[str] = Field(alias="imageUrl", default=None)
+    is_public: bool = Field(alias="isPublic", default=False)
+    source_recipe_id: Optional[int] = Field(alias="sourceRecipeId", default=None)
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True, alias_priority=True)
+
+
+class SimilarRecipeItem(RecipeListItem):
+    """Public recipe recommendation with its similarity score."""
+    similarity_score: float = Field(alias="similarityScore")
 

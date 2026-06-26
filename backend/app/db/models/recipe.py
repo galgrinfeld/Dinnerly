@@ -2,7 +2,7 @@
 Recipe database model.
 """
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, DateTime, func, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, Text, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 
@@ -18,6 +18,8 @@ class Recipe(Base):
     image_url = Column(String, nullable=True)
     cooking_time_minutes = Column(Integer, nullable=True)
     owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    is_public = Column(Boolean, nullable=False, default=False, server_default="false", index=True)
+    source_recipe_id = Column(Integer, ForeignKey("recipes.id"), nullable=True, index=True)
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,

@@ -15,6 +15,7 @@ const INITIAL_STATE: RecipeFormState = {
   baseServings: 4,
   imageUrl: "",
   cookingTimeMinutes: null,
+  isPublic: false,
   ingredients: [createEmptyIngredientRow()],
   instructions: "",
 };

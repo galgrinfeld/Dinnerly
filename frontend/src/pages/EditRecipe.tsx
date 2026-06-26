@@ -23,6 +23,7 @@ export const EditRecipe: React.FC = () => {
     instructions: "",
     imageUrl: "",
     cookingTimeMinutes: null,
+    isPublic: false,
   });
 
   const [originalFormState, setOriginalFormState] = useState<RecipeFormState | null>(null);
@@ -60,6 +61,7 @@ export const EditRecipe: React.FC = () => {
           instructions: recipe.instructionsHtml || "",
           imageUrl: recipe.imageUrl || "",
           cookingTimeMinutes: recipe.cookingTimeMinutes ?? null,
+          isPublic: Boolean(recipe.isPublic),
         };
 
         setFormState(formData);

@@ -11,11 +11,11 @@ import {
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { RecipeRead } from "../types/api";
+import { RecipeListItem } from "../types/api";
 import { formatCookingTime } from "../utils/formatters";
 
 interface RecipeCarouselCardProps {
-  recipe: RecipeRead;
+  recipe: RecipeListItem;
   onViewDetails: (recipeId: number) => void;
 }
 

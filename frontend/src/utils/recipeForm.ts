@@ -39,6 +39,7 @@ export function toRecipePayload(formState: RecipeFormState): RecipeCreateRequest
     instructionsHtml: formState.instructions,
     imageUrl: formState.imageUrl?.trim() || null,
     cookingTimeMinutes: formState.cookingTimeMinutes ?? null,
+    isPublic: formState.isPublic,
     ingredients: formState.ingredients
       .filter((ing) => ing.name.trim())
       .map((ing) => ({

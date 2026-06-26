@@ -87,6 +87,7 @@ export interface RecipeCreateRequest {
   instructionsHtml?: string;
   imageUrl?: string | null;
   cookingTimeMinutes?: number | null;
+  isPublic?: boolean;
   ingredients: RecipeIngredient[];
 }
 
@@ -98,6 +99,8 @@ export interface RecipeRead {
   instructionsHtml?: string;
   cookingTimeMinutes?: number | null;
   imageUrl?: string | null;
+  isPublic?: boolean;
+  sourceRecipeId?: number | null;
   ingredients: Array<{
     id: number;
     ingredientId: number;
@@ -116,6 +119,8 @@ export interface RecipeUpdateRequest {
   cookingTimeMinutes?: number | null;
   instructionsHtml?: string;
   imageUrl?: string | null;
+  isPublic?: boolean;
+  sourceRecipeId?: number | null;
   ingredients: RecipeIngredient[];
 }
 
@@ -126,6 +131,12 @@ export interface RecipeListItem {
   cookingTimeMinutes?: number | null;
   description?: string;
   imageUrl?: string | null;
+  isPublic?: boolean;
+  sourceRecipeId?: number | null;
+}
+
+export interface SimilarRecipeItem extends RecipeListItem {
+  similarityScore: number;
 }
 
 // Event types

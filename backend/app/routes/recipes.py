@@ -40,6 +40,8 @@ def create_recipe(
             instructions_html=recipe.instructions_html or "",
             image_url=recipe.image_url,
             cooking_time_minutes=recipe.cooking_time_minutes,
+            is_public=recipe.is_public,
+            source_recipe_id=recipe.source_recipe_id,
             ingredients=ingredients,
         )
     except ValueError as e:
@@ -82,6 +84,8 @@ def get_recipe(
         instructions_html=recipe.instructions_html or "",
         image_url=recipe.image_url,
         cooking_time_minutes=recipe.cooking_time_minutes,
+        is_public=recipe.is_public,
+        source_recipe_id=recipe.source_recipe_id,
         ingredients=ingredients,
     )
 
@@ -112,6 +116,8 @@ def update_recipe(
             instructions_html=recipe.instructions_html or "",
             image_url=recipe.image_url,
             cooking_time_minutes=recipe.cooking_time_minutes,
+            is_public=recipe.is_public,
+            source_recipe_id=recipe.source_recipe_id,
             ingredients=ingredients,
         )
     except ValueError as e:

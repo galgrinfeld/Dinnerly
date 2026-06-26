@@ -95,7 +95,9 @@ def create_ingredients(db: Session) -> dict:
         "Olive Oil", "Garlic", "Onion", "Tomato", "Bell Pepper",
         "Basil", "Parmesan Cheese", "Mozzarella", "Salt",
         "Black Pepper", "Lemon", "Spinach", "Mushroom", "Rice",
-        "Soy Sauce", "Ginger"
+        "Soy Sauce", "Ginger", "Cucumber", "Feta Cheese", "Chickpeas",
+        "Potato", "Carrot", "Yogurt", "Flour", "Sugar", "Cocoa Powder",
+        "Butter", "Eggs", "Chicken Thighs", "Cilantro"
     ]
     
     ingredients_map = {}
@@ -258,6 +260,146 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
                 "<p>5. Finish with parmesan cheese</p>"
             )
         },
+        {
+            "name": "Caprese Pasta Bake",
+            "description": "Baked pasta with tomato, mozzarella, basil, and parmesan.",
+            "base_servings": 4,
+            "cooking_time_minutes": 45,
+            "image_url": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600",
+            "ingredients": [
+                {"name": "Pasta", "quantity": 350, "unit": "g"},
+                {"name": "Tomato", "quantity": 4, "unit": "whole"},
+                {"name": "Mozzarella", "quantity": 200, "unit": "g"},
+                {"name": "Basil", "quantity": 12, "unit": "leaves"},
+                {"name": "Parmesan Cheese", "quantity": 80, "unit": "g"},
+                {"name": "Garlic", "quantity": 2, "unit": "cloves"},
+            ],
+            "instructions": (
+                "<p>1. Cook pasta until just tender</p>"
+                "<p>2. Mix with tomato, garlic, and basil</p>"
+                "<p>3. Top with mozzarella and parmesan</p>"
+                "<p>4. Bake until golden and bubbling</p>"
+            )
+        },
+        {
+            "name": "Greek Salad Bowl",
+            "description": "Fresh cucumber, tomato, feta, and chickpeas with lemon olive oil dressing.",
+            "base_servings": 4,
+            "cooking_time_minutes": 15,
+            "image_url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600",
+            "ingredients": [
+                {"name": "Cucumber", "quantity": 2, "unit": "whole"},
+                {"name": "Tomato", "quantity": 4, "unit": "whole"},
+                {"name": "Feta Cheese", "quantity": 150, "unit": "g"},
+                {"name": "Chickpeas", "quantity": 250, "unit": "g"},
+                {"name": "Olive Oil", "quantity": 3, "unit": "tbsp"},
+                {"name": "Lemon", "quantity": 1, "unit": "whole"},
+            ],
+            "instructions": (
+                "<p>1. Chop vegetables into bite-sized pieces</p>"
+                "<p>2. Toss with chickpeas and feta</p>"
+                "<p>3. Dress with lemon, olive oil, salt, and pepper</p>"
+            )
+        },
+        {
+            "name": "Lemon Chicken Rice",
+            "description": "One-pan chicken and rice with lemon, garlic, and herbs.",
+            "base_servings": 5,
+            "cooking_time_minutes": 50,
+            "image_url": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600",
+            "ingredients": [
+                {"name": "Chicken Thighs", "quantity": 700, "unit": "g"},
+                {"name": "Rice", "quantity": 350, "unit": "g"},
+                {"name": "Lemon", "quantity": 2, "unit": "whole"},
+                {"name": "Garlic", "quantity": 5, "unit": "cloves"},
+                {"name": "Olive Oil", "quantity": 3, "unit": "tbsp"},
+                {"name": "Onion", "quantity": 1, "unit": "whole"},
+            ],
+            "instructions": (
+                "<p>1. Brown chicken in olive oil</p>"
+                "<p>2. Add onion, garlic, rice, lemon, and water</p>"
+                "<p>3. Cover and simmer until rice is tender</p>"
+            )
+        },
+        {
+            "name": "Chicken Fajita Rice",
+            "description": "Chicken, bell pepper, onion, and rice with a quick skillet finish.",
+            "base_servings": 4,
+            "cooking_time_minutes": 35,
+            "image_url": "https://images.unsplash.com/photo-1615870216519-2f9fa575fa5c?w=600",
+            "ingredients": [
+                {"name": "Chicken Breast", "quantity": 600, "unit": "g"},
+                {"name": "Bell Pepper", "quantity": 3, "unit": "whole"},
+                {"name": "Onion", "quantity": 1, "unit": "whole"},
+                {"name": "Rice", "quantity": 300, "unit": "g"},
+                {"name": "Garlic", "quantity": 3, "unit": "cloves"},
+                {"name": "Cilantro", "quantity": 15, "unit": "g"},
+            ],
+            "instructions": (
+                "<p>1. Cook rice and set aside</p>"
+                "<p>2. Sear chicken strips with bell pepper and onion</p>"
+                "<p>3. Fold in rice, garlic, and cilantro</p>"
+            )
+        },
+        {
+            "name": "Roasted Vegetable Tray",
+            "description": "Colorful roasted potato, carrot, onion, and bell pepper side dish.",
+            "base_servings": 6,
+            "cooking_time_minutes": 40,
+            "image_url": "https://images.unsplash.com/photo-1543353071-873f17a7a088?w=600",
+            "ingredients": [
+                {"name": "Potato", "quantity": 800, "unit": "g"},
+                {"name": "Carrot", "quantity": 500, "unit": "g"},
+                {"name": "Bell Pepper", "quantity": 2, "unit": "whole"},
+                {"name": "Onion", "quantity": 2, "unit": "whole"},
+                {"name": "Olive Oil", "quantity": 4, "unit": "tbsp"},
+                {"name": "Garlic", "quantity": 4, "unit": "cloves"},
+            ],
+            "instructions": (
+                "<p>1. Cut vegetables into even pieces</p>"
+                "<p>2. Toss with olive oil, garlic, salt, and pepper</p>"
+                "<p>3. Roast until browned and tender</p>"
+            )
+        },
+        {
+            "name": "Chocolate Butter Cake",
+            "description": "Simple chocolate cake with cocoa, butter, eggs, and flour.",
+            "base_servings": 8,
+            "cooking_time_minutes": 55,
+            "image_url": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600",
+            "ingredients": [
+                {"name": "Flour", "quantity": 250, "unit": "g"},
+                {"name": "Sugar", "quantity": 200, "unit": "g"},
+                {"name": "Cocoa Powder", "quantity": 60, "unit": "g"},
+                {"name": "Butter", "quantity": 150, "unit": "g"},
+                {"name": "Eggs", "quantity": 3, "unit": "whole"},
+            ],
+            "instructions": (
+                "<p>1. Whisk dry ingredients together</p>"
+                "<p>2. Mix in butter and eggs</p>"
+                "<p>3. Bake until a skewer comes out clean</p>"
+            )
+        },
+        {
+            "name": "Mushroom Spinach Pasta",
+            "description": "Creamy pasta with mushrooms, spinach, garlic, and parmesan.",
+            "base_servings": 4,
+            "cooking_time_minutes": 30,
+            "image_url": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600",
+            "ingredients": [
+                {"name": "Pasta", "quantity": 350, "unit": "g"},
+                {"name": "Mushroom", "quantity": 300, "unit": "g"},
+                {"name": "Spinach", "quantity": 180, "unit": "g"},
+                {"name": "Garlic", "quantity": 3, "unit": "cloves"},
+                {"name": "Parmesan Cheese", "quantity": 90, "unit": "g"},
+                {"name": "Olive Oil", "quantity": 2, "unit": "tbsp"},
+            ],
+            "instructions": (
+                "<p>1. Cook pasta and reserve some pasta water</p>"
+                "<p>2. Saute mushrooms, garlic, and spinach</p>"
+                "<p>3. Toss with pasta, parmesan, and olive oil</p>"
+            )
+        },
     ]
     
     recipes = []
@@ -269,7 +411,8 @@ def create_recipes(db: Session, users_map: dict, ingredients_map: dict) -> List[
             image_url=recipe_data["image_url"],
             cooking_time_minutes=recipe_data.get("cooking_time_minutes"),
             instructions_html=recipe_data["instructions"],
-            owner_user_id=gal.id
+            owner_user_id=gal.id,
+            is_public=True,
         )
         db.add(recipe)
         db.flush()

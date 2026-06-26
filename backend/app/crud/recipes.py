@@ -20,6 +20,7 @@ def create_recipe(db: Session, payload: RecipeCreate, owner_user_id: int) -> Rec
         image_url=payload.imageUrl or None,
         cooking_time_minutes=payload.cookingTimeMinutes,
         owner_user_id=owner_user_id,
+        is_public=payload.isPublic,
     )
     db.add(db_recipe)
     db.flush()  # Flush to get the recipe ID without committing
@@ -105,6 +106,7 @@ def update_recipe(db: Session, recipe_id: int, payload: RecipeUpdate, owner_user
     recipe.instructions_html = payload.instructionsHtml
     recipe.image_url = payload.imageUrl or None
     recipe.cooking_time_minutes = payload.cookingTimeMinutes
+    recipe.is_public = payload.isPublic
     
     # Remove existing ingredients
     db.query(RecipeIngredient).filter(RecipeIngredient.recipe_id == recipe_id).delete()
@@ -149,4 +151,74 @@ def delete_recipe(db: Session, recipe_id: int, owner_user_id: int) -> None:
     # Delete the recipe
     db.delete(recipe)
     db.commit()
+
+
+def list_public_recipes(db: Session, limit: int = 100) -> list[Recipe]:
+    """List recipes shared to the public recipe pool."""
+    return (
+        db.query(Recipe)
+        .filter(Recipe.is_public.is_(True))
+        .order_by(Recipe.name.asc(), Recipe.id.asc())
+        .limit(limit)
+        .all()
+    )
+
+
+def get_public_recipe_with_ingredients(db: Session, recipe_id: int) -> Recipe | None:
+    """Get a public recipe with ingredients loaded."""
+    return (
+        db.query(Recipe)
+        .options(selectinload(Recipe.ingredients).selectinload(RecipeIngredient.ingredient))
+        .filter(Recipe.id == recipe_id, Recipe.is_public.is_(True))
+        .first()
+    )
+
+
+def find_saved_clone(db: Session, source_recipe_id: int, owner_user_id: int) -> Recipe | None:
+    """Find an existing private clone saved from a public recipe."""
+    return (
+        db.query(Recipe)
+        .filter(
+            Recipe.owner_user_id == owner_user_id,
+            Recipe.source_recipe_id == source_recipe_id,
+        )
+        .order_by(Recipe.id.asc())
+        .first()
+    )
+
+
+def clone_public_recipe(db: Session, source_recipe: Recipe, owner_user_id: int) -> Recipe:
+    """Clone a public recipe into a user's private recipe collection."""
+    existing = find_saved_clone(db, source_recipe.id, owner_user_id)
+    if existing:
+        return existing
+
+    clone = Recipe(
+        name=source_recipe.name,
+        description=source_recipe.description,
+        base_servings=source_recipe.base_servings,
+        instructions_html=source_recipe.instructions_html,
+        image_url=source_recipe.image_url,
+        cooking_time_minutes=source_recipe.cooking_time_minutes,
+        owner_user_id=owner_user_id,
+        is_public=False,
+        source_recipe_id=source_recipe.id,
+    )
+    db.add(clone)
+    db.flush()
+
+    for source_ingredient in source_recipe.ingredients:
+        db.add(
+            RecipeIngredient(
+                recipe_id=clone.id,
+                ingredient_id=source_ingredient.ingredient_id,
+                quantity=source_ingredient.quantity,
+                unit=source_ingredient.unit,
+                note=source_ingredient.note,
+                optional=source_ingredient.optional,
+            )
+        )
+
+    db.commit()
+    return get_recipe_with_ingredients(db, clone.id, owner_user_id) or clone
 
