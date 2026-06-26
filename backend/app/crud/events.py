@@ -31,6 +31,7 @@ def serialize_event(db: Session, event: Event) -> EventRead:
                 recipe_name=recipe.name,
                 base_servings=recipe.base_servings,
                 desired_servings=event_recipe.desired_servings,
+                image_url=recipe.image_url,
             )
         )
     

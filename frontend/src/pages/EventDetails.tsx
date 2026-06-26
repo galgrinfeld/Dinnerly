@@ -280,7 +280,14 @@ const EventDetails: React.FC = () => {
         listRecipes(),
         getShoppingList(numericEventId),
       ]);
-      setEvent(updatedEvent);
+      setEvent({
+        ...updatedEvent,
+        recipes: (updatedEvent.recipes || []).map(recipe =>
+          recipe.recipeId === result.recipe.id
+            ? { ...recipe, imageUrl: result.recipe.imageUrl }
+            : recipe
+        ),
+      });
       setRecipes(updatedRecipes);
       setShoppingList(updatedShoppingList);
       setAiSuggestions(current => current.filter(item => item.name !== suggestion.name));
@@ -1164,6 +1171,37 @@ const EventDetails: React.FC = () => {
                       '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
                     }}
                   >
+                    {recipe.imageUrl ? (
+                      <Box
+                        component="img"
+                        src={recipe.imageUrl}
+                        alt={recipe.recipeName}
+                        onError={(event) => {
+                          event.currentTarget.style.display = 'none';
+                        }}
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          objectFit: 'cover',
+                          borderRadius: 1,
+                          mr: 1.5,
+                          border: '1px solid #E8E4DF',
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: 1,
+                          mr: 1.5,
+                          border: '1px solid #E8E4DF',
+                          backgroundColor: '#F9F7F4',
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
                     <Box sx={{ flex: 1 }}>
                       <Typography 
                         variant="body2"
@@ -1177,6 +1215,28 @@ const EventDetails: React.FC = () => {
                       >
                         {recipe.recipeName}
                       </Typography>
+                      {recipe.imageUrl && (
+                        <Typography
+                          component="a"
+                          href={recipe.imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="caption"
+                          onClick={(event) => event.stopPropagation()}
+                          sx={{
+                            display: 'block',
+                            color: '#8A7660',
+                            maxWidth: { xs: 180, sm: 420 },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            textDecoration: 'none',
+                            '&:hover': { textDecoration: 'underline' },
+                          }}
+                        >
+                          {recipe.imageUrl}
+                        </Typography>
+                      )}
                     </Box>
                     {isEditing ? (
                       <Stack direction="row" spacing={1} alignItems="center">

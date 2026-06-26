@@ -73,7 +73,8 @@ def test_create_saves_recipe_ingredients_and_attachment(db, scenario, monkeypatc
     )
     recipe = db.query(Recipe).filter_by(id=result.recipe_id).one()
     assert recipe.owner_user_id == participant.id
-    assert recipe.image_url == "https://placehold.co/800x600?text=Garlic%20Bread"
+    assert recipe.image_url.startswith("https://image.pollinations.ai/prompt/")
+    assert "Garlic%20Bread" in recipe.image_url
     assert db.query(RecipeIngredient).filter_by(recipe_id=recipe.id).count() == 4
     attached = db.query(EventRecipe).filter_by(event_id=event.id, recipe_id=recipe.id).one()
     assert attached.desired_servings == event.target_servings

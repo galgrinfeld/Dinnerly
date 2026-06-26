@@ -1,10 +1,11 @@
 """AI provider integration and deterministic development fallback."""
 import json
 import os
+from hashlib import sha1
 from html import escape
 from pathlib import Path
 from urllib import error, request
-from urllib.parse import quote, urlparse
+from urllib.parse import quote, urlencode, urlparse
 
 from dotenv import load_dotenv
 from pydantic import ValidationError
@@ -72,9 +73,8 @@ Requirements:
 * Include 4 to 8 cooking instructions.
 * Keep cookingTimeMinutes realistic.
 * Do not include unsafe food handling instructions.
-* Include an imageUrl field.
-* Do not invent fake image URLs.
-* If you cannot provide a reliable public image URL, set imageUrl to an empty string.
+* Include an imageUrl field and set it to an empty string.
+* Do not invent image URLs.
 * Always include imageSearchQuery with a short food-photo search query for this dish.
 * Ingredient units must be one of: g, kg, ml, l, tsp, tbsp, cup, unit, slice, to_taste.
 
@@ -188,6 +188,7 @@ def _mock_recipe(name: str, category: str, servings: int) -> GeneratedRecipe:
         "description": f"A flavorful {category.lower()} designed to complement your dinner menu.",
         "baseServings": servings,
         "cookingTimeMinutes": 35,
+        "imageSearchQuery": f"homemade {name} food photo",
         "instructionsHtml": "<ol><li>Prepare and measure all ingredients.</li><li>Combine the ingredients and season well.</li><li>Cook until golden and tender, then serve warm.</li></ol>",
         "ingredients": [
             {"name": main_name, "quantity": quantity, "unit": unit, "note": "prepared", "optional": False},
@@ -230,12 +231,46 @@ def generate_recipe(
         raise AiServiceError("AI recipe failed validation") from exc
 
 
-def resolve_image_url(image_url: str | None, recipe_name: str) -> str:
-    if image_url:
-        try:
-            parsed = urlparse(image_url)
-            if parsed.scheme in {"http", "https"} and parsed.netloc:
-                return image_url
-        except (TypeError, ValueError):
-            pass
-    return f"https://placehold.co/800x600?text={quote(recipe_name)}"
+def _is_probably_direct_image_url(image_url: str) -> bool:
+    """Accept only URLs that are likely to render directly in an <img> tag."""
+    try:
+        parsed = urlparse(image_url)
+    except (TypeError, ValueError):
+        return False
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return False
+    if parsed.netloc.endswith("images.unsplash.com"):
+        return True
+    return parsed.path.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"))
+
+
+def _curated_food_image_url(recipe_name: str, image_search_query: str | None = None) -> str:
+    """Return a dish-specific AI-generated food photo URL."""
+    search_context = (image_search_query or "").strip()
+    prompt = (
+        f"appetizing realistic food photography of {recipe_name}, "
+        f"{search_context}, plated home-cooked dinner, natural light, "
+        "no text, no watermark"
+    )
+    seed = int(sha1(recipe_name.casefold().encode("utf-8")).hexdigest()[:8], 16)
+    query = urlencode({
+        "width": 800,
+        "height": 600,
+        "seed": seed,
+        "model": "flux",
+        "nologo": "true",
+        "enhance": "true",
+    })
+    return f"https://image.pollinations.ai/prompt/{quote(prompt, safe='')}?{query}"
+
+
+def resolve_image_url(
+    image_url: str | None,
+    recipe_name: str,
+    image_search_query: str | None = None,
+) -> str:
+    # AI models often return article pages, thumbnails with expired transforms,
+    # or hotlink-blocked URLs. For Dinnerly we need a URL that opens as a photo
+    # and works in <img src="...">, so generated recipes use our deterministic
+    # food-photo URL instead of trusting model-provided links.
+    return _curated_food_image_url(recipe_name, image_search_query)

@@ -11,6 +11,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Link,
   List,
   ListItem,
   Stack,
@@ -21,6 +22,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import { getRecipe, deleteRecipe } from '../api/recipes';
 import { RecipeRead } from '../types/api';
@@ -48,6 +50,7 @@ const RecipeDetails: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
+        setImageError(false);
         const data = await getRecipe(parseInt(recipeId, 10));
         console.log("Recipe data received:", data);
         setRecipe(data);
@@ -280,8 +283,30 @@ const RecipeDetails: React.FC = () => {
                     px: 2,
                   }}
                 >
-                  {imageError ? 'Image not available' : 'No image'}
+                {imageError ? 'Image not available' : 'No image'}
                 </Typography>
+              </Box>
+            )}
+            {recipe.imageUrl && (
+              <Box sx={{ p: 2, borderTop: '1px solid #E8E4DF' }}>
+                <Link
+                  href={recipe.imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                    color: '#8A6A2F',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    wordBreak: 'break-all',
+                  }}
+                >
+                  Open image URL
+                  <OpenInNewIcon sx={{ fontSize: '1rem', flexShrink: 0 }} />
+                </Link>
               </Box>
             )}
           </Card>

@@ -151,6 +151,7 @@ export interface EventRecipeRead {
   recipeName: string;
   baseServings: number;
   desiredServings: number;
+  imageUrl?: string | null;
 }
 
 export interface EventRead {

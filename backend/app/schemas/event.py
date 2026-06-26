@@ -41,6 +41,7 @@ class EventRecipeRead(BaseModel):
     recipe_name: str = Field(alias="recipeName")
     base_servings: int = Field(alias="baseServings")
     desired_servings: int = Field(alias="desiredServings")
+    image_url: str | None = Field(default=None, alias="imageUrl")
     
     class Config:
         populate_by_name = True

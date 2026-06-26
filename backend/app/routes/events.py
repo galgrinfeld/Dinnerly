@@ -86,7 +86,11 @@ def create_ai_recipe(
             event.target_servings,
             existing_names,
         )
-        image_url = ai_menu_service.resolve_image_url(generated.image_url, generated.name)
+        image_url = ai_menu_service.resolve_image_url(
+            generated.image_url,
+            generated.name,
+            generated.image_search_query,
+        )
     except ai_menu_service.AiServiceError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
