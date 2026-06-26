@@ -11,6 +11,7 @@ import {
   Paper,
   Link,
 } from "@mui/material";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { register } from "../api/auth";
 import { RegisterRequest } from "../types/api";
 
@@ -87,12 +88,37 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 8, display: "flex", alignItems: "center", minHeight: "100vh" }}>
-      <Box sx={{ width: "100%" }}>
-        <Paper variant="outlined" sx={{ p: 4 }}>
-          <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold", textAlign: "center" }}>
-            Create Account
-          </Typography>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", display: "flex", alignItems: "center" }}>
+      <Container maxWidth="sm" sx={{ py: 6 }}>
+        <Box sx={{ width: "100%" }}>
+          <Box sx={{ mb: 3, textAlign: "center" }}>
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                mx: "auto",
+                mb: 1.5,
+                borderRadius: 1,
+                backgroundColor: "#241F1C",
+                color: "#FFFFFF",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <RestaurantMenuIcon />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "#241F1C" }}>
+              Dinnerly
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#625852", mt: 0.5 }}>
+              Create your workspace for recipes and dinner events.
+            </Typography>
+          </Box>
+
+          <Paper variant="outlined" sx={{ p: { xs: 3, sm: 4 }, borderColor: "#E3DDD4" }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 760, color: "#241F1C" }}>
+              Create Account
+            </Typography>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -149,8 +175,8 @@ export const Register: React.FC = () => {
               fullWidth
               size="large"
               sx={{
-                backgroundColor: "#8A6A2F",
-                "&:hover": { backgroundColor: "#6F5624" },
+                backgroundColor: "#241F1C",
+                "&:hover": { backgroundColor: "#15110F" },
                 "&:disabled": { backgroundColor: "#bbb" },
               }}
             >
@@ -169,13 +195,14 @@ export const Register: React.FC = () => {
                   }}
                   sx={{ cursor: "pointer" }}
                 >
-                  Login here
+                  Sign in
                 </Link>
               </Typography>
             </Box>
           </Stack>
-        </Paper>
-      </Box>
-    </Container>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
   );
 };

@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { RecipeRead } from "../types/api";
 import { formatCookingTime } from "../utils/formatters";
 
@@ -30,10 +31,8 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
         flexDirection: "column",
         cursor: "pointer",
         overflow: "hidden",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "&:hover": {
-          transform: "translateY(-3px)",
-          boxShadow: "0 16px 40px rgba(0, 0, 0, 0.1)",
+        "&:hover .card-action": {
+          color: "#654B20",
         },
       }}
       onClick={() => onViewDetails(recipe.id)}
@@ -42,20 +41,19 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
       {recipe.imageUrl ? (
         <CardMedia
           component="img"
-          height="220"
           image={recipe.imageUrl}
           alt={recipe.name}
-          sx={{ objectFit: "cover" }}
+          sx={{ aspectRatio: "4 / 3", height: "auto", objectFit: "cover" }}
         />
       ) : (
         <Box
           sx={{
-            height: 220,
-            backgroundColor: "#E8DCC8",
+            aspectRatio: "4 / 3",
+            backgroundColor: "#EEE8DE",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#8A6A2F",
+            color: "#7A5E2B",
             fontWeight: 600,
             fontSize: "0.875rem",
             textAlign: "center",
@@ -67,13 +65,13 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
       )}
 
       {/* Card Content */}
-      <CardContent sx={{ flexGrow: 1 }}>
+      <CardContent sx={{ flexGrow: 1, p: 2.25 }}>
         <Typography
           variant="h6"
           component="h3"
           sx={{
             fontWeight: 700,
-            color: "#2B2522",
+            color: "#241F1C",
             mb: 1,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -89,7 +87,7 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
         <Typography
           variant="body2"
           sx={{
-            color: "#5C524E",
+            color: "#625852",
             mb: 1,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -110,10 +108,10 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
             alignItems: "center",
             mt: 2,
             pt: 1,
-            borderTop: "1px solid #E8DCC8",
-            color: "#8A6A2F",
+            borderTop: "1px solid #E8E1D8",
+            color: "#6E625A",
             fontSize: "0.875rem",
-            fontWeight: 600,
+            fontWeight: 650,
             flexWrap: "wrap",
             gap: 1,
           }}
@@ -132,16 +130,20 @@ export const RecipeCarouselCard: React.FC<RecipeCarouselCardProps> = ({
       </CardContent>
 
       {/* Card Actions */}
-      <CardActions sx={{ pt: 0 }}>
+      <CardActions sx={{ px: 2.25, pb: 2.25, pt: 0 }}>
         <Button
-          variant="contained"
-          fullWidth
-          onClick={() => onViewDetails(recipe.id)}
+          className="card-action"
+          variant="text"
+          endIcon={<ArrowForwardIcon />}
+          onClick={(event) => {
+            event.stopPropagation();
+            onViewDetails(recipe.id);
+          }}
           sx={{
-            backgroundColor: "#8A6A2F",
-            "&:hover": {
-              backgroundColor: "#7A5D29",
-            },
+            color: "#7A5E2B",
+            px: 0,
+            fontWeight: 760,
+            "&:hover": { backgroundColor: "transparent" },
           }}
         >
           View Recipe

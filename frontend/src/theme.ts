@@ -1,31 +1,31 @@
 /**
- * MUI Theme for Dinnerly with Nespresso-inspired design.
- * Clean white header, anthracite primary, bronze accents.
+ * MUI Theme for Dinnerly.
+ * Warm, restrained app styling for a production meal-planning tool.
  */
 import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
     background: {
-      default: "#FFFFFF", // white
+      default: "#F7F5F1",
       paper: "#FFFFFF",
     },
     primary: {
-      main: "#2B2522",         // espresso/anthracite brand
+      main: "#241F1C",
       contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#8A6A2F",         // bronze/gold accent
+      main: "#7A5E2B",
       contrastText: "#FFFFFF",
     },
     text: {
-      primary: "#171717",      // anthracite
-      secondary: "#5C524E",    // muted text
+      primary: "#1F1B18",
+      secondary: "#625852",
     },
-    divider: "#B39760",  // bronze-toned border
+    divider: "#E3DDD4",
     action: {
       hover: "rgba(43, 37, 34, 0.06)",
-      selected: "rgba(138, 106, 47, 0.14)", // subtle bronze selected state
+      selected: "rgba(122, 94, 43, 0.12)",
       disabledOpacity: 0.38,
     },
     success: {
@@ -44,10 +44,12 @@ export const theme = createTheme({
   typography: {
     fontFamily: '"Heebo","Inter","Arial",sans-serif',
     h4: {
-      fontWeight: 700,
+      fontWeight: 760,
+      letterSpacing: 0,
     },
     h5: {
-      fontWeight: 700,
+      fontWeight: 720,
+      letterSpacing: 0,
     },
     h6: {
       fontWeight: 600,
@@ -58,7 +60,7 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 14,
+    borderRadius: 8,
   },
   components: {
     // AppBar styling - clean white header
@@ -66,9 +68,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#FFFFFF",
-          color: "#171717",
-          borderBottom: "1px solid #B39760",
-          boxShadow: "none",
+          color: "#1F1B18",
+          borderBottom: "1px solid #E3DDD4",
+          boxShadow: "0 1px 0 rgba(31, 27, 24, 0.04)",
         },
       },
     },
@@ -84,19 +86,27 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 8,
+          minHeight: 38,
+          boxShadow: "none",
           "&:focus": {
             outline: "none",
           },
+          "&.MuiButton-contained": {
+            boxShadow: "none",
+          },
+          "&.MuiButton-contained:hover": {
+            boxShadow: "none",
+          },
         },
         containedSecondary: {
-          backgroundColor: "#8A6A2F",
+          backgroundColor: "#7A5E2B",
           "&:hover": {
-            backgroundColor: "#7A5D29",
+            backgroundColor: "#654B20",
           },
         },
         outlinedPrimary: {
-          borderColor: "#B39760",
+          borderColor: "#CFC5B7",
           "&:hover": {
             backgroundColor: "rgba(43, 37, 34, 0.04)",
           },
@@ -115,13 +125,13 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          border: "1px solid rgba(151, 111, 39, 0.18)",
-          boxShadow: "0 10px 28px rgba(0, 0, 0, 0.06)",
-          borderRadius: "16px",
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          border: "1px solid #E3DDD4",
+          boxShadow: "0 1px 2px rgba(31, 27, 24, 0.04)",
+          borderRadius: "8px",
+          transition: "border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease",
           "&:hover": {
-            transform: "translateY(-3px)",
-            boxShadow: "0 16px 40px rgba(0, 0, 0, 0.1)",
+            borderColor: "#D2C7B8",
+            boxShadow: "0 10px 24px rgba(31, 27, 24, 0.08)",
           },
         },
       },
@@ -131,15 +141,15 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#FFFFFF",
-          borderRadius: 12,
+          borderRadius: 8,
           "& fieldset": {
-            borderColor: "#B39760",
+            borderColor: "#D8D0C5",
           },
           "&:hover fieldset": {
-            borderColor: "#A68B5B",
+            borderColor: "#B8AA98",
           },
           "&.Mui-focused fieldset": {
-            borderColor: "#8A6A2F",
+            borderColor: "#7A5E2B",
           },
         },
       },
@@ -155,9 +165,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiTableCell-head": {
-            backgroundColor: "#8A6A2F",
+            backgroundColor: "#F3EFE8",
             fontWeight: 700,
-            color: "#FFFFFF",
+            color: "#241F1C",
           },
         },
       },
@@ -166,7 +176,7 @@ export const theme = createTheme({
     MuiTable: {
       styleOverrides: {
         root: {
-          border: "1px solid #B39760",
+          border: "0",
         },
       },
     },
@@ -174,7 +184,7 @@ export const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
+          borderRadius: 6,
         },
       },
     },

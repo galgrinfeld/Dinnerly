@@ -3,6 +3,7 @@ import { Box, Typography, Button, Stack } from "@mui/material";
 
 interface PageHeaderAction {
   label: string;
+  icon?: React.ReactNode;
   onClick: () => void;
   variant?: "contained" | "outlined";
   color?: "primary" | "error";
@@ -66,7 +67,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         >
           {primaryAction && (
             <Button
-              variant={primaryAction.variant || "contained"}
+            variant={primaryAction.variant || "contained"}
+              startIcon={primaryAction.icon}
               onClick={primaryAction.onClick}
               sx={{
                 backgroundColor:
@@ -86,8 +88,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                       : "#6F5623",
                 },
                 textTransform: "none",
-                fontSize: "1rem",
-                padding: "10px 24px",
+                fontSize: "0.95rem",
+                padding: "9px 18px",
                 width: { xs: "100%", sm: "auto" },
               }}
             >
@@ -98,6 +100,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           {secondaryAction && (
             <Button
               variant={secondaryAction.variant || "outlined"}
+              startIcon={secondaryAction.icon}
               onClick={secondaryAction.onClick}
               color={secondaryAction.color || "inherit"}
               sx={{
@@ -118,8 +121,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                       : undefined,
                 },
                 textTransform: "none",
-                fontSize: "1rem",
-                padding: "10px 24px",
+                fontSize: "0.95rem",
+                padding: "9px 18px",
                 width: { xs: "100%", sm: "auto" },
               }}
             >

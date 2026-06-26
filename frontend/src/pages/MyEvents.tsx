@@ -14,6 +14,7 @@ import {
   Select,
   MenuItem,
   Chip,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -292,12 +293,17 @@ export const MyEvents: React.FC = () => {
 
           {/* Controls Toolbar */}
           <Box
+            component={Paper}
+            variant="outlined"
             sx={{
               mb: 3,
+              p: 2,
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
               gap: 2,
               alignItems: { sm: "flex-end" },
+              borderColor: "#E3DDD4",
+              boxShadow: "none",
             }}
           >
             {/* Search Input */}
@@ -310,9 +316,6 @@ export const MyEvents: React.FC = () => {
               sx={{
                 flex: 1,
                 minWidth: { xs: "100%", sm: 200 },
-                "& .MuiOutlinedInput-root": {
-                  borderColor: "#B39760",
-                },
               }}
             />
 
@@ -331,11 +334,6 @@ export const MyEvents: React.FC = () => {
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as EventSortOption)}
                 label="Sort by"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#B39760",
-                  },
-                }}
               >
                 <MenuItem value="soonest">Soonest first</MenuItem>
                 <MenuItem value="newest">Newest first</MenuItem>
@@ -362,11 +360,6 @@ export const MyEvents: React.FC = () => {
                 value={filterOption}
                 onChange={(e) => setFilterOption(e.target.value as EventFilterOption)}
                 label="Date"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#B39760",
-                  },
-                }}
               >
                 <MenuItem value="all">All events</MenuItem>
                 <MenuItem value="upcoming">Upcoming</MenuItem>
@@ -381,7 +374,7 @@ export const MyEvents: React.FC = () => {
                 onClick={clearAllFilters}
                 startIcon={<ClearIcon />}
                 sx={{
-                  color: "#8A6A2F",
+                  color: "#7A5E2B",
                   textTransform: "none",
                   whiteSpace: "nowrap",
                 }}
@@ -399,7 +392,7 @@ export const MyEvents: React.FC = () => {
                   label={`Search: "${searchQuery}"`}
                   size="small"
                   onDelete={() => setSearchQuery("")}
-                  sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
+                  sx={{ backgroundColor: "#EFE8DD", color: "#625852" }}
                 />
               )}
               {filterOption !== "upcoming" && (
@@ -407,7 +400,7 @@ export const MyEvents: React.FC = () => {
                   label={`${filterOption === "past" ? "Past" : "All"} events`}
                   size="small"
                   onDelete={() => setFilterOption("upcoming")}
-                  sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
+                  sx={{ backgroundColor: "#EFE8DD", color: "#625852" }}
                 />
               )}
             </Box>

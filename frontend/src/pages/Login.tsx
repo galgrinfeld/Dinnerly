@@ -11,6 +11,7 @@ import {
   Paper,
   Link,
 } from "@mui/material";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { login } from "../api/auth";
 import { LoginRequest } from "../types/api";
 
@@ -68,12 +69,37 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 8, display: "flex", alignItems: "center", minHeight: "100vh" }}>
-      <Box sx={{ width: "100%" }}>
-        <Paper variant="outlined" sx={{ p: 4 }}>
-          <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold", textAlign: "center" }}>
-            Login
-          </Typography>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", display: "flex", alignItems: "center" }}>
+      <Container maxWidth="sm" sx={{ py: 6 }}>
+        <Box sx={{ width: "100%" }}>
+          <Box sx={{ mb: 3, textAlign: "center" }}>
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                mx: "auto",
+                mb: 1.5,
+                borderRadius: 1,
+                backgroundColor: "#241F1C",
+                color: "#FFFFFF",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <RestaurantMenuIcon />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "#241F1C" }}>
+              Dinnerly
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#625852", mt: 0.5 }}>
+              Sign in to manage recipes and shared events.
+            </Typography>
+          </Box>
+
+          <Paper variant="outlined" sx={{ p: { xs: 3, sm: 4 }, borderColor: "#E3DDD4" }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 760, color: "#241F1C" }}>
+              Sign In
+            </Typography>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -111,12 +137,12 @@ export const Login: React.FC = () => {
               fullWidth
               size="large"
               sx={{
-                backgroundColor: "#8A6A2F",
-                "&:hover": { backgroundColor: "#6F5624" },
+                backgroundColor: "#241F1C",
+                "&:hover": { backgroundColor: "#15110F" },
                 "&:disabled": { backgroundColor: "#bbb" },
               }}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
 
             <Box sx={{ textAlign: "center", mt: 2 }}>
@@ -131,13 +157,14 @@ export const Login: React.FC = () => {
                   }}
                   sx={{ cursor: "pointer" }}
                 >
-                  Register here
+                  Create one
                 </Link>
               </Typography>
             </Box>
           </Stack>
-        </Paper>
-      </Box>
-    </Container>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
   );
 };

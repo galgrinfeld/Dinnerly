@@ -13,6 +13,7 @@ import EventIcon from "@mui/icons-material/Event";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import PeopleIcon from "@mui/icons-material/People";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { EventRead } from "../types/api";
 
 interface EventSummaryCardProps {
@@ -39,6 +40,9 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         overflow: "visible",
         position: "relative",
         cursor: "pointer",
+        "&:hover .card-action": {
+          color: "#654B20",
+        },
       }}
       onClick={() => onViewEvent(event.id)}
     >
@@ -51,7 +55,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
             position: "absolute",
             top: 16,
             right: 16,
-            backgroundColor: "#8A6A2F",
+            backgroundColor: "#7A5E2B",
             color: "#FFFFFF",
             fontWeight: 600,
             zIndex: 10,
@@ -59,13 +63,13 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
         />
       )}
       {/* Card Header with Event Title */}
-      <CardContent sx={{ pb: 2, minWidth: 0, flex: 1 }}>
+      <CardContent sx={{ p: 2.25, pb: 2, minWidth: 0, flex: 1 }}>
         <Typography
           variant="h6"
           component="h3"
           sx={{
             fontWeight: 700,
-            color: "#2B2522",
+            color: "#241F1C",
             mb: 2,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -85,7 +89,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
               display: "flex",
               alignItems: "center",
               gap: 1,
-              color: "#5C524E",
+              color: "#625852",
               fontSize: "0.875rem",
               minWidth: 0,
             }}
@@ -102,7 +106,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
               display: "flex",
               alignItems: "center",
               gap: 1,
-              color: "#5C524E",
+              color: "#625852",
               fontSize: "0.875rem",
               minWidth: 0,
             }}
@@ -120,7 +124,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
-                color: "#5C524E",
+                color: "#625852",
                 fontSize: "0.875rem",
                 minWidth: 0,
               }}
@@ -139,7 +143,7 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
-                color: "#5C524E",
+                color: "#625852",
                 fontSize: "0.875rem",
                 minWidth: 0,
               }}
@@ -161,8 +165,8 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                   size="small"
                   variant="outlined"
                   sx={{
-                    borderColor: "#B39760",
-                    color: "#8A6A2F",
+                    borderColor: "#D6CCBD",
+                    color: "#625852",
                     fontSize: "0.75rem",
                   }}
                 />
@@ -173,8 +177,8 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
                   size="small"
                   variant="outlined"
                   sx={{
-                    borderColor: "#B39760",
-                    color: "#8A6A2F",
+                    borderColor: "#D6CCBD",
+                    color: "#625852",
                     fontSize: "0.75rem",
                   }}
                 />
@@ -185,16 +189,20 @@ export const EventSummaryCard: React.FC<EventSummaryCardProps> = ({
       </CardContent>
 
       {/* Card Actions */}
-      <CardActions sx={{ pt: 0, mt: "auto", minWidth: 0 }}>
+      <CardActions sx={{ px: 2.25, pb: 2.25, pt: 0, mt: "auto", minWidth: 0 }}>
         <Button
-          variant="contained"
-          fullWidth
-          onClick={() => onViewEvent(event.id)}
+          className="card-action"
+          variant="text"
+          endIcon={<ArrowForwardIcon />}
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            onViewEvent(event.id);
+          }}
           sx={{
-            backgroundColor: "#8A6A2F",
-            "&:hover": {
-              backgroundColor: "#7A5D29",
-            },
+            color: "#7A5E2B",
+            px: 0,
+            fontWeight: 760,
+            "&:hover": { backgroundColor: "transparent" },
           }}
         >
           View Event

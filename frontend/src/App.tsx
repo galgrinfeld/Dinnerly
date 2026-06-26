@@ -9,8 +9,11 @@ import {
   Stack,
   Menu,
   MenuItem,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import MenuIcon from "@mui/icons-material/Menu";
 import { getAccessToken, clearAccessToken } from "./api/http";
 import { me } from "./api/auth";
 import { UserRead } from "./types/api";
@@ -24,15 +27,14 @@ function App() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [recipesAnchorEl, setRecipesAnchorEl] = useState<null | HTMLElement>(null);
   const [eventsAnchorEl, setEventsAnchorEl] = useState<null | HTMLElement>(null);
+  const [mobileAnchorEl, setMobileAnchorEl] = useState<null | HTMLElement>(null);
   const [tokenState, setTokenState] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize token on mount and whenever location changes
   useEffect(() => {
     const token = getAccessToken();
-    console.log("Location changed, checking token:", { token, tokenState });
     if (token !== tokenState) {
-      console.log("Token changed, updating state");
       setTokenState(token);
     }
     if (!isInitialized && token) {
@@ -43,10 +45,8 @@ function App() {
   useEffect(() => {
     // Load user if token exists and not already loaded
     if (tokenState && !user) {
-      console.log("Loading user with token:", tokenState);
       me()
         .then((userData) => {
-          console.log("User loaded successfully:", userData);
           setUser(userData);
           setIsInitialized(true);
         })
@@ -85,10 +85,19 @@ function App() {
     setEventsAnchorEl(null);
   };
 
+  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMobileAnchorEl(event.currentTarget);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileAnchorEl(null);
+  };
+
   const handleLogout = () => {
     clearAccessToken();
     setUser(null);
     handleMenuClose();
+    handleMobileMenuClose();
     navigate("/login");
   };
 
@@ -104,34 +113,52 @@ function App() {
 
   // Don't show AppBar on auth pages
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  const recipeActive = ["/myRecipes", "/addRecipe"].includes(location.pathname);
+  const eventActive = ["/myEvents", "/events/new"].includes(location.pathname);
+
+  const navigateAndCloseMobileMenu = (path: string) => {
+    navigate(path);
+    handleMobileMenuClose();
+  };
+
+  const navButtonSx = (active: boolean) => ({
+    color: active ? "#7A5E2B" : "#332C28",
+    fontWeight: active ? 760 : 620,
+    textTransform: "none",
+    fontSize: "0.95rem",
+    px: 1.25,
+    minWidth: "auto",
+    "&:hover": { backgroundColor: "rgba(36, 31, 28, 0.05)" },
+  });
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Fixed AppBar - only if not on auth page */}
       {!isAuthPage && (
         <AppBar position="fixed">
-          <Toolbar>
+          <Toolbar sx={{ gap: 2, px: { xs: 2, sm: 3 } }}>
             <Typography
               variant="h6"
               sx={{
                 flexGrow: 1,
-                fontWeight: "bold",
+                fontWeight: 800,
                 cursor: "pointer",
+                letterSpacing: 0,
                 "&:hover": { opacity: 0.8 },
               }}
               onClick={() => navigate("/")}
             >
               Dinnerly
             </Typography>
-            <Stack direction="row" spacing={3} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ display: { xs: "none", md: "flex" } }}
+            >
               <Button
                 onClick={() => navigate("/")}
-                sx={{
-                  color: location.pathname === "/" ? "#8A6A2F" : "#171717",
-                  fontWeight: location.pathname === "/" ? 700 : 500,
-                  textTransform: "none",
-                  fontSize: "1rem",
-                }}
+                sx={navButtonSx(location.pathname === "/")}
               >
                 Home
               </Button>
@@ -140,14 +167,7 @@ function App() {
               <Button
                 onClick={handleRecipesMenuOpen}
                 sx={{
-                  color: ["/myRecipes", "/addRecipe"].includes(location.pathname)
-                    ? "#8A6A2F"
-                    : "#171717",
-                  fontWeight: ["/myRecipes", "/addRecipe"].includes(location.pathname)
-                    ? 700
-                    : 500,
-                  textTransform: "none",
-                  fontSize: "1rem",
+                  ...navButtonSx(recipeActive),
                   display: "flex",
                   alignItems: "center",
                   gap: 0.5,
@@ -179,14 +199,7 @@ function App() {
               <Button
                 onClick={handleEventsMenuOpen}
                 sx={{
-                  color: ["/myEvents", "/events/new"].includes(location.pathname)
-                    ? "#8A6A2F"
-                    : "#171717",
-                  fontWeight: ["/myEvents", "/events/new"].includes(location.pathname)
-                    ? 700
-                    : 500,
-                  textTransform: "none",
-                  fontSize: "1rem",
+                  ...navButtonSx(eventActive),
                   display: "flex",
                   alignItems: "center",
                   gap: 0.5,
@@ -219,7 +232,7 @@ function App() {
                 <>
                   <NotificationBell />
                   <Box>
-                    <Button onClick={handleMenuOpen} sx={{ color: "#171717", textTransform: "none", fontSize: "1rem" }}>
+                    <Button onClick={handleMenuOpen} sx={navButtonSx(false)}>
                       Hello, {user.displayName}
                     </Button>
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
@@ -234,6 +247,32 @@ function App() {
                 </>
               )}
             </Stack>
+            <IconButton
+              onClick={handleMobileMenuOpen}
+              sx={{ display: { xs: "inline-flex", md: "none" }, color: "#241F1C" }}
+              aria-label="Open navigation"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              anchorEl={mobileAnchorEl}
+              open={Boolean(mobileAnchorEl)}
+              onClose={handleMobileMenuClose}
+              PaperProps={{ sx: { minWidth: 240 } }}
+            >
+              <MenuItem onClick={() => navigateAndCloseMobileMenu("/")}>Home</MenuItem>
+              <Divider />
+              <MenuItem onClick={() => navigateAndCloseMobileMenu("/myRecipes")}>My Recipes</MenuItem>
+              <MenuItem onClick={() => navigateAndCloseMobileMenu("/addRecipe")}>Add Recipe</MenuItem>
+              <Divider />
+              <MenuItem onClick={() => navigateAndCloseMobileMenu("/myEvents")}>My Events</MenuItem>
+              <MenuItem onClick={() => navigateAndCloseMobileMenu("/events/new")}>Create Event</MenuItem>
+              {user && [
+                <Divider key="user-divider" />,
+                <MenuItem key="friends" onClick={() => navigateAndCloseMobileMenu("/friends")}>My Friends</MenuItem>,
+                <MenuItem key="logout" onClick={handleLogout}>Logout</MenuItem>,
+              ]}
+            </Menu>
           </Toolbar>
         </AppBar>
       )}

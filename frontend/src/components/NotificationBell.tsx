@@ -10,7 +10,6 @@ import {
   Divider,
   Stack,
   Button,
-  Paper,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";

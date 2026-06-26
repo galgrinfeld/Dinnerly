@@ -703,23 +703,6 @@ const EventDetails: React.FC = () => {
     setLeaveError(null);
   };
 
-  // Helper function to format date
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
@@ -1282,20 +1265,35 @@ const EventDetails: React.FC = () => {
         {/* Shopping List Section */}
         {shoppingList && shoppingList.items.length > 0 && (
           <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 4, mb: 2.5 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: '#2B2522', fontSize: '1.05rem' }}>
-                Shopping List
-              </Typography>
-              <Stack direction="row" spacing={1}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 1.5,
+                mt: 4,
+                mb: 2,
+              }}
+            >
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#241F1C', fontSize: '1.05rem' }}>
+                  Shopping List
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 0.25, color: '#625852' }}>
+                  Assign ingredients and review recipe sources.
+                </Typography>
+              </Box>
+              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
                 {isOwner && (
                   <Button
                     variant="outlined"
                     startIcon={autoAssigning ? <CircularProgress size={16} /> : <AutoAwesomeIcon />}
                     onClick={handleAutoAssign}
                     disabled={autoAssigning || savingAssignments || pendingAssignments.size > 0}
-                    sx={{ textTransform: 'none', borderColor: '#8A6A2F', color: '#8A6A2F' }}
+                    sx={{ borderColor: '#CFC5B7', color: '#241F1C', backgroundColor: '#FFFFFF' }}
                   >
-                    {autoAssigning ? 'Auto Assigning...' : 'Auto Assign'}
+                    {autoAssigning ? 'Assigning...' : 'Auto Assign'}
                   </Button>
                 )}
                 {pendingAssignments.size > 0 && (
@@ -1304,10 +1302,9 @@ const EventDetails: React.FC = () => {
                     onClick={handleSaveAssignments}
                     disabled={savingAssignments}
                     sx={{
-                      backgroundColor: "#8A6A2F",
-                      "&:hover": { backgroundColor: "#6F5624" },
-                      textTransform: 'none',
-                      fontWeight: 500,
+                      backgroundColor: "#241F1C",
+                      "&:hover": { backgroundColor: "#15110F" },
+                      fontWeight: 700,
                     }}
                   >
                     {savingAssignments ? `Saving ${pendingAssignments.size} change(s)...` : `Save Changes (${pendingAssignments.size})`}
@@ -1318,67 +1315,72 @@ const EventDetails: React.FC = () => {
             <TableContainer 
               component={Paper}
               sx={{
-                overflow: 'hidden',
-                borderColor: 'divider',
-                border: '1px solid #E8E4DF',
-                boxShadow: '0 4px 12px rgba(43, 37, 34, 0.06)',
-                borderRadius: '12px',
+                overflowX: 'auto',
+                border: '1px solid #E3DDD4',
+                boxShadow: '0 1px 2px rgba(31, 27, 24, 0.04)',
+                borderRadius: 1,
+                backgroundColor: '#FFFFFF',
               }}
             >
-              <Table>
+              <Table sx={{ minWidth: 760 }}>
                 <TableHead>
                   <TableRow sx={{ 
-                    backgroundColor: '#FAFAF8',
-                    borderBottom: '1px solid #E8E4DF',
+                    backgroundColor: '#F3EFE8',
+                    borderBottom: '1px solid #E3DDD4',
                   }}>
                     <TableCell sx={{ 
-                      fontWeight: 600, 
-                      fontSize: '0.9rem',
-                      color: '#2B2522',
-                      py: 1.5,
+                      fontWeight: 760, 
+                      fontSize: '0.78rem',
+                      color: '#625852',
+                      py: 1.25,
+                      textTransform: 'uppercase',
                     }}>
                       Ingredient
                     </TableCell>
                     <TableCell sx={{ 
-                      fontWeight: 600, 
-                      fontSize: '0.9rem',
-                      color: '#2B2522',
-                      py: 1.5,
+                      fontWeight: 760, 
+                      fontSize: '0.78rem',
+                      color: '#625852',
+                      py: 1.25,
+                      textTransform: 'uppercase',
                     }} align="right">
                       Qty
                     </TableCell>
                     <TableCell sx={{ 
-                      fontWeight: 600, 
-                      fontSize: '0.9rem',
-                      color: '#2B2522',
+                      fontWeight: 760, 
+                      fontSize: '0.78rem',
+                      color: '#625852',
                       width: '80px',
-                      py: 1.5,
+                      py: 1.25,
+                      textTransform: 'uppercase',
                     }}>
                       Unit
                     </TableCell>
                     <TableCell sx={{ 
-                      fontWeight: 600, 
-                      fontSize: '0.9rem',
-                      color: '#2B2522',
-                      width: '80px',
-                      py: 1.5,
+                      fontWeight: 760, 
+                      fontSize: '0.78rem',
+                      color: '#625852',
+                      width: '96px',
+                      py: 1.25,
+                      textTransform: 'uppercase',
                     }}>
                       Optional
                     </TableCell>
                     <TableCell sx={{ 
-                      fontWeight: 600, 
-                      fontSize: '0.9rem',
-                      color: '#2B2522',
-                      width: '150px',
-                      py: 1.5,
+                      fontWeight: 760, 
+                      fontSize: '0.78rem',
+                      color: '#625852',
+                      width: '210px',
+                      py: 1.25,
+                      textTransform: 'uppercase',
                     }}>
                       Assigned To
                     </TableCell>
                     <TableCell sx={{ 
                       fontWeight: 600, 
                       fontSize: '0.9rem',
-                      width: '56px',
-                      py: 1.5,
+                      width: '52px',
+                      py: 1.25,
                     }}> </TableCell>
                   </TableRow>
                 </TableHead>
@@ -1395,13 +1397,13 @@ const EventDetails: React.FC = () => {
                         onClick={() => toggleExpandedSources(item.ingredientId)}
                         sx={{ 
                           cursor: 'pointer',
-                          backgroundColor: hasPendingChange ? 'rgba(138, 106, 47, 0.08)' : undefined,
-                          borderBottom: '1px solid #E8E4DF',
-                          '&:hover': { backgroundColor: 'rgba(138, 106, 47, 0.04)' },
+                          backgroundColor: hasPendingChange ? 'rgba(122, 94, 43, 0.08)' : '#FFFFFF',
+                          borderBottom: '1px solid #EFEAE3',
+                          '&:hover': { backgroundColor: '#FAF8F4' },
                           transition: 'background-color 0.2s ease',
                         }}
                       >
-                        <TableCell sx={{ py: 1.5, pr: 1 }}>
+                        <TableCell sx={{ py: 1.25, pr: 1, color: '#241F1C', fontWeight: 600 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <span>{item.ingredientName}</span>
                             {hasPendingChange && (
@@ -1420,13 +1422,13 @@ const EventDetails: React.FC = () => {
                             )}
                           </Box>
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 1.5, color: '#666' }}>
-                          {item.quantity?.toString() ?? '—'}
+                        <TableCell align="right" sx={{ py: 1.25, color: '#625852', fontVariantNumeric: 'tabular-nums' }}>
+                          {item.quantity?.toString() ?? '-'}
                         </TableCell>
-                        <TableCell sx={{ py: 1.5, color: '#666' }}>
+                        <TableCell sx={{ py: 1.25, color: '#625852' }}>
                           {item.unit}
                         </TableCell>
-                        <TableCell sx={{ py: 1.5 }}>
+                        <TableCell sx={{ py: 1.25 }}>
                           {item.optional && (
                             <Chip 
                               label="Optional" 
@@ -1434,8 +1436,8 @@ const EventDetails: React.FC = () => {
                               variant="outlined"
                               sx={{
                                 height: '22px',
-                                borderColor: '#D9D6CF',
-                                color: '#666',
+                                borderColor: '#D6CCBD',
+                                color: '#625852',
                                 fontSize: '0.75rem',
                                 fontWeight: 500,
                                 '& .MuiChip-label': { px: 0.75 }
@@ -1445,9 +1447,9 @@ const EventDetails: React.FC = () => {
                         </TableCell>
                         <TableCell 
                           onClick={(e) => e.stopPropagation()}
-                          sx={{ py: 1.5, pr: 0.5 }}
+                          sx={{ py: 1.25, pr: 0.5 }}
                         >
-                          <FormControl size="small" sx={{ minWidth: 140 }} onClick={(e) => e.stopPropagation()}>
+                          <FormControl size="small" sx={{ minWidth: 180 }} onClick={(e) => e.stopPropagation()}>
                             <Select
                               value={displayValue}
                               onChange={(e) => {
@@ -1460,9 +1462,11 @@ const EventDetails: React.FC = () => {
                               }}
                               sx={{
                                 fontSize: '0.9rem',
-                                '& .MuiOutlinedInput-root': {
-                                  borderColor: '#D9D6CF',
-                                }
+                                height: 38,
+                                backgroundColor: '#FFFFFF',
+                                '& .MuiSelect-select': {
+                                  py: 0.85,
+                                },
                               }}
                             >
                               <MenuItem value="">
@@ -1478,7 +1482,7 @@ const EventDetails: React.FC = () => {
                         </TableCell>
                         <TableCell 
                           onClick={(e) => e.stopPropagation()}
-                          sx={{ py: 1.5, px: 0, textAlign: 'center' }}
+                          sx={{ py: 1.25, px: 0, textAlign: 'center' }}
                         >
                           <IconButton
                             size="small"
@@ -1488,8 +1492,8 @@ const EventDetails: React.FC = () => {
                             }}
                             sx={{ 
                               p: 0.5,
-                              color: '#8A6A2F',
-                              '&:hover': { backgroundColor: 'rgba(138, 106, 47, 0.08)' }
+                              color: '#625852',
+                              '&:hover': { backgroundColor: 'rgba(36, 31, 28, 0.06)' }
                             }}
                           >
                             {expandedSources.has(item.ingredientId) ? (
@@ -1501,17 +1505,17 @@ const EventDetails: React.FC = () => {
                         </TableCell>
                       </TableRow>
                       {expandedSources.has(item.ingredientId) && (
-                        <TableRow sx={{ backgroundColor: '#FAFAF8', borderBottom: '1px solid #E8E4DF' }}>
+                        <TableRow sx={{ backgroundColor: '#FAF8F4', borderBottom: '1px solid #EFEAE3' }}>
                           <TableCell colSpan={6} sx={{ py: 2, pl: 4, pr: 2 }}>
-                            <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 1, color: '#2B2522' }}>
+                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 1, color: '#241F1C' }}>
                               Sources:
                             </Typography>
                             <Stack spacing={0.75}>
                               {item.sources.map((source: any, idx: number) => (
-                                <Typography key={idx} variant="caption" sx={{ color: '#999', lineHeight: 1.5 }}>
-                                  <strong style={{ color: '#2B2522' }}>{source.recipeName}</strong>: {source.originalQuantity} {source.unit}
+                                <Typography key={idx} variant="caption" sx={{ color: '#625852', lineHeight: 1.5 }}>
+                                  <strong style={{ color: '#241F1C' }}>{source.recipeName}</strong>: {source.originalQuantity} {source.unit}
                                   {source.scaledQuantity !== source.originalQuantity &&
-                                    ` → ${source.scaledQuantity} ${source.unit} (scaled)`}
+                                    ` -> ${source.scaledQuantity} ${source.unit} (scaled)`}
                                 </Typography>
                               ))}
                             </Stack>

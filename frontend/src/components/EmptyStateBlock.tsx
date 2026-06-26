@@ -24,9 +24,9 @@ export const EmptyStateBlock: React.FC<EmptyStateBlockProps> = ({
         justifyContent: "center",
         py: 6,
         px: 3,
-        backgroundColor: "#FAFAF8",
-        borderRadius: 2,
-        border: "1px dashed #B39760",
+        backgroundColor: "#FFFFFF",
+        borderRadius: 1,
+        border: "1px dashed #D6CCBD",
         textAlign: "center",
       }}
     >
@@ -34,7 +34,7 @@ export const EmptyStateBlock: React.FC<EmptyStateBlockProps> = ({
         sx={{
           fontSize: "3rem",
           mb: 2,
-          opacity: 0.7,
+          opacity: 0.75,
         }}
       >
         {icon || emoji || <InboxIcon sx={{ fontSize: "3rem" }} />}
@@ -43,7 +43,7 @@ export const EmptyStateBlock: React.FC<EmptyStateBlockProps> = ({
         variant="h6"
         sx={{
           fontWeight: 700,
-          color: "#2B2522",
+          color: "#241F1C",
           mb: 1,
         }}
       >
@@ -52,7 +52,7 @@ export const EmptyStateBlock: React.FC<EmptyStateBlockProps> = ({
       <Typography
         variant="body2"
         sx={{
-          color: "#5C524E",
+          color: "#625852",
           maxWidth: 280,
         }}
       >

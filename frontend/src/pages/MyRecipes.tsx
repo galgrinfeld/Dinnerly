@@ -19,6 +19,7 @@ import {
   FormControl,
   InputLabel,
   Chip,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { PageHeader } from "../components/PageHeader";
@@ -239,12 +240,17 @@ export const MyRecipes: React.FC = () => {
         <>
           {/* Controls Toolbar */}
           <Box
+            component={Paper}
+            variant="outlined"
             sx={{
               mb: 3,
+              p: 2,
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
               gap: 2,
               alignItems: { sm: "flex-end" },
+              borderColor: "#E3DDD4",
+              boxShadow: "none",
             }}
           >
             {/* Search Input */}
@@ -257,9 +263,6 @@ export const MyRecipes: React.FC = () => {
               sx={{
                 flex: 1,
                 minWidth: { xs: "100%", sm: 200 },
-                "& .MuiOutlinedInput-root": {
-                  borderColor: "#B39760",
-                },
               }}
             />
 
@@ -278,11 +281,6 @@ export const MyRecipes: React.FC = () => {
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as SortOption)}
                 label="Sort by"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#B39760",
-                  },
-                }}
               >
                 <MenuItem value="newest">Newest first</MenuItem>
                 <MenuItem value="oldest">Oldest first</MenuItem>
@@ -308,11 +306,6 @@ export const MyRecipes: React.FC = () => {
                 value={servingsFilter}
                 onChange={(e) => setServingsFilter(e.target.value as ServingsFilter)}
                 label="Servings"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#B39760",
-                  },
-                }}
               >
                 <MenuItem value="all">All servings</MenuItem>
                 <MenuItem value="1-2">1-2 servings</MenuItem>
@@ -328,7 +321,7 @@ export const MyRecipes: React.FC = () => {
                 onClick={clearAllFilters}
                 startIcon={<ClearIcon />}
                 sx={{
-                  color: "#8A6A2F",
+                  color: "#7A5E2B",
                   textTransform: "none",
                   whiteSpace: "nowrap",
                 }}
@@ -346,7 +339,7 @@ export const MyRecipes: React.FC = () => {
                   label={`Search: "${searchQuery}"`}
                   size="small"
                   onDelete={() => setSearchQuery("")}
-                  sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
+                  sx={{ backgroundColor: "#EFE8DD", color: "#625852" }}
                 />
               )}
               {servingsFilter !== "all" && (
@@ -360,7 +353,7 @@ export const MyRecipes: React.FC = () => {
                   }`}
                   size="small"
                   onDelete={() => setServingsFilter("all")}
-                  sx={{ backgroundColor: "#F5E6D3", color: "#5C524E" }}
+                  sx={{ backgroundColor: "#EFE8DD", color: "#625852" }}
                 />
               )}
             </Box>
@@ -416,9 +409,9 @@ export const MyRecipes: React.FC = () => {
                       position: "absolute",
                       top: 8,
                       right: 8,
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      color: "#8A6A2F",
-                      opacity: 0,
+                      backgroundColor: "rgba(255, 255, 255, 0.92)",
+                      color: "#7A5E2B",
+                      opacity: { xs: 1, md: 0 },
                       transition: "opacity 0.2s",
                       "&:hover": {
                         backgroundColor: "rgba(255, 255, 255, 1)",

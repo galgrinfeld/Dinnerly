@@ -9,6 +9,7 @@ import {
   Alert,
   IconButton,
   Button,
+  Stack,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -135,41 +136,73 @@ export const Home: React.FC = () => {
   }, [events]);
 
   return (
-    <Box sx={{ backgroundColor: "#FAFAF8", minHeight: "100vh", py: 0 }}>
-      {/* Hero Section */}
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 0 }}>
+      {/* Dashboard Header */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #2B2522 0%, #3D3530 100%)",
-          color: "#FFFFFF",
-          py: 8,
+          backgroundColor: "#FFFFFF",
+          borderBottom: "1px solid #E3DDD4",
+          py: { xs: 4, md: 5 },
           mb: 4,
-          textAlign: "center",
         }}
       >
         <Container maxWidth="lg">
-          <Typography
-            variant="h3"
-            component="h1"
+          <Box
             sx={{
-              fontWeight: 800,
-              mb: 2,
-              fontSize: { xs: "1.75rem", sm: "2.5rem", md: "3rem" },
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1fr auto" },
+              gap: 3,
+              alignItems: "end",
             }}
           >
-            Dinnerly Dashboard
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 300,
-              opacity: 0.95,
-              fontSize: { xs: "0.95rem", sm: "1.1rem" },
-              maxWidth: 600,
-              mx: "auto",
-            }}
-          >
-            Plan shared meals, organize recipes, and keep your events in sync.
-          </Typography>
+            <Box>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 800,
+                  mb: 1,
+                  color: "#241F1C",
+                  fontSize: { xs: "1.8rem", md: "2.35rem" },
+                }}
+              >
+                Dinnerly Dashboard
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#625852",
+                  fontSize: { xs: "0.98rem", sm: "1.05rem" },
+                  maxWidth: 620,
+                  lineHeight: 1.6,
+                }}
+              >
+                Plan shared meals, organize recipes, and keep event prep moving.
+              </Typography>
+            </Box>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ flexWrap: "wrap", justifyContent: { xs: "flex-start", md: "flex-end" } }}
+            >
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => navigate("/events/new")}
+                sx={{ backgroundColor: "#241F1C", "&:hover": { backgroundColor: "#15110F" } }}
+              >
+                Create Event
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<MenuBookIcon />}
+                onClick={() => navigate("/addRecipe")}
+                sx={{ borderColor: "#CFC5B7", color: "#241F1C" }}
+              >
+                Add Recipe
+              </Button>
+            </Stack>
+          </Box>
         </Container>
       </Box>
 
@@ -182,7 +215,7 @@ export const Home: React.FC = () => {
               component="h2"
               sx={{
                 fontWeight: 700,
-                color: "#2B2522",
+                color: "#241F1C",
               }}
             >
               Recent Recipes
@@ -190,10 +223,10 @@ export const Home: React.FC = () => {
             <IconButton
               onClick={() => navigate("/addRecipe")}
               sx={{
-                backgroundColor: "#8A6A2F",
+                backgroundColor: "#7A5E2B",
                 color: "#FFFFFF",
                 "&:hover": {
-                  backgroundColor: "#7A5D29",
+                  backgroundColor: "#654B20",
                 },
               }}
             >
@@ -239,12 +272,12 @@ export const Home: React.FC = () => {
                     onClick={handlePrevCarousel}
                     disabled={carouselIndex === 0}
                     sx={{
-                      color: "#8A6A2F",
+                      color: "#7A5E2B",
                       "&:disabled": {
                         opacity: 0.3,
                       },
                       "&:hover:not(:disabled)": {
-                        backgroundColor: "rgba(138, 106, 47, 0.1)",
+                        backgroundColor: "rgba(122, 94, 43, 0.1)",
                       },
                     }}
                   >
@@ -285,12 +318,12 @@ export const Home: React.FC = () => {
                     onClick={handleNextCarousel}
                     disabled={carouselIndex >= recipes.length - ITEMS_PER_VIEW.desktop}
                     sx={{
-                      color: "#8A6A2F",
+                      color: "#7A5E2B",
                       "&:disabled": {
                         opacity: 0.3,
                       },
                       "&:hover:not(:disabled)": {
-                        backgroundColor: "rgba(138, 106, 47, 0.1)",
+                        backgroundColor: "rgba(122, 94, 43, 0.1)",
                       },
                     }}
                   >
@@ -308,7 +341,7 @@ export const Home: React.FC = () => {
                     alignItems: "center",
                     gap: 1,
                     mt: 3,
-                    color: "#8A6A2F",
+                    color: "#7A5E2B",
                     fontSize: "0.875rem",
                   }}
                 >
@@ -330,7 +363,7 @@ export const Home: React.FC = () => {
               component="h2"
               sx={{
                 fontWeight: 700,
-                color: "#2B2522",
+                color: "#241F1C",
               }}
             >
               Upcoming Events
@@ -341,12 +374,12 @@ export const Home: React.FC = () => {
                   endIcon={<ArrowForwardIcon />}
                   onClick={() => navigate("/myEvents")}
                   sx={{
-                    color: "#8A6A2F",
+                    color: "#7A5E2B",
                     textTransform: "none",
                     fontSize: "0.9rem",
                     fontWeight: 600,
                     "&:hover": {
-                      backgroundColor: "rgba(138, 106, 47, 0.1)",
+                        backgroundColor: "rgba(122, 94, 43, 0.1)",
                     },
                   }}
                 >
@@ -356,10 +389,10 @@ export const Home: React.FC = () => {
               <IconButton
                 onClick={() => navigate("/events/new")}
                 sx={{
-                  backgroundColor: "#8A6A2F",
+                  backgroundColor: "#7A5E2B",
                   color: "#FFFFFF",
                   "&:hover": {
-                    backgroundColor: "#7A5D29",
+                    backgroundColor: "#654B20",
                   },
                 }}
               >
@@ -395,7 +428,7 @@ export const Home: React.FC = () => {
               {/* Left Spacer */}
               <Box
                 sx={{
-                  width: 48,
+                  width: { xs: 0, md: 48 },
                   display: "flex",
                   alignItems: "center",
                 }}
@@ -420,7 +453,7 @@ export const Home: React.FC = () => {
               {/* Right Spacer */}
               <Box
                 sx={{
-                  width: 48,
+                  width: { xs: 0, md: 48 },
                   display: "flex",
                   alignItems: "center",
                 }}
