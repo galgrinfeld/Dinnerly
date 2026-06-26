@@ -2,6 +2,7 @@
 CRUD operations for Recipes.
 """
 from sqlalchemy.orm import Session, selectinload
+from sqlalchemy import func
 from app.db.models.recipe import Recipe
 from app.db.models.recipe_ingredient import RecipeIngredient
 from app.schemas.recipe import RecipeCreate, RecipeUpdate
@@ -47,6 +48,22 @@ def create_recipe(db: Session, payload: RecipeCreate, owner_user_id: int) -> Rec
 def list_recipes(db: Session, owner_user_id: int, limit: int = 50) -> list[Recipe]:
     """List recipes owned by a specific user."""
     return db.query(Recipe).filter(Recipe.owner_user_id == owner_user_id).limit(limit).all()
+
+
+def get_recipe_by_name(db: Session, name: str, owner_user_id: int) -> Recipe | None:
+    """Get a user's recipe by name using case-insensitive exact matching."""
+    normalized_name = name.strip().lower()
+    if not normalized_name:
+        return None
+    return (
+        db.query(Recipe)
+        .filter(
+            Recipe.owner_user_id == owner_user_id,
+            func.lower(Recipe.name) == normalized_name,
+        )
+        .order_by(Recipe.id.asc())
+        .first()
+    )
 
 
 def get_recipe_by_id(db: Session, recipe_id: int, owner_user_id: int = None) -> Recipe | None:

@@ -1215,28 +1215,6 @@ const EventDetails: React.FC = () => {
                       >
                         {recipe.recipeName}
                       </Typography>
-                      {recipe.imageUrl && (
-                        <Typography
-                          component="a"
-                          href={recipe.imageUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          variant="caption"
-                          onClick={(event) => event.stopPropagation()}
-                          sx={{
-                            display: 'block',
-                            color: '#8A7660',
-                            maxWidth: { xs: 180, sm: 420 },
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            textDecoration: 'none',
-                            '&:hover': { textDecoration: 'underline' },
-                          }}
-                        >
-                          {recipe.imageUrl}
-                        </Typography>
-                      )}
                     </Box>
                     {isEditing ? (
                       <Stack direction="row" spacing={1} alignItems="center">

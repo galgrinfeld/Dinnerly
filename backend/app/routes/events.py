@@ -71,6 +71,49 @@ def create_ai_recipe(
 ):
     """Generate, validate, atomically save, and attach the selected recipe."""
     event = _require_event_access(db, event_id, current_user)
+    requested_name = payload.name.strip()
+    requested_category = payload.category.strip()
+
+    existing_recipe = recipes_crud.get_recipe_by_name(db, requested_name, current_user.id)
+    if existing_recipe:
+        try:
+            event_recipe = (
+                db.query(EventRecipe)
+                .filter(EventRecipe.event_id == event_id, EventRecipe.recipe_id == existing_recipe.id)
+                .first()
+            )
+            if event_recipe:
+                event_recipe.desired_servings = event.target_servings
+            else:
+                db.add(EventRecipe(
+                    event_id=event_id,
+                    recipe_id=existing_recipe.id,
+                    desired_servings=event.target_servings,
+                ))
+            db.commit()
+            recipe = recipes_crud.get_recipe_with_ingredients(db, existing_recipe.id, current_user.id)
+        except Exception:
+            db.rollback()
+            logger.exception("Failed to attach existing AI recipe")
+            raise HTTPException(status_code=500, detail="Failed to attach existing recipe")
+
+        recipe_read = RecipeRead(
+            id=recipe.id,
+            name=recipe.name,
+            description=recipe.description or "",
+            base_servings=recipe.base_servings,
+            cooking_time_minutes=recipe.cooking_time_minutes,
+            instructions_html=recipe.instructions_html or "",
+            image_url=recipe.image_url,
+            ingredients=[RecipeIngredientRead.from_orm(item) for item in recipe.ingredients],
+        )
+        return AiCreateRecipeResponse(
+            recipe_id=recipe.id,
+            event_id=event_id,
+            message="Existing recipe attached to event",
+            recipe=recipe_read,
+        )
+
     existing_names = [
         row[0] for row in (
             db.query(Recipe.name)
@@ -81,8 +124,8 @@ def create_ai_recipe(
     ]
     try:
         generated = ai_menu_service.generate_recipe(
-            payload.name.strip(),
-            payload.category.strip(),
+            requested_name,
+            requested_category,
             event.target_servings,
             existing_names,
         )

@@ -80,6 +80,52 @@ def test_create_saves_recipe_ingredients_and_attachment(db, scenario, monkeypatc
     assert attached.desired_servings == event.target_servings
 
 
+def test_create_reuses_existing_owned_recipe_by_name(db, scenario, monkeypatch):
+    _, participant, _, _ = scenario
+    second_event = Event(
+        name="Second AI Dinner",
+        event_date=date.today(),
+        target_servings=8,
+        owner_user_id=participant.id,
+    )
+    existing_recipe = Recipe(
+        name="Garlic Bread",
+        description="Already saved",
+        base_servings=4,
+        cooking_time_minutes=20,
+        image_url="https://example.com/garlic-bread.jpg",
+        owner_user_id=participant.id,
+    )
+    db.add_all([second_event, existing_recipe])
+    db.flush()
+    db.add(EventMember(
+        event_id=second_event.id,
+        user_id=participant.id,
+        email=participant.email,
+        role="owner",
+        status="active",
+    ))
+    db.commit()
+
+    def should_not_generate(*args, **kwargs):
+        raise AssertionError("Existing recipe should be reused without generating a duplicate")
+
+    monkeypatch.setattr(ai_menu_service, "generate_recipe", should_not_generate)
+
+    result = create_ai_recipe(
+        second_event.id,
+        AiCreateRecipeRequest(name=" garlic bread ", category="Side Dish"),
+        db,
+        participant,
+    )
+
+    assert result.recipe_id == existing_recipe.id
+    assert result.message == "Existing recipe attached to event"
+    assert db.query(Recipe).filter(Recipe.owner_user_id == participant.id, Recipe.name == "Garlic Bread").count() == 1
+    attached = db.query(EventRecipe).filter_by(event_id=second_event.id, recipe_id=existing_recipe.id).one()
+    assert attached.desired_servings == second_event.target_servings
+
+
 def test_invalid_provider_response_creates_nothing(db, scenario, monkeypatch):
     owner, _, _, event = scenario
     before_recipes = db.query(Recipe).count()
