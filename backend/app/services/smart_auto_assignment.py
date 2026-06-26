@@ -1,4 +1,5 @@
 """Deterministic, load-balanced shopping-list assignment service."""
+import heapq
 from collections import defaultdict
 
 from sqlalchemy.orm import Session
@@ -21,8 +22,9 @@ def auto_assign_shopping_items(
     Assign currently unassigned shopping-list ingredients to eligible members.
 
     Existing assignments are preserved. Loads include existing assignments and
-    use required=1.0 and optional=0.5. Ties are resolved by assigned-item count,
-    then normalized email, user id, and member id for complete determinism.
+    use required=1.0 and optional=0.5. A min heap keeps participant selection
+    efficient while resolving ties by assigned-item count, normalized email,
+    user id, and member id for complete determinism.
     """
     eligible_members = (
         db.query(EventMember)
@@ -73,6 +75,18 @@ def auto_assign_shopping_items(
         loads[assignment.event_member_id] += weights_by_ingredient[ingredient_id]
         item_counts[assignment.event_member_id] += 1
 
+    participant_heap = [
+        (
+            loads[member.id],
+            item_counts[member.id],
+            member.email.lower(),
+            member.user_id,
+            member.id,
+        )
+        for member in eligible_members
+    ]
+    heapq.heapify(participant_heap)
+
     unassigned_ingredient_ids = sorted(
         (
             ingredient_id
@@ -87,25 +101,27 @@ def auto_assign_shopping_items(
     )
 
     for ingredient_id in unassigned_ingredient_ids:
-        selected = min(
-            eligible_members,
-            key=lambda member: (
-                loads[member.id],
-                item_counts[member.id],
-                member.email.lower(),
-                member.user_id,
-                member.id,
-            ),
-        )
+        _, _, _, _, selected_member_id = heapq.heappop(participant_heap)
         db.add(
             EventIngredientAssignment(
                 event_id=event_id,
                 ingredient_id=ingredient_id,
-                event_member_id=selected.id,
+                event_member_id=selected_member_id,
             )
         )
-        loads[selected.id] += weights_by_ingredient[ingredient_id]
-        item_counts[selected.id] += 1
+        loads[selected_member_id] += weights_by_ingredient[ingredient_id]
+        item_counts[selected_member_id] += 1
+        selected_member = eligible_by_id[selected_member_id]
+        heapq.heappush(
+            participant_heap,
+            (
+                loads[selected_member_id],
+                item_counts[selected_member_id],
+                selected_member.email.lower(),
+                selected_member.user_id,
+                selected_member.id,
+            ),
+        )
 
     if unassigned_ingredient_ids:
         db.commit()
