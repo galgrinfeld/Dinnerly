@@ -9,6 +9,7 @@ import {
   IngredientUnit,
   createEmptyIngredientRow,
 } from "../types/recipe";
+import { toRecipePayload, validateRecipeForm } from "../utils/recipeForm";
 
 export const EditRecipe: React.FC = () => {
   const navigate = useNavigate();
@@ -84,40 +85,13 @@ export const EditRecipe: React.FC = () => {
     setValidationError(null);
   };
 
-  const validateForm = (): { valid: boolean; error: string | null } => {
-    if (!formState.name || !formState.name.trim()) {
-      return { valid: false, error: "Recipe name is required" };
-    }
-
-    const ingredientsWithNames = formState.ingredients.filter((ing) =>
-      ing && ing.name && ing.name.trim()
-    );
-    if (ingredientsWithNames.length === 0) {
-      return { valid: false, error: "At least one ingredient with a name is required" };
-    }
-
-    for (const ing of ingredientsWithNames) {
-      if (ing.unit !== "to_taste") {
-        const qty = parseFloat(ing.quantity);
-        if (!ing.quantity || isNaN(qty) || qty <= 0) {
-          return {
-            valid: false,
-            error: `Ingredient "${ing.name}" requires a positive quantity (unit: ${ing.unit})`,
-          };
-        }
-      }
-    }
-
-    return { valid: true, error: null };
-  };
-
   const handleSave = async () => {
     if (saving || !recipeId) {
       return;
     }
 
     setSubmitted(true);
-    const validation = validateForm();
+    const validation = validateRecipeForm(formState);
 
     if (!validation.valid) {
       setValidationError(validation.error);
@@ -127,23 +101,7 @@ export const EditRecipe: React.FC = () => {
     setSaving(true);
     setValidationError(null);
 
-    const payload = {
-      name: formState.name,
-      description: formState.description,
-      baseServings: formState.baseServings,
-      instructionsHtml: formState.instructions,
-      cookingTimeMinutes: formState.cookingTimeMinutes ?? null,
-      imageUrl: formState.imageUrl?.trim() || null,
-      ingredients: formState.ingredients
-        .filter((ing) => ing.name.trim())
-        .map((ing) => ({
-          name: ing.name,
-          quantity: ing.unit === "to_taste" ? null : parseFloat(ing.quantity),
-          unit: ing.unit,
-          note: ing.note,
-          optional: ing.optional,
-        })),
-    };
+    const payload = toRecipePayload(formState);
 
     try {
       const result = await updateRecipe(parseInt(recipeId, 10), payload);

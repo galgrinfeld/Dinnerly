@@ -26,6 +26,7 @@ import { listEvents } from "../api/events";
 import { EventRead } from "../types/api";
 import { EventSummaryCard } from "../components/EventSummaryCard";
 import { EmptyStateBlock } from "../components/EmptyStateBlock";
+import { TabPanel } from "../components/TabPanel";
 import { me } from "../api/auth";
 import { UserRead } from "../types/api";
 
@@ -74,22 +75,6 @@ const filterEventsByDate = (events: EventRead[], filterOption: EventFilterOption
       return eventDate < today;
     }
   });
-};
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-const TabPanel: React.FC<TabPanelProps> = (props) => {
-  const { children, value, index } = props;
-
-  return (
-    <Box role="tabpanel" hidden={value !== index}>
-      {value === index && <Box sx={{ py: 2 }}>{children}</Box>}
-    </Box>
-  );
 };
 
 export const MyEvents: React.FC = () => {

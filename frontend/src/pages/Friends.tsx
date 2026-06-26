@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
-  Card,
-  CardContent,
-  CardHeader,
   TextField,
   Button,
   CircularProgress,
@@ -22,6 +19,7 @@ import {
   Paper,
   Avatar,
   Stack,
+  InputAdornment,
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
@@ -29,9 +27,14 @@ import {
   Check as CheckIcon,
   Close as CloseIcon,
   People as PeopleIcon,
+  MailOutline as MailOutlineIcon,
+  PersonSearch as PersonSearchIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import { PageHeader } from "../components/PageHeader";
 import { FriendProfilePopover } from "../components/FriendProfilePopover";
+import { TabPanel } from "../components/TabPanel";
+import { EmptyStateBlock } from "../components/EmptyStateBlock";
 import {
   sendFriendRequest,
   getIncomingRequests,
@@ -47,26 +50,16 @@ import {
   UserProfileRead,
 } from "../types/api";
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+const panelSx = {
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #E3DDD4",
+  borderRadius: 2,
+  boxShadow: "0 1px 2px rgba(31, 27, 24, 0.04)",
+};
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`friend-tabpanel-${index}`}
-      aria-labelledby={`friend-tab-${index}`}
-    >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-    </div>
-  );
-}
+const getInitial = (user?: Pick<UserRead, "displayName" | "email">): string => {
+  return user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
+};
 
 export const Friends: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -220,10 +213,10 @@ export const Friends: React.FC = () => {
 
   if (loadingData) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <PageHeader
           title="Friends"
-          subtitle="Manage your friend connections"
+          subtitle="Manage invitations and shared planning connections."
         />
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
@@ -233,10 +226,10 @@ export const Friends: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <PageHeader
         title="Friends"
-        subtitle="Manage your friend connections"
+        subtitle="Manage invitations and shared planning connections."
       />
 
       {error && (
@@ -255,57 +248,112 @@ export const Friends: React.FC = () => {
         </Alert>
       )}
 
-      {/* Send Friend Request Card */}
-      <Card sx={{ mb: 3, backgroundColor: "#fafaf8" }}>
-        <CardHeader
-          title="Add Friend"
-          subheader="Find and connect with other users"
-        />
-        <CardContent>
-          <Box component="form" onSubmit={handleSendRequest} sx={{ display: "flex", gap: 1 }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "minmax(280px, 360px) 1fr" },
+          gap: 3,
+          alignItems: "start",
+        }}
+      >
+        <Paper
+          variant="outlined"
+          sx={{
+            ...panelSx,
+            p: 3,
+            position: { md: "sticky" },
+            top: { md: 88 },
+          }}
+        >
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="h6" sx={{ color: "#241F1C", fontWeight: 700, mb: 0.5 }}>
+                Add Friend
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#625852", lineHeight: 1.5 }}>
+                Send a request by email.
+              </Typography>
+            </Box>
+
+            <Box component="form" onSubmit={handleSendRequest} sx={{ display: "grid", gap: 1.5 }}>
             <TextField
-              label="Enter email"
+              label="Email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="friend@example.com"
               disabled={loading}
               size="small"
-              sx={{ flex: 1 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <MailOutlineIcon sx={{ color: "#7A5E2B" }} fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               variant="contained"
               sx={{
-                backgroundColor: "#8b7355",
-                "&:hover": { backgroundColor: "#6f5a46" },
+                backgroundColor: "#241F1C",
+                "&:hover": { backgroundColor: "#15110F" },
               }}
               disabled={loading}
               startIcon={<PersonAddIcon />}
-              onClick={handleSendRequest}
+              type="submit"
             >
               {loading ? "Sending..." : "Send Request"}
             </Button>
           </Box>
-        </CardContent>
-      </Card>
 
-      {/* Tabs for different sections */}
-      <Paper sx={{ backgroundColor: "#fafaf8" }}>
+            <Divider />
+
+            <Stack spacing={1.25}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="body2" sx={{ color: "#625852" }}>
+                  Friends
+                </Typography>
+                <Chip size="small" label={friends.length} sx={{ backgroundColor: "#F3EFE8" }} />
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="body2" sx={{ color: "#625852" }}>
+                  Incoming
+                </Typography>
+                <Chip size="small" label={incomingRequests.length} sx={{ backgroundColor: "#F3EFE8" }} />
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="body2" sx={{ color: "#625852" }}>
+                  Pending
+                </Typography>
+                <Chip size="small" label={outgoingRequests.length} sx={{ backgroundColor: "#F3EFE8" }} />
+              </Stack>
+            </Stack>
+          </Stack>
+        </Paper>
+
+        <Paper variant="outlined" sx={{ ...panelSx, overflow: "hidden" }}>
         <Tabs
           value={tabValue}
           onChange={(_e, newValue) => setTabValue(newValue)}
           aria-label="friend tabs"
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
-            borderBottom: 1,
-            borderColor: "divider",
+            px: 2,
+            borderBottom: "1px solid #E3DDD4",
+            minHeight: 54,
             "& .MuiTab-root": {
-              color: "#666",
+              color: "#625852",
+              textTransform: "none",
+              fontWeight: 650,
+              minHeight: 54,
               "&.Mui-selected": {
-                color: "#8b7355",
+                color: "#7A5E2B",
               },
             },
             "& .MuiTabs-indicator": {
-              backgroundColor: "#8b7355",
+              backgroundColor: "#7A5E2B",
+              height: 3,
             },
           }}
         >
@@ -321,49 +369,50 @@ export const Friends: React.FC = () => {
         </Tabs>
 
         {/* Friends List Tab */}
-        <TabPanel value={tabValue} index={0}>
+        <TabPanel value={tabValue} index={0} idPrefix="friend" sx={{ py: 3 }}>
           {friends.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <PeopleIcon sx={{ fontSize: 48, color: "#ccc", mb: 2 }} />
-              <Typography color="textSecondary">
-                You don't have any friends yet. Start by sending friend requests!
-              </Typography>
-            </Box>
+            <EmptyStateBlock
+              icon={<PeopleIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
+              title="No friends yet"
+              message="Send a request to start planning shared meals."
+            />
           ) : (
-            <List>
+            <List disablePadding>
               {friends.map((friend, idx) => (
                 <React.Fragment key={friend.id}>
                   {idx > 0 && <Divider />}
                   <ListItem 
                     sx={{ 
-                      cursor: 'pointer',
-                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                      cursor: "pointer",
+                      px: 3,
+                      py: 1.75,
+                      "&:hover": { backgroundColor: "rgba(43, 37, 34, 0.04)" },
                     }}
                     onClick={(e) => handleOpenProfilePopover(e, friend)}
                   >
-                    <Avatar sx={{ mr: 2, backgroundColor: "#8b7355" }}>
-                      {friend.displayName?.[0]?.toUpperCase() ||
-                        friend.email[0].toUpperCase()}
+                    <Avatar sx={{ mr: 2, backgroundColor: "#7A5E2B", color: "#FFFFFF", fontWeight: 700 }}>
+                      {getInitial(friend)}
                     </Avatar>
                     <ListItemText
                       primary={
                         <Typography 
                           sx={{ 
-                            color: '#8A6A2F',
-                            fontWeight: 500,
-                            '&:hover': { textDecoration: 'underline' }
+                            color: "#241F1C",
+                            fontWeight: 650,
                           }}
                         >
-                          {friend.displayName || "Unknown"}
+                          {friend.displayName || friend.email}
                         </Typography>
                       }
-                      secondary={friend.email}
+                      secondary={friend.displayName ? friend.email : undefined}
+                      secondaryTypographyProps={{ sx: { color: "#625852" } }}
                     />
                     <Chip
                       icon={<CheckCircleIcon />}
                       label="Friends"
-                      color="success"
                       variant="outlined"
+                      size="small"
+                      sx={{ borderColor: "rgba(46, 125, 50, 0.35)", color: "#2E7D32" }}
                     />
                   </ListItem>
                 </React.Fragment>
@@ -373,26 +422,30 @@ export const Friends: React.FC = () => {
         </TabPanel>
 
         {/* Incoming Requests Tab */}
-        <TabPanel value={tabValue} index={1}>
+        <TabPanel value={tabValue} index={1} idPrefix="friend" sx={{ py: 3 }}>
           {incomingRequests.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <Typography color="textSecondary">
-                No incoming friend requests
-              </Typography>
-            </Box>
+            <EmptyStateBlock
+              icon={<PersonSearchIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
+              title="No incoming requests"
+              message="New invitations will appear here."
+            />
           ) : (
-            <List>
+            <List disablePadding>
               {incomingRequests.map((request, idx) => (
                 <React.Fragment key={request.id}>
                   {idx > 0 && <Divider />}
-                  <ListItem>
-                    <Avatar sx={{ mr: 2, backgroundColor: "#8b7355" }}>
-                      {request.sender?.displayName?.[0]?.toUpperCase() ||
-                        request.sender?.email[0].toUpperCase()}
+                  <ListItem sx={{ px: 3, py: 1.75, pr: { xs: 3, sm: 13 } }}>
+                    <Avatar sx={{ mr: 2, backgroundColor: "#7A5E2B", color: "#FFFFFF", fontWeight: 700 }}>
+                      {getInitial(request.sender)}
                     </Avatar>
                     <ListItemText
-                      primary={request.sender?.displayName || "Unknown"}
+                      primary={
+                        <Typography sx={{ color: "#241F1C", fontWeight: 650 }}>
+                          {request.sender?.displayName || request.sender?.email || "Unknown"}
+                        </Typography>
+                      }
                       secondary={request.sender?.email}
+                      secondaryTypographyProps={{ sx: { color: "#625852" } }}
                     />
                     <ListItemSecondaryAction>
                       <Stack direction="row" spacing={1}>
@@ -401,7 +454,11 @@ export const Friends: React.FC = () => {
                           aria-label="accept"
                           onClick={() => handleAcceptRequest(request.id)}
                           disabled={loading}
-                          color="success"
+                          sx={{
+                            color: "#2E7D32",
+                            border: "1px solid rgba(46, 125, 50, 0.25)",
+                            borderRadius: 1,
+                          }}
                         >
                           <CheckIcon />
                         </IconButton>
@@ -410,7 +467,11 @@ export const Friends: React.FC = () => {
                           aria-label="reject"
                           onClick={() => handleRejectRequest(request.id)}
                           disabled={loading}
-                          color="error"
+                          sx={{
+                            color: "#D32F2F",
+                            border: "1px solid rgba(211, 47, 47, 0.25)",
+                            borderRadius: 1,
+                          }}
                         >
                           <CloseIcon />
                         </IconButton>
@@ -424,31 +485,36 @@ export const Friends: React.FC = () => {
         </TabPanel>
 
         {/* Outgoing Requests Tab */}
-        <TabPanel value={tabValue} index={2}>
+        <TabPanel value={tabValue} index={2} idPrefix="friend" sx={{ py: 3 }}>
           {outgoingRequests.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <Typography color="textSecondary">
-                No outgoing friend requests
-              </Typography>
-            </Box>
+            <EmptyStateBlock
+              icon={<ScheduleIcon sx={{ fontSize: "3rem", color: "#8A6A2F" }} />}
+              title="No pending requests"
+              message="Sent requests that are waiting for a response will appear here."
+            />
           ) : (
-            <List>
+            <List disablePadding>
               {outgoingRequests.map((request, idx) => (
                 <React.Fragment key={request.id}>
                   {idx > 0 && <Divider />}
-                  <ListItem>
-                    <Avatar sx={{ mr: 2, backgroundColor: "#8b7355" }}>
-                      {request.receiver?.displayName?.[0]?.toUpperCase() ||
-                        request.receiver?.email[0].toUpperCase()}
+                  <ListItem sx={{ px: 3, py: 1.75 }}>
+                    <Avatar sx={{ mr: 2, backgroundColor: "#7A5E2B", color: "#FFFFFF", fontWeight: 700 }}>
+                      {getInitial(request.receiver)}
                     </Avatar>
                     <ListItemText
-                      primary={request.receiver?.displayName || "Unknown"}
+                      primary={
+                        <Typography sx={{ color: "#241F1C", fontWeight: 650 }}>
+                          {request.receiver?.displayName || request.receiver?.email || "Unknown"}
+                        </Typography>
+                      }
                       secondary={request.receiver?.email}
+                      secondaryTypographyProps={{ sx: { color: "#625852" } }}
                     />
                     <Chip
                       label="Pending"
                       variant="outlined"
-                      sx={{ color: "#f9a825", borderColor: "#f9a825" }}
+                      size="small"
+                      sx={{ color: "#7A5E2B", borderColor: "#CFC5B7", backgroundColor: "#F8F3EA" }}
                     />
                   </ListItem>
                 </React.Fragment>
@@ -456,7 +522,8 @@ export const Friends: React.FC = () => {
             </List>
           )}
         </TabPanel>
-      </Paper>
+        </Paper>
+      </Box>
 
       {/* Profile Popover */}
       {selectedFriendProfile && (
