@@ -75,27 +75,40 @@ def scenario(db):
     tomato = ingredient(db, "Tomato")
     mushroom = ingredient(db, "Mushroom")
     sugar = ingredient(db, "Sugar")
+    potato = ingredient(db, "Potato")
+    salt = ingredient(db, "Salt")
+    pepper = ingredient(db, "Pepper")
 
     public_source = recipe(db, owner, "Tomato Pasta", [pasta, garlic, tomato], public=True, cooking_time=30, servings=4)
+    best_match = recipe(db, owner, "Tomato Garlic Pasta Bake", [pasta, garlic, tomato, mushroom], public=True, cooking_time=35, servings=4)
     close_match = recipe(db, owner, "Garlic Mushroom Pasta", [pasta, garlic, mushroom], public=True, cooking_time=32, servings=4)
-    weak_match = recipe(db, owner, "Sugar Snack", [sugar], public=True, cooking_time=30, servings=4)
+    zero_overlap_match = recipe(db, owner, "Sugar Snack", [sugar], public=True, cooking_time=30, servings=4)
+    weak_overlap_match = recipe(
+        db,
+        owner,
+        "Pantry Potatoes",
+        [pasta, potato, salt, pepper],
+        public=True,
+        cooking_time=30,
+        servings=4,
+    )
     private_recipe = recipe(db, owner, "Private Pasta", [pasta, tomato], public=False, cooking_time=30, servings=4)
 
-    return owner, viewer, outsider, public_source, close_match, weak_match, private_recipe
+    return owner, viewer, outsider, public_source, best_match, close_match, zero_overlap_match, weak_overlap_match, private_recipe
 
 
 def test_public_list_returns_only_public_recipes(db, scenario):
-    _, viewer, _, _, _, _, private_recipe = scenario
+    _, viewer, _, _, _, _, _, _, private_recipe = scenario
 
     result = list_public_recipes(db, viewer)
 
     ids = {item.id for item in result}
     assert private_recipe.id not in ids
-    assert len(result) == 3
+    assert len(result) == 5
 
 
 def test_created_public_recipe_appears_in_public_pool(db, scenario):
-    _, viewer, _, _, _, _, _ = scenario
+    _, viewer, _, _, _, _, _, _, _ = scenario
 
     created = create_recipe(
         RecipeCreate(
@@ -118,7 +131,7 @@ def test_created_public_recipe_appears_in_public_pool(db, scenario):
 
 
 def test_private_recipe_is_not_accessible_through_public_endpoint(db, scenario):
-    _, viewer, _, _, _, _, private_recipe = scenario
+    _, viewer, _, _, _, _, _, _, private_recipe = scenario
 
     with pytest.raises(HTTPException) as exc:
         get_public_recipe(private_recipe.id, db, viewer)
@@ -127,7 +140,7 @@ def test_private_recipe_is_not_accessible_through_public_endpoint(db, scenario):
 
 
 def test_saving_public_recipe_clones_private_copy(db, scenario):
-    _, viewer, _, public_source, _, _, _ = scenario
+    _, viewer, _, public_source, _, _, _, _, _ = scenario
 
     result = save_public_recipe(public_source.id, db, viewer)
 
@@ -141,7 +154,7 @@ def test_saving_public_recipe_clones_private_copy(db, scenario):
 
 
 def test_saving_public_recipe_twice_reuses_existing_clone(db, scenario):
-    _, viewer, _, public_source, _, _, _ = scenario
+    _, viewer, _, public_source, _, _, _, _, _ = scenario
 
     first = save_public_recipe(public_source.id, db, viewer)
     second = save_public_recipe(public_source.id, db, viewer)
@@ -151,16 +164,18 @@ def test_saving_public_recipe_twice_reuses_existing_clone(db, scenario):
 
 
 def test_similar_public_recipes_use_weighted_knn_order(db, scenario):
-    _, viewer, _, public_source, close_match, weak_match, _ = scenario
+    _, viewer, _, public_source, best_match, close_match, zero_overlap_match, weak_overlap_match, _ = scenario
 
     result = get_similar_public_recipes(public_source.id, 4, db, viewer)
 
-    assert [item.id for item in result][:2] == [close_match.id, weak_match.id]
+    assert [item.id for item in result] == [best_match.id, close_match.id]
     assert result[0].similarity_score > result[1].similarity_score
+    assert zero_overlap_match.id not in {item.id for item in result}
+    assert weak_overlap_match.id not in {item.id for item in result}
 
 
 def test_owner_only_recipe_api_rejects_non_owned_private_recipe(db, scenario):
-    _, viewer, _, _, _, _, private_recipe = scenario
+    _, viewer, _, _, _, _, _, _, private_recipe = scenario
 
     with pytest.raises(HTTPException) as exc:
         get_recipe(private_recipe.id, db, viewer)

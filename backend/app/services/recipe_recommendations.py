@@ -6,6 +6,9 @@ from app.db.models.recipe import Recipe
 from app.db.models.recipe_ingredient import RecipeIngredient
 
 
+MIN_INGREDIENT_OVERLAP = 0.20
+
+
 def _ingredient_ids(recipe: Recipe) -> set[int]:
     return {item.ingredient_id for item in recipe.ingredients}
 
@@ -60,6 +63,7 @@ def recommend_similar_public_recipes(
     scored = [
         (candidate, recipe_similarity_score(source_recipe, candidate))
         for candidate in candidates
+        if _ingredient_jaccard(source_recipe, candidate) >= MIN_INGREDIENT_OVERLAP
     ]
     scored.sort(key=lambda item: (-item[1], item[0].name.lower(), item[0].id))
     return scored[:limit]
