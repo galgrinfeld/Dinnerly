@@ -25,6 +25,7 @@ services:
       - db
     volumes:
       - ./backend/app:/app/app
+      - ./backend/scripts:/app/scripts
 
 volumes:
   pgdata:

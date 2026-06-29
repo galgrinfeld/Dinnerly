@@ -21,7 +21,7 @@ PUBLIC_RECIPES = [
         "description": "A simple Italian pasta with garlic, olive oil, basil, and parmesan.",
         "base_servings": 4,
         "cooking_time_minutes": 20,
-        "image_url": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600",
+        "image_url": "https://www.theendlessmeal.com/wp-content/uploads/2022/07/garlic-butter-pasta.jpg",
         "ingredients": [
             {"name": "Pasta", "quantity": 400, "unit": "g"},
             {"name": "Garlic", "quantity": 6, "unit": "unit", "note": "minced"},
@@ -41,7 +41,7 @@ PUBLIC_RECIPES = [
         "description": "Traditional pasta with tomato sauce, garlic, onion, and fresh basil.",
         "base_servings": 3,
         "cooking_time_minutes": 35,
-        "image_url": "https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=600",
+        "image_url": "https://tse1.mm.bing.net/th/id/OIP.VU4NNqPJREh_02bee72FPQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Pasta", "quantity": 300, "unit": "g"},
             {"name": "Tomato", "quantity": 600, "unit": "g", "note": "chopped"},
@@ -63,7 +63,7 @@ PUBLIC_RECIPES = [
         "description": "Creamy pasta with mushrooms, spinach, garlic, and parmesan.",
         "base_servings": 4,
         "cooking_time_minutes": 30,
-        "image_url": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600",
+        "image_url": "https://www.eatwell101.com/wp-content/uploads/2020/01/Parmesan-Spinach-Mushroom-Pasta-Skillet-Recipe-1.jpg",
         "ingredients": [
             {"name": "Pasta", "quantity": 350, "unit": "g"},
             {"name": "Mushroom", "quantity": 300, "unit": "g", "note": "sliced"},
@@ -85,7 +85,7 @@ PUBLIC_RECIPES = [
         "description": "Baked pasta with tomato, mozzarella, basil, and parmesan.",
         "base_servings": 4,
         "cooking_time_minutes": 45,
-        "image_url": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600",
+        "image_url": "https://tse1.mm.bing.net/th/id/OIP.YpHLrlrTCyq3FbUSJZHMQgHaJQ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Pasta", "quantity": 350, "unit": "g"},
             {"name": "Tomato", "quantity": 500, "unit": "g", "note": "chopped"},
@@ -107,7 +107,7 @@ PUBLIC_RECIPES = [
         "description": "Fresh salmon grilled with lemon, olive oil, garlic, salt, and pepper.",
         "base_servings": 2,
         "cooking_time_minutes": 15,
-        "image_url": "https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=600",
+        "image_url": "https://littlesunnykitchen.com/wp-content/uploads/2022/05/Grilled-Salmon-1-1025x1536.jpg",
         "ingredients": [
             {"name": "Salmon Fillet", "quantity": 300, "unit": "g"},
             {"name": "Lemon", "quantity": 1, "unit": "unit"},
@@ -129,7 +129,7 @@ PUBLIC_RECIPES = [
         "description": "One-pan chicken and rice with lemon, garlic, onion, and olive oil.",
         "base_servings": 5,
         "cooking_time_minutes": 50,
-        "image_url": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600",
+        "image_url": "https://th.bing.com/th/id/R.26cd45e9b368c09e8d2241eaba8268a0?rik=jE3thhVAK3a%2bMQ&pid=ImgRaw&r=0",
         "ingredients": [
             {"name": "Chicken Thighs", "quantity": 800, "unit": "g"},
             {"name": "Rice", "quantity": 375, "unit": "g"},
@@ -151,7 +151,7 @@ PUBLIC_RECIPES = [
         "description": "Chicken, bell pepper, onion, garlic, cilantro, and rice skillet.",
         "base_servings": 4,
         "cooking_time_minutes": 35,
-        "image_url": "https://images.unsplash.com/photo-1615870216519-2f9fa575fa5c?w=600",
+        "image_url": "https://th.bing.com/th/id/R.ae8794568758ba984b74b8aade6da42a?rik=Vo80bmL4fGjzZg&pid=ImgRaw&r=0",
         "ingredients": [
             {"name": "Chicken Breast", "quantity": 600, "unit": "g", "note": "sliced"},
             {"name": "Bell Pepper", "quantity": 3, "unit": "unit", "note": "sliced"},
@@ -173,7 +173,7 @@ PUBLIC_RECIPES = [
         "description": "Quick beef stir fry with bell pepper, mushrooms, soy sauce, ginger, and rice.",
         "base_servings": 4,
         "cooking_time_minutes": 20,
-        "image_url": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600",
+        "image_url": "https://tse3.mm.bing.net/th/id/OIP.6u9f0hg75IQmfOQMalHaXwHaKX?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Ground Beef", "quantity": 500, "unit": "g"},
             {"name": "Bell Pepper", "quantity": 2, "unit": "unit", "note": "sliced"},
@@ -196,7 +196,7 @@ PUBLIC_RECIPES = [
         "description": "Creamy risotto with spinach, mushrooms, onion, garlic, and parmesan.",
         "base_servings": 3,
         "cooking_time_minutes": 40,
-        "image_url": "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600",
+        "image_url": "https://tse2.mm.bing.net/th/id/OIP.hrC8hmKByylHiNx3v7dyCgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Rice", "quantity": 300, "unit": "g"},
             {"name": "Spinach", "quantity": 160, "unit": "g"},
@@ -219,7 +219,7 @@ PUBLIC_RECIPES = [
         "description": "Fresh cucumber, tomato, feta, chickpeas, lemon, and olive oil.",
         "base_servings": 4,
         "cooking_time_minutes": 15,
-        "image_url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600",
+        "image_url": "https://tse1.mm.bing.net/th/id/OIP.x08hcwHpPijpKiLycTqbpgHaLF?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Cucumber", "quantity": 2, "unit": "unit", "note": "chopped"},
             {"name": "Tomato", "quantity": 400, "unit": "g", "note": "chopped"},
@@ -241,7 +241,7 @@ PUBLIC_RECIPES = [
         "description": "Roasted potato, carrot, bell pepper, onion, olive oil, and garlic.",
         "base_servings": 6,
         "cooking_time_minutes": 40,
-        "image_url": "https://images.unsplash.com/photo-1543353071-873f17a7a088?w=600",
+        "image_url": "https://th.bing.com/th/id/R.78a7210370a142e42486276c16b0f292?rik=RFVefzdA5EI4kA&pid=ImgRaw&r=0",
         "ingredients": [
             {"name": "Potato", "quantity": 800, "unit": "g", "note": "cubed"},
             {"name": "Carrot", "quantity": 500, "unit": "g", "note": "sliced"},
@@ -263,7 +263,7 @@ PUBLIC_RECIPES = [
         "description": "Simple chocolate cake with flour, sugar, cocoa, butter, and eggs.",
         "base_servings": 8,
         "cooking_time_minutes": 55,
-        "image_url": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600",
+        "image_url": "https://th.bing.com/th/id/R.d4bf200b04c0054dd80dc3b1fda232f2?rik=ecap%2f5NGIuMf%2bg&pid=ImgRaw&r=0",
         "ingredients": [
             {"name": "Flour", "quantity": 250, "unit": "g"},
             {"name": "Sugar", "quantity": 200, "unit": "g"},
@@ -285,7 +285,7 @@ PUBLIC_RECIPES = [
         "description": "Light tomato, mozzarella, basil, olive oil, and lemon salad.",
         "base_servings": 3,
         "cooking_time_minutes": 10,
-        "image_url": "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=600",
+        "image_url": "https://tse1.mm.bing.net/th/id/OIP.jU81ic2H7per3ExU7am8fAHaLH?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Tomato", "quantity": 450, "unit": "g", "note": "sliced"},
             {"name": "Mozzarella", "quantity": 200, "unit": "g", "note": "sliced"},
@@ -306,7 +306,7 @@ PUBLIC_RECIPES = [
         "description": "Warm chickpea stew with spinach, tomato, onion, garlic, and rice.",
         "base_servings": 4,
         "cooking_time_minutes": 35,
-        "image_url": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600",
+        "image_url": "https://happymuncher.com/wp-content/uploads/2025/07/recipe-image-1752049707943-13.jpg",
         "ingredients": [
             {"name": "Chickpeas", "quantity": 400, "unit": "g", "note": "drained"},
             {"name": "Spinach", "quantity": 180, "unit": "g"},
@@ -328,7 +328,7 @@ PUBLIC_RECIPES = [
         "description": "Crispy potatoes with garlic, parmesan, olive oil, salt, and pepper.",
         "base_servings": 5,
         "cooking_time_minutes": 45,
-        "image_url": "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?w=600",
+        "image_url": "https://tse2.mm.bing.net/th/id/OIP.O5h5mMwtlqjUDZ6Aw99UGAHaLG?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Potato", "quantity": 900, "unit": "g", "note": "cubed"},
             {"name": "Garlic", "quantity": 4, "unit": "unit", "note": "minced"},
@@ -350,7 +350,7 @@ PUBLIC_RECIPES = [
         "description": "Salmon rice bowl with soy sauce, ginger, garlic, and lemon.",
         "base_servings": 3,
         "cooking_time_minutes": 25,
-        "image_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600",
+        "image_url": "https://nonnafood.com/wp-content/uploads/2025/07/Ginger-Soy-Glazed-Salmon-4-683x1024.jpg",
         "ingredients": [
             {"name": "Salmon Fillet", "quantity": 450, "unit": "g"},
             {"name": "Rice", "quantity": 250, "unit": "g"},
@@ -372,7 +372,7 @@ PUBLIC_RECIPES = [
         "description": "Ground beef, rice, tomato, onion, bell pepper, and garlic in one skillet.",
         "base_servings": 4,
         "cooking_time_minutes": 30,
-        "image_url": "https://images.unsplash.com/photo-1604908177522-4028d9c424b7?w=600",
+        "image_url": "https://www.rachelrecipe.com/wp-content/uploads/2026/02/iaxdtzb90f0qe7r1ar4q.webp",
         "ingredients": [
             {"name": "Ground Beef", "quantity": 500, "unit": "g"},
             {"name": "Rice", "quantity": 300, "unit": "g"},
@@ -394,7 +394,7 @@ PUBLIC_RECIPES = [
         "description": "Creamy rice with mushrooms, spinach, onion, garlic, and parmesan.",
         "base_servings": 4,
         "cooking_time_minutes": 35,
-        "image_url": "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600",
+        "image_url": "https://i0.wp.com/spainonafork.wpengine.com/wp-content/uploads/2020/11/image6-29-22.png?resize=531%2C800&ssl=1",
         "ingredients": [
             {"name": "Rice", "quantity": 320, "unit": "g"},
             {"name": "Mushroom", "quantity": 350, "unit": "g", "note": "sliced"},
@@ -416,7 +416,7 @@ PUBLIC_RECIPES = [
         "description": "Chicken breast pasta with tomato, garlic, basil, and parmesan.",
         "base_servings": 4,
         "cooking_time_minutes": 35,
-        "image_url": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600",
+        "image_url": "https://tse1.mm.bing.net/th/id/OIP.400Sy-zyeYf6Dl9eORqq-QHaLH?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Chicken Breast", "quantity": 500, "unit": "g", "note": "sliced"},
             {"name": "Pasta", "quantity": 350, "unit": "g"},
@@ -438,7 +438,7 @@ PUBLIC_RECIPES = [
         "description": "Tender chicken thighs with yogurt, lemon, garlic, and olive oil.",
         "base_servings": 4,
         "cooking_time_minutes": 40,
-        "image_url": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600",
+        "image_url": "https://www.acommunaltable.com/wp-content/uploads/2017/06/chicken-sliced-on-plate-new-overhead.jpg",
         "ingredients": [
             {"name": "Chicken Thighs", "quantity": 700, "unit": "g"},
             {"name": "Yogurt", "quantity": 200, "unit": "g"},
@@ -460,7 +460,7 @@ PUBLIC_RECIPES = [
         "description": "Cool cucumber salad with yogurt, lemon, garlic, and cilantro.",
         "base_servings": 4,
         "cooking_time_minutes": 12,
-        "image_url": "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=600",
+        "image_url": "https://tse1.mm.bing.net/th/id/OIP.aONUvI39-x5zdgJAfyPyiwHaLi?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Cucumber", "quantity": 2, "unit": "unit", "note": "diced"},
             {"name": "Yogurt", "quantity": 250, "unit": "g"},
@@ -482,7 +482,7 @@ PUBLIC_RECIPES = [
         "description": "Simple soup with carrot, potato, onion, garlic, and olive oil.",
         "base_servings": 5,
         "cooking_time_minutes": 45,
-        "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600",
+        "image_url": "https://avarecipes.com/wp-content/uploads/2024/09/Carrot-Potato-Soup-Recipe.png",
         "ingredients": [
             {"name": "Carrot", "quantity": 600, "unit": "g", "note": "sliced"},
             {"name": "Potato", "quantity": 500, "unit": "g", "note": "cubed"},
@@ -504,7 +504,7 @@ PUBLIC_RECIPES = [
         "description": "Chicken breast stuffed with mozzarella, tomato, basil, and garlic.",
         "base_servings": 4,
         "cooking_time_minutes": 45,
-        "image_url": "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600",
+        "image_url": "https://tse4.mm.bing.net/th/id/OIP.SN4BMKG3GXpo6EVJi3V1HAHaJ4?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Chicken Breast", "quantity": 700, "unit": "g"},
             {"name": "Mozzarella", "quantity": 200, "unit": "g", "note": "sliced"},
@@ -526,7 +526,7 @@ PUBLIC_RECIPES = [
         "description": "Rice with carrot, bell pepper, mushroom, soy sauce, ginger, and garlic.",
         "base_servings": 4,
         "cooking_time_minutes": 25,
-        "image_url": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600",
+        "image_url": "https://th.bing.com/th/id/R.2835aaa8a704de8141ae8efdb49d6dc5?rik=Jd0YV3H2xwqqjA&pid=ImgRaw&r=0",
         "ingredients": [
             {"name": "Rice", "quantity": 350, "unit": "g", "note": "cooked and cooled"},
             {"name": "Carrot", "quantity": 200, "unit": "g", "note": "diced"},
@@ -549,7 +549,7 @@ PUBLIC_RECIPES = [
         "description": "Pasta with spinach, feta, garlic, lemon, and olive oil.",
         "base_servings": 4,
         "cooking_time_minutes": 25,
-        "image_url": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600",
+        "image_url": "https://tse4.mm.bing.net/th/id/OIP.SbiNtNH_wGOvB4rNdZUJKwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Pasta", "quantity": 350, "unit": "g"},
             {"name": "Spinach", "quantity": 200, "unit": "g"},
@@ -571,7 +571,7 @@ PUBLIC_RECIPES = [
         "description": "Hearty pasta with chickpeas, tomato, onion, garlic, and basil.",
         "base_servings": 4,
         "cooking_time_minutes": 30,
-        "image_url": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600",
+        "image_url": "https://tse3.mm.bing.net/th/id/OIP.YvW4q1K5cqhufNsazN5kzAHaJQ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Pasta", "quantity": 350, "unit": "g"},
             {"name": "Chickpeas", "quantity": 300, "unit": "g", "note": "drained"},
@@ -593,7 +593,7 @@ PUBLIC_RECIPES = [
         "description": "Quick mushrooms cooked with butter, garlic, parmesan, and black pepper.",
         "base_servings": 3,
         "cooking_time_minutes": 15,
-        "image_url": "https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=600",
+        "image_url": "https://tse4.mm.bing.net/th/id/OIP.L-AJwk6A6HDyYb1s7VJHWgHaLH?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Mushroom", "quantity": 500, "unit": "g", "note": "halved"},
             {"name": "Butter", "quantity": 50, "unit": "g"},
@@ -614,7 +614,7 @@ PUBLIC_RECIPES = [
         "description": "Small cocoa cookies made with flour, sugar, butter, eggs, and cocoa.",
         "base_servings": 10,
         "cooking_time_minutes": 30,
-        "image_url": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600",
+        "image_url": "https://tse1.explicit.bing.net/th/id/OIP.5oGIbDCYJdhpjG4TCJRTZAHaLH?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Flour", "quantity": 220, "unit": "g"},
             {"name": "Sugar", "quantity": 160, "unit": "g"},
@@ -636,7 +636,7 @@ PUBLIC_RECIPES = [
         "description": "Salmon with butter, lemon, garlic, salt, and black pepper.",
         "base_servings": 2,
         "cooking_time_minutes": 18,
-        "image_url": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600",
+        "image_url": "https://th.bing.com/th/id/R.6a116cdad27a4ec59ba6037a03a788fe?rik=mG4reo23UyFEdQ&pid=ImgRaw&r=0",
         "ingredients": [
             {"name": "Salmon Fillet", "quantity": 320, "unit": "g"},
             {"name": "Butter", "quantity": 40, "unit": "g"},
@@ -658,7 +658,7 @@ PUBLIC_RECIPES = [
         "description": "Roasted chicken thighs with potato, carrot, onion, garlic, and olive oil.",
         "base_servings": 6,
         "cooking_time_minutes": 60,
-        "image_url": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600",
+        "image_url": "https://tse2.mm.bing.net/th/id/OIP.0N2gHu_8VeOat7UyK8c_RwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "ingredients": [
             {"name": "Chicken Thighs", "quantity": 900, "unit": "g"},
             {"name": "Potato", "quantity": 900, "unit": "g", "note": "cubed"},
