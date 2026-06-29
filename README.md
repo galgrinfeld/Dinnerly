@@ -108,10 +108,18 @@ docker compose exec backend python -m scripts.seed_db
 If you only want to seed or refresh the public recipe pool without clearing existing app data, use:
 
 ```powershell
+docker compose cp backend/scripts/seed_public_recipes.py backend:/app/scripts/seed_public_recipes.py
 docker compose exec backend python -m scripts.seed_public_recipes
 ```
 
-`seed_public_recipes.py` is idempotent. It updates the public recipe records owned by `public-recipes@dinnerly.local` and does not wipe users, events, or personal recipes.
+`seed_public_recipes.py` is idempotent. It updates the public recipe records owned by `public-recipes@dinnerly.local` and does not wipe users, events, or personal recipes. The copy step is needed when the backend container is already running because Docker Compose mounts `backend/app`, not `backend/scripts`; without it, the container may use the script version baked into the last backend image build.
+
+If you rebuild the backend image first, the copy step is not needed:
+
+```powershell
+docker compose up --build -d backend
+docker compose exec backend python -m scripts.seed_public_recipes
+```
 
 For a deeper local reset, remove the Postgres Docker volume and rebuild:
 

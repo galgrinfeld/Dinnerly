@@ -186,25 +186,61 @@ export const PublicRecipeDetails: React.FC = () => {
               Ingredients ({recipe.ingredients.length})
             </Typography>
             <Stack spacing={1}>
-              {recipe.ingredients.map((ingredient) => (
-                <Box
-                  key={ingredient.id}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 2,
-                    py: 1,
-                    borderBottom: "1px solid #F0ECE7",
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 650, color: "#241F1C" }}>
-                    {ingredient.ingredientName}
-                  </Typography>
-                  <Typography sx={{ color: "#625852" }}>
-                    {ingredient.quantity ?? ""} {ingredient.unit}
-                  </Typography>
-                </Box>
-              ))}
+              {recipe.ingredients.map((ingredient) => {
+                const hasNote = ingredient.note && ingredient.note.trim().length > 0;
+                const isToTaste = ingredient.quantity === null || ingredient.unit === "to_taste";
+
+                return (
+                  <Box
+                    key={ingredient.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 2,
+                      py: 1,
+                      borderBottom: "1px solid #F0ECE7",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        minWidth: 72,
+                        display: "flex",
+                        gap: 0.75,
+                        alignItems: "baseline",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isToTaste ? (
+                        <Typography sx={{ color: "#625852", fontStyle: "italic", fontSize: "0.9rem" }}>
+                          to taste
+                        </Typography>
+                      ) : (
+                        <>
+                          <Typography sx={{ color: "#241F1C", fontWeight: 650 }}>
+                            {ingredient.quantity}
+                          </Typography>
+                          {ingredient.unit !== "unit" && (
+                            <Typography sx={{ color: "#7A5E2B", fontSize: "0.85rem", fontWeight: 600 }}>
+                              {ingredient.unit}
+                            </Typography>
+                          )}
+                        </>
+                      )}
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{ fontWeight: 650, color: "#241F1C" }}>
+                        {ingredient.ingredientName}
+                      </Typography>
+                      {hasNote && (
+                        <Typography sx={{ color: "#8A7660", fontSize: "0.8rem", fontStyle: "italic", mt: 0.5 }}>
+                          {ingredient.note}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                );
+              })}
             </Stack>
           </Box>
         </Card>

@@ -15,10 +15,6 @@ from app.services.security import hash_password
 PUBLIC_OWNER_EMAIL = "public-recipes@dinnerly.local"
 
 
-def steps(*items: str) -> str:
-    return "".join(f"<p>{index}. {item}</p>" for index, item in enumerate(items, start=1))
-
-
 PUBLIC_RECIPES = [
     {
         "name": "Garlic Butter Pasta",
@@ -33,11 +29,11 @@ PUBLIC_RECIPES = [
             {"name": "Basil", "quantity": 2, "unit": "tbsp", "note": "chopped"},
             {"name": "Parmesan Cheese", "quantity": 90, "unit": "g", "note": "grated"},
         ],
-        "instructions_html": steps(
-            "Cook the pasta in salted boiling water until al dente, then reserve a cup of pasta water.",
-            "Warm olive oil in a large pan and gently cook the garlic until fragrant.",
-            "Add the drained pasta and a splash of pasta water, tossing until glossy.",
-            "Fold in basil and parmesan, then season and serve warm.",
+        "instructions": (
+            "<p>1. Cook the pasta in salted boiling water until al dente, then reserve a cup of pasta water.</p>"
+            "<p>2. Warm olive oil in a large pan and gently cook the garlic until fragrant.</p>"
+            "<p>3. Add the drained pasta and a splash of pasta water, tossing until glossy.</p>"
+            "<p>4. Fold in basil and parmesan, then season and serve warm.</p>"
         ),
     },
     {
@@ -54,12 +50,12 @@ PUBLIC_RECIPES = [
             {"name": "Basil", "quantity": 2, "unit": "tbsp", "note": "torn"},
             {"name": "Onion", "quantity": 1, "unit": "unit", "note": "diced"},
         ],
-        "instructions_html": steps(
-            "Cook the pasta in salted boiling water until al dente.",
-            "Saute onion in olive oil until soft, then add garlic for 1 minute.",
-            "Add tomatoes and simmer until the sauce thickens.",
-            "Toss the pasta through the sauce with basil.",
-            "Adjust seasoning and serve immediately.",
+        "instructions": (
+            "<p>1. Cook the pasta in salted boiling water until al dente.</p>"
+            "<p>2. Saute onion in olive oil until soft, then add garlic for 1 minute.</p>"
+            "<p>3. Add tomatoes and simmer until the sauce thickens.</p>"
+            "<p>4. Toss the pasta through the sauce with basil.</p>"
+            "<p>5. Adjust seasoning and serve immediately.</p>"
         ),
     },
     {
@@ -76,12 +72,12 @@ PUBLIC_RECIPES = [
             {"name": "Parmesan Cheese", "quantity": 90, "unit": "g", "note": "grated"},
             {"name": "Olive Oil", "quantity": 2, "unit": "tbsp"},
         ],
-        "instructions_html": steps(
-            "Cook the pasta until al dente and reserve some cooking water.",
-            "Brown mushrooms in olive oil until their moisture evaporates.",
-            "Add garlic and spinach, cooking until the spinach wilts.",
-            "Toss in pasta, parmesan, and enough pasta water to coat.",
-            "Serve while creamy and hot.",
+        "instructions": (
+            "<p>1. Cook the pasta until al dente and reserve some cooking water.</p>"
+            "<p>2. Brown mushrooms in olive oil until their moisture evaporates.</p>"
+            "<p>3. Add garlic and spinach, cooking until the spinach wilts.</p>"
+            "<p>4. Toss in pasta, parmesan, and enough pasta water to coat.</p>"
+            "<p>5. Serve while creamy and hot.</p>"
         ),
     },
     {
@@ -98,12 +94,12 @@ PUBLIC_RECIPES = [
             {"name": "Parmesan Cheese", "quantity": 70, "unit": "g", "note": "grated"},
             {"name": "Garlic", "quantity": 2, "unit": "unit", "note": "minced"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 200 C and cook the pasta until just tender.",
-            "Mix pasta with tomatoes, garlic, basil, and half the mozzarella.",
-            "Transfer to a baking dish and top with remaining mozzarella and parmesan.",
-            "Bake until bubbling and golden on top.",
-            "Rest for 5 minutes before serving.",
+        "instructions": (
+            "<p>1. Heat the oven to 200 C and cook the pasta until just tender.</p>"
+            "<p>2. Mix pasta with tomatoes, garlic, basil, and half the mozzarella.</p>"
+            "<p>3. Transfer to a baking dish and top with remaining mozzarella and parmesan.</p>"
+            "<p>4. Bake until bubbling and golden on top.</p>"
+            "<p>5. Rest for 5 minutes before serving.</p>"
         ),
     },
     {
@@ -120,12 +116,12 @@ PUBLIC_RECIPES = [
             {"name": "Salt", "quantity": None, "unit": "to_taste"},
             {"name": "Black Pepper", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Pat the salmon dry and season with salt, pepper, garlic, olive oil, and lemon zest.",
-            "Heat a grill pan or skillet over medium-high heat.",
-            "Cook the salmon skin-side down until browned and mostly cooked through.",
-            "Turn briefly to finish the top side.",
-            "Squeeze lemon juice over the fish and serve.",
+        "instructions": (
+            "<p>1. Pat the salmon dry and season with salt, pepper, garlic, olive oil, and lemon zest.</p>"
+            "<p>2. Heat a grill pan or skillet over medium-high heat.</p>"
+            "<p>3. Cook the salmon skin-side down until browned and mostly cooked through.</p>"
+            "<p>4. Turn briefly to finish the top side.</p>"
+            "<p>5. Squeeze lemon juice over the fish and serve.</p>"
         ),
     },
     {
@@ -142,12 +138,12 @@ PUBLIC_RECIPES = [
             {"name": "Olive Oil", "quantity": 3, "unit": "tbsp"},
             {"name": "Onion", "quantity": 1, "unit": "unit", "note": "diced"},
         ],
-        "instructions_html": steps(
-            "Season the chicken and brown it in olive oil in a deep pan.",
-            "Add onion and garlic, cooking until softened.",
-            "Stir in rice, lemon zest, lemon juice, and enough water or stock to cook the rice.",
-            "Cover and simmer until the rice is tender and chicken is cooked through.",
-            "Rest covered for 5 minutes, then fluff the rice and serve.",
+        "instructions": (
+            "<p>1. Season the chicken and brown it in olive oil in a deep pan.</p>"
+            "<p>2. Add onion and garlic, cooking until softened.</p>"
+            "<p>3. Stir in rice, lemon zest, lemon juice, and enough water or stock to cook the rice.</p>"
+            "<p>4. Cover and simmer until the rice is tender and chicken is cooked through.</p>"
+            "<p>5. Rest covered for 5 minutes, then fluff the rice and serve.</p>"
         ),
     },
     {
@@ -164,12 +160,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
             {"name": "Cilantro", "quantity": 15, "unit": "g", "note": "chopped"},
         ],
-        "instructions_html": steps(
-            "Cook the rice according to package directions and keep warm.",
-            "Sear chicken strips in a hot skillet until browned.",
-            "Add bell peppers, onion, and garlic, then cook until tender-crisp.",
-            "Fold in the rice and cilantro.",
-            "Season to taste and serve from the skillet.",
+        "instructions": (
+            "<p>1. Cook the rice according to package directions and keep warm.</p>"
+            "<p>2. Sear chicken strips in a hot skillet until browned.</p>"
+            "<p>3. Add bell peppers, onion, and garlic, then cook until tender-crisp.</p>"
+            "<p>4. Fold in the rice and cilantro.</p>"
+            "<p>5. Season to taste and serve from the skillet.</p>"
         ),
     },
     {
@@ -187,12 +183,12 @@ PUBLIC_RECIPES = [
             {"name": "Ginger", "quantity": 2, "unit": "tsp", "note": "grated"},
             {"name": "Rice", "quantity": 300, "unit": "g"},
         ],
-        "instructions_html": steps(
-            "Cook the rice and keep it warm.",
-            "Brown the beef in a hot pan, breaking it into small pieces.",
-            "Add bell pepper, mushrooms, garlic, and ginger.",
-            "Stir in soy sauce and cook until the vegetables are tender.",
-            "Serve the stir fry over rice.",
+        "instructions": (
+            "<p>1. Cook the rice and keep it warm.</p>"
+            "<p>2. Brown the beef in a hot pan, breaking it into small pieces.</p>"
+            "<p>3. Add bell pepper, mushrooms, garlic, and ginger.</p>"
+            "<p>4. Stir in soy sauce and cook until the vegetables are tender.</p>"
+            "<p>5. Serve the stir fry over rice.</p>"
         ),
     },
     {
@@ -210,12 +206,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 2, "unit": "unit", "note": "minced"},
             {"name": "Parmesan Cheese", "quantity": 80, "unit": "g", "note": "grated"},
         ],
-        "instructions_html": steps(
-            "Saute onion and garlic in olive oil until translucent.",
-            "Add rice and toast for 2 minutes, stirring often.",
-            "Add hot water or stock a little at a time, stirring until absorbed.",
-            "Fold in mushrooms and spinach when the rice is nearly tender.",
-            "Finish with parmesan and serve creamy.",
+        "instructions": (
+            "<p>1. Saute onion and garlic in olive oil until translucent.</p>"
+            "<p>2. Add rice and toast for 2 minutes, stirring often.</p>"
+            "<p>3. Add hot water or stock a little at a time, stirring until absorbed.</p>"
+            "<p>4. Fold in mushrooms and spinach when the rice is nearly tender.</p>"
+            "<p>5. Finish with parmesan and serve creamy.</p>"
         ),
     },
     {
@@ -232,12 +228,12 @@ PUBLIC_RECIPES = [
             {"name": "Olive Oil", "quantity": 3, "unit": "tbsp"},
             {"name": "Lemon", "quantity": 1, "unit": "unit"},
         ],
-        "instructions_html": steps(
-            "Chop the cucumber and tomato into bite-size pieces.",
-            "Combine vegetables with chickpeas in a large bowl.",
-            "Whisk olive oil with lemon juice and a pinch of seasoning.",
-            "Toss the salad with the dressing.",
-            "Top with feta and serve chilled or at room temperature.",
+        "instructions": (
+            "<p>1. Chop the cucumber and tomato into bite-size pieces.</p>"
+            "<p>2. Combine vegetables with chickpeas in a large bowl.</p>"
+            "<p>3. Whisk olive oil with lemon juice and a pinch of seasoning.</p>"
+            "<p>4. Toss the salad with the dressing.</p>"
+            "<p>5. Top with feta and serve chilled or at room temperature.</p>"
         ),
     },
     {
@@ -254,12 +250,12 @@ PUBLIC_RECIPES = [
             {"name": "Olive Oil", "quantity": 4, "unit": "tbsp"},
             {"name": "Garlic", "quantity": 4, "unit": "unit", "note": "minced"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 220 C and line a large tray.",
-            "Cut vegetables into even pieces so they roast at the same pace.",
-            "Toss vegetables with olive oil, garlic, and seasoning.",
-            "Spread in one layer and roast until browned and tender.",
-            "Turn once halfway through and serve hot.",
+        "instructions": (
+            "<p>1. Heat the oven to 220 C and line a large tray.</p>"
+            "<p>2. Cut vegetables into even pieces so they roast at the same pace.</p>"
+            "<p>3. Toss vegetables with olive oil, garlic, and seasoning.</p>"
+            "<p>4. Spread in one layer and roast until browned and tender.</p>"
+            "<p>5. Turn once halfway through and serve hot.</p>"
         ),
     },
     {
@@ -275,13 +271,13 @@ PUBLIC_RECIPES = [
             {"name": "Butter", "quantity": 150, "unit": "g", "note": "melted"},
             {"name": "Eggs", "quantity": 3, "unit": "unit"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 180 C and grease a cake pan.",
-            "Whisk flour, sugar, and cocoa powder in a bowl.",
-            "Mix in melted butter and eggs until smooth.",
-            "Pour into the pan and level the top.",
-            "Bake until a skewer inserted in the center comes out clean.",
-            "Cool before slicing.",
+        "instructions": (
+            "<p>1. Heat the oven to 180 C and grease a cake pan.</p>"
+            "<p>2. Whisk flour, sugar, and cocoa powder in a bowl.</p>"
+            "<p>3. Mix in melted butter and eggs until smooth.</p>"
+            "<p>4. Pour into the pan and level the top.</p>"
+            "<p>5. Bake until a skewer inserted in the center comes out clean.</p>"
+            "<p>6. Cool before slicing.</p>"
         ),
     },
     {
@@ -297,12 +293,12 @@ PUBLIC_RECIPES = [
             {"name": "Olive Oil", "quantity": 2, "unit": "tbsp"},
             {"name": "Lemon", "quantity": 1, "unit": "unit"},
         ],
-        "instructions_html": steps(
-            "Slice the tomatoes and mozzarella into even pieces.",
-            "Arrange them on a platter in alternating layers.",
-            "Scatter basil over the top.",
-            "Drizzle with olive oil and lemon juice.",
-            "Season to taste and serve immediately.",
+        "instructions": (
+            "<p>1. Slice the tomatoes and mozzarella into even pieces.</p>"
+            "<p>2. Arrange them on a platter in alternating layers.</p>"
+            "<p>3. Scatter basil over the top.</p>"
+            "<p>4. Drizzle with olive oil and lemon juice.</p>"
+            "<p>5. Season to taste and serve immediately.</p>"
         ),
     },
     {
@@ -319,12 +315,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
             {"name": "Rice", "quantity": 250, "unit": "g"},
         ],
-        "instructions_html": steps(
-            "Cook the rice separately and keep warm.",
-            "Saute onion and garlic until soft.",
-            "Add tomatoes and chickpeas, then simmer until thickened.",
-            "Stir in spinach until wilted.",
-            "Serve the stew over rice.",
+        "instructions": (
+            "<p>1. Cook the rice separately and keep warm.</p>"
+            "<p>2. Saute onion and garlic until soft.</p>"
+            "<p>3. Add tomatoes and chickpeas, then simmer until thickened.</p>"
+            "<p>4. Stir in spinach until wilted.</p>"
+            "<p>5. Serve the stew over rice.</p>"
         ),
     },
     {
@@ -341,12 +337,12 @@ PUBLIC_RECIPES = [
             {"name": "Salt", "quantity": None, "unit": "to_taste"},
             {"name": "Black Pepper", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 220 C and line a tray.",
-            "Toss potatoes with olive oil, garlic, salt, and pepper.",
-            "Roast until the edges are crisp and the centers are tender.",
-            "Sprinkle parmesan over the hot potatoes.",
-            "Return to the oven briefly until the cheese melts.",
+        "instructions": (
+            "<p>1. Heat the oven to 220 C and line a tray.</p>"
+            "<p>2. Toss potatoes with olive oil, garlic, salt, and pepper.</p>"
+            "<p>3. Roast until the edges are crisp and the centers are tender.</p>"
+            "<p>4. Sprinkle parmesan over the hot potatoes.</p>"
+            "<p>5. Return to the oven briefly until the cheese melts.</p>"
         ),
     },
     {
@@ -363,12 +359,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 2, "unit": "unit", "note": "minced"},
             {"name": "Lemon", "quantity": 1, "unit": "unit"},
         ],
-        "instructions_html": steps(
-            "Cook the rice and keep it covered.",
-            "Mix soy sauce, ginger, garlic, and lemon juice.",
-            "Sear salmon until browned and just cooked through.",
-            "Spoon the soy ginger sauce over the salmon.",
-            "Serve salmon over rice with extra sauce.",
+        "instructions": (
+            "<p>1. Cook the rice and keep it covered.</p>"
+            "<p>2. Mix soy sauce, ginger, garlic, and lemon juice.</p>"
+            "<p>3. Sear salmon until browned and just cooked through.</p>"
+            "<p>4. Spoon the soy ginger sauce over the salmon.</p>"
+            "<p>5. Serve salmon over rice with extra sauce.</p>"
         ),
     },
     {
@@ -385,12 +381,12 @@ PUBLIC_RECIPES = [
             {"name": "Bell Pepper", "quantity": 2, "unit": "unit", "note": "diced"},
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
         ],
-        "instructions_html": steps(
-            "Brown the beef in a wide skillet and drain excess fat if needed.",
-            "Add onion, bell pepper, and garlic, then cook until softened.",
-            "Stir in rice, tomato, and enough water or stock to cook the rice.",
-            "Cover and simmer until the rice is tender.",
-            "Fluff and serve hot.",
+        "instructions": (
+            "<p>1. Brown the beef in a wide skillet and drain excess fat if needed.</p>"
+            "<p>2. Add onion, bell pepper, and garlic, then cook until softened.</p>"
+            "<p>3. Stir in rice, tomato, and enough water or stock to cook the rice.</p>"
+            "<p>4. Cover and simmer until the rice is tender.</p>"
+            "<p>5. Fluff and serve hot.</p>"
         ),
     },
     {
@@ -407,12 +403,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
             {"name": "Parmesan Cheese", "quantity": 90, "unit": "g", "note": "grated"},
         ],
-        "instructions_html": steps(
-            "Saute onion, garlic, and mushrooms until browned.",
-            "Add rice and stir to coat it in the pan juices.",
-            "Add water or stock gradually and cook until tender.",
-            "Fold in spinach until wilted.",
-            "Finish with parmesan and serve creamy.",
+        "instructions": (
+            "<p>1. Saute onion, garlic, and mushrooms until browned.</p>"
+            "<p>2. Add rice and stir to coat it in the pan juices.</p>"
+            "<p>3. Add water or stock gradually and cook until tender.</p>"
+            "<p>4. Fold in spinach until wilted.</p>"
+            "<p>5. Finish with parmesan and serve creamy.</p>"
         ),
     },
     {
@@ -429,12 +425,12 @@ PUBLIC_RECIPES = [
             {"name": "Basil", "quantity": 2, "unit": "tbsp", "note": "chopped"},
             {"name": "Parmesan Cheese", "quantity": 80, "unit": "g", "note": "grated"},
         ],
-        "instructions_html": steps(
-            "Cook pasta until al dente and reserve some pasta water.",
-            "Sear chicken pieces until browned and cooked through.",
-            "Add garlic and tomato, then simmer into a quick sauce.",
-            "Toss pasta with the sauce, chicken, basil, and parmesan.",
-            "Loosen with pasta water if needed and serve.",
+        "instructions": (
+            "<p>1. Cook pasta until al dente and reserve some pasta water.</p>"
+            "<p>2. Sear chicken pieces until browned and cooked through.</p>"
+            "<p>3. Add garlic and tomato, then simmer into a quick sauce.</p>"
+            "<p>4. Toss pasta with the sauce, chicken, basil, and parmesan.</p>"
+            "<p>5. Loosen with pasta water if needed and serve.</p>"
         ),
     },
     {
@@ -451,12 +447,12 @@ PUBLIC_RECIPES = [
             {"name": "Olive Oil", "quantity": 2, "unit": "tbsp"},
             {"name": "Salt", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Mix yogurt, lemon juice, garlic, olive oil, and salt.",
-            "Coat chicken thighs in the marinade.",
-            "Let the chicken rest for at least 15 minutes.",
-            "Bake or pan-roast until browned and cooked through.",
-            "Rest briefly before serving.",
+        "instructions": (
+            "<p>1. Mix yogurt, lemon juice, garlic, olive oil, and salt.</p>"
+            "<p>2. Coat chicken thighs in the marinade.</p>"
+            "<p>3. Let the chicken rest for at least 15 minutes.</p>"
+            "<p>4. Bake or pan-roast until browned and cooked through.</p>"
+            "<p>5. Rest briefly before serving.</p>"
         ),
     },
     {
@@ -473,12 +469,12 @@ PUBLIC_RECIPES = [
             {"name": "Cilantro", "quantity": 15, "unit": "g", "note": "chopped"},
             {"name": "Salt", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Dice the cucumber and pat dry if very watery.",
-            "Mix yogurt with lemon juice, garlic, and salt.",
-            "Fold cucumber and cilantro into the yogurt.",
-            "Chill briefly so the flavors settle.",
-            "Serve cold as a side dish.",
+        "instructions": (
+            "<p>1. Dice the cucumber and pat dry if very watery.</p>"
+            "<p>2. Mix yogurt with lemon juice, garlic, and salt.</p>"
+            "<p>3. Fold cucumber and cilantro into the yogurt.</p>"
+            "<p>4. Chill briefly so the flavors settle.</p>"
+            "<p>5. Serve cold as a side dish.</p>"
         ),
     },
     {
@@ -495,12 +491,12 @@ PUBLIC_RECIPES = [
             {"name": "Olive Oil", "quantity": 2, "unit": "tbsp"},
             {"name": "Black Pepper", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Saute onion and garlic in olive oil until fragrant.",
-            "Add carrots and potatoes, then cover with water or stock.",
-            "Simmer until the vegetables are very tender.",
-            "Blend until smooth or leave chunky if preferred.",
-            "Season with black pepper and serve warm.",
+        "instructions": (
+            "<p>1. Saute onion and garlic in olive oil until fragrant.</p>"
+            "<p>2. Add carrots and potatoes, then cover with water or stock.</p>"
+            "<p>3. Simmer until the vegetables are very tender.</p>"
+            "<p>4. Blend until smooth or leave chunky if preferred.</p>"
+            "<p>5. Season with black pepper and serve warm.</p>"
         ),
     },
     {
@@ -517,12 +513,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
             {"name": "Olive Oil", "quantity": 2, "unit": "tbsp"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 200 C.",
-            "Cut a pocket into each chicken breast without slicing all the way through.",
-            "Fill with mozzarella, tomato, basil, and garlic.",
-            "Sear the chicken in olive oil until golden.",
-            "Bake until the chicken is cooked through and cheese is melted.",
+        "instructions": (
+            "<p>1. Heat the oven to 200 C.</p>"
+            "<p>2. Cut a pocket into each chicken breast without slicing all the way through.</p>"
+            "<p>3. Fill with mozzarella, tomato, basil, and garlic.</p>"
+            "<p>4. Sear the chicken in olive oil until golden.</p>"
+            "<p>5. Bake until the chicken is cooked through and cheese is melted.</p>"
         ),
     },
     {
@@ -540,12 +536,12 @@ PUBLIC_RECIPES = [
             {"name": "Ginger", "quantity": 2, "unit": "tsp", "note": "grated"},
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
         ],
-        "instructions_html": steps(
-            "Use cooked, cooled rice so the grains stay separate.",
-            "Stir fry carrot, bell pepper, and mushrooms in a hot pan.",
-            "Add garlic and ginger and cook until fragrant.",
-            "Add rice and soy sauce, tossing until hot throughout.",
-            "Serve immediately.",
+        "instructions": (
+            "<p>1. Use cooked, cooled rice so the grains stay separate.</p>"
+            "<p>2. Stir fry carrot, bell pepper, and mushrooms in a hot pan.</p>"
+            "<p>3. Add garlic and ginger and cook until fragrant.</p>"
+            "<p>4. Add rice and soy sauce, tossing until hot throughout.</p>"
+            "<p>5. Serve immediately.</p>"
         ),
     },
     {
@@ -562,12 +558,12 @@ PUBLIC_RECIPES = [
             {"name": "Lemon", "quantity": 1, "unit": "unit"},
             {"name": "Olive Oil", "quantity": 3, "unit": "tbsp"},
         ],
-        "instructions_html": steps(
-            "Cook pasta until al dente and reserve pasta water.",
-            "Warm olive oil and cook garlic until fragrant.",
-            "Add spinach and cook until wilted.",
-            "Toss pasta with spinach, feta, lemon juice, and zest.",
-            "Use pasta water to loosen the sauce and serve.",
+        "instructions": (
+            "<p>1. Cook pasta until al dente and reserve pasta water.</p>"
+            "<p>2. Warm olive oil and cook garlic until fragrant.</p>"
+            "<p>3. Add spinach and cook until wilted.</p>"
+            "<p>4. Toss pasta with spinach, feta, lemon juice, and zest.</p>"
+            "<p>5. Use pasta water to loosen the sauce and serve.</p>"
         ),
     },
     {
@@ -584,12 +580,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 3, "unit": "unit", "note": "minced"},
             {"name": "Basil", "quantity": 2, "unit": "tbsp", "note": "chopped"},
         ],
-        "instructions_html": steps(
-            "Cook pasta in salted water until al dente.",
-            "Saute onion and garlic until softened.",
-            "Add tomatoes and chickpeas, then simmer into a chunky sauce.",
-            "Toss the pasta with the sauce and basil.",
-            "Season and serve warm.",
+        "instructions": (
+            "<p>1. Cook pasta in salted water until al dente.</p>"
+            "<p>2. Saute onion and garlic until softened.</p>"
+            "<p>3. Add tomatoes and chickpeas, then simmer into a chunky sauce.</p>"
+            "<p>4. Toss the pasta with the sauce and basil.</p>"
+            "<p>5. Season and serve warm.</p>"
         ),
     },
     {
@@ -605,12 +601,12 @@ PUBLIC_RECIPES = [
             {"name": "Parmesan Cheese", "quantity": 50, "unit": "g", "note": "grated"},
             {"name": "Black Pepper", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Heat a wide pan until hot.",
-            "Cook mushrooms until browned and their moisture evaporates.",
-            "Add butter and garlic, tossing to coat.",
-            "Finish with parmesan and black pepper.",
-            "Serve immediately while glossy.",
+        "instructions": (
+            "<p>1. Heat a wide pan until hot.</p>"
+            "<p>2. Cook mushrooms until browned and their moisture evaporates.</p>"
+            "<p>3. Add butter and garlic, tossing to coat.</p>"
+            "<p>4. Finish with parmesan and black pepper.</p>"
+            "<p>5. Serve immediately while glossy.</p>"
         ),
     },
     {
@@ -626,13 +622,13 @@ PUBLIC_RECIPES = [
             {"name": "Eggs", "quantity": 1, "unit": "unit"},
             {"name": "Cocoa Powder", "quantity": 40, "unit": "g"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 180 C and line a baking tray.",
-            "Cream butter and sugar until smooth.",
-            "Beat in the egg, then mix in flour and cocoa.",
-            "Shape small portions of dough onto the tray.",
-            "Bake until set at the edges.",
-            "Cool on the tray before serving.",
+        "instructions": (
+            "<p>1. Heat the oven to 180 C and line a baking tray.</p>"
+            "<p>2. Cream butter and sugar until smooth.</p>"
+            "<p>3. Beat in the egg, then mix in flour and cocoa.</p>"
+            "<p>4. Shape small portions of dough onto the tray.</p>"
+            "<p>5. Bake until set at the edges.</p>"
+            "<p>6. Cool on the tray before serving.</p>"
         ),
     },
     {
@@ -649,12 +645,12 @@ PUBLIC_RECIPES = [
             {"name": "Salt", "quantity": None, "unit": "to_taste"},
             {"name": "Black Pepper", "quantity": None, "unit": "to_taste"},
         ],
-        "instructions_html": steps(
-            "Season the salmon with salt and pepper.",
-            "Melt butter in a skillet and add garlic.",
-            "Cook salmon until browned on one side.",
-            "Turn and baste with garlic butter until cooked through.",
-            "Finish with lemon juice and serve.",
+        "instructions": (
+            "<p>1. Season the salmon with salt and pepper.</p>"
+            "<p>2. Melt butter in a skillet and add garlic.</p>"
+            "<p>3. Cook salmon until browned on one side.</p>"
+            "<p>4. Turn and baste with garlic butter until cooked through.</p>"
+            "<p>5. Finish with lemon juice and serve.</p>"
         ),
     },
     {
@@ -671,12 +667,12 @@ PUBLIC_RECIPES = [
             {"name": "Garlic", "quantity": 5, "unit": "unit", "note": "minced"},
             {"name": "Olive Oil", "quantity": 4, "unit": "tbsp"},
         ],
-        "instructions_html": steps(
-            "Heat the oven to 210 C.",
-            "Toss potatoes, carrots, onion, and garlic with olive oil.",
-            "Arrange vegetables on a tray and nestle chicken thighs on top.",
-            "Roast until the vegetables are tender and chicken is browned.",
-            "Rest for 5 minutes before serving.",
+        "instructions": (
+            "<p>1. Heat the oven to 210 C.</p>"
+            "<p>2. Toss potatoes, carrots, onion, and garlic with olive oil.</p>"
+            "<p>3. Arrange vegetables on a tray and nestle chicken thighs on top.</p>"
+            "<p>4. Roast until the vegetables are tender and chicken is browned.</p>"
+            "<p>5. Rest for 5 minutes before serving.</p>"
         ),
     },
 ]
@@ -720,7 +716,7 @@ def seed_public_recipes() -> None:
                     base_servings=item["base_servings"],
                     cooking_time_minutes=item["cooking_time_minutes"],
                     image_url=item["image_url"],
-                    instructions_html=item["instructions_html"],
+                    instructions_html=item["instructions"],
                     is_public=True,
                 )
                 db.add(recipe)
@@ -730,7 +726,7 @@ def seed_public_recipes() -> None:
             recipe.base_servings = item["base_servings"]
             recipe.cooking_time_minutes = item["cooking_time_minutes"]
             recipe.image_url = item["image_url"]
-            recipe.instructions_html = item["instructions_html"]
+            recipe.instructions_html = item["instructions"]
             recipe.is_public = True
             recipe.source_recipe_id = None
 
