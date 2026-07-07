@@ -12,6 +12,7 @@ import {
   ParticipantAddRequest,
   AutoAssignShoppingListResponse,
   AiRecipeSuggestion,
+  AiSuggestionsRequest,
   AiSuggestionsResponse,
   AiCreateRecipeResponse,
 } from "../types/api";
@@ -23,9 +24,13 @@ export async function createEvent(payload: EventCreateRequest): Promise<EventRea
   });
 }
 
-export async function suggestEventRecipes(eventId: number): Promise<AiSuggestionsResponse> {
+export async function suggestEventRecipes(
+  eventId: number,
+  payload: AiSuggestionsRequest = {}
+): Promise<AiSuggestionsResponse> {
   return apiFetch<AiSuggestionsResponse>(`/api/events/${eventId}/ai/suggest-recipes`, {
     method: "POST",
+    body: JSON.stringify(payload),
   });
 }
 

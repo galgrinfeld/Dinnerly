@@ -9,7 +9,7 @@ from sqlalchemy.pool import StaticPool
 from app.db.base import Base
 from app.db.models import Event, EventMember, EventRecipe, Recipe, RecipeIngredient, User
 from app.routes.events import create_ai_recipe, remove_recipe_from_event, suggest_ai_recipes
-from app.schemas.ai_menu import AiCreateRecipeRequest, GeneratedIngredient
+from app.schemas.ai_menu import AiCreateRecipeRequest, AiSuggestionsRequest, GeneratedIngredient
 from app.services import ai_menu_service
 
 
@@ -52,6 +52,25 @@ def test_user_with_access_gets_mock_suggestions(db, scenario, monkeypatch):
     result = suggest_ai_recipes(event.id, db, owner)
     assert 3 <= len(result.suggestions) <= 5
     assert all(item.name.casefold() != "pasta" for item in result.suggestions)
+
+
+def test_suggestions_exclude_names_from_refresh_payload(db, scenario, monkeypatch):
+    owner, _, _, event = scenario
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("AI_API_KEY", raising=False)
+
+    initial = suggest_ai_recipes(event.id, db, owner)
+    shown_names = [suggestion.name for suggestion in initial.suggestions]
+    refreshed = suggest_ai_recipes(
+        event.id,
+        db,
+        owner,
+        AiSuggestionsRequest(excludeNames=shown_names),
+    )
+
+    refreshed_names = {suggestion.name.casefold() for suggestion in refreshed.suggestions}
+    assert refreshed_names.isdisjoint({name.casefold() for name in shown_names})
+    assert all(name != "pasta" for name in refreshed_names)
 
 
 def test_user_without_access_cannot_suggest(db, scenario):

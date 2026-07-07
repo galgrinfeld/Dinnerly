@@ -185,6 +185,10 @@ export interface AiSuggestionsResponse {
   suggestions: AiRecipeSuggestion[];
 }
 
+export interface AiSuggestionsRequest {
+  excludeNames?: string[];
+}
+
 export interface AiCreateRecipeResponse {
   recipeId: number;
   eventId: number;

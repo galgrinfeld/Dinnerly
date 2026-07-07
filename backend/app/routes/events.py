@@ -3,7 +3,7 @@ Events routes.
 """
 import logging
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.db.models.user import User
@@ -15,7 +15,7 @@ from app.db.models.recipe_ingredient import RecipeIngredient
 from app.schemas.event import EventCreate, EventUpdate, EventRead, EventRecipeAttach
 from app.schemas.auth import ParticipantAddRequest, EventMemberRead
 from app.schemas.shopping_list import ShoppingListResponse, AutoAssignShoppingListResponse
-from app.schemas.ai_menu import AiCreateRecipeRequest, AiCreateRecipeResponse, AiSuggestionsResponse
+from app.schemas.ai_menu import AiCreateRecipeRequest, AiCreateRecipeResponse, AiSuggestionsRequest, AiSuggestionsResponse
 from app.schemas.recipe import RecipeIngredientRead, RecipeRead
 from app.crud import events as events_crud
 from app.crud import event_members as event_members_crud
@@ -45,6 +45,7 @@ def suggest_ai_recipes(
     event_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    payload: AiSuggestionsRequest | None = Body(default=None),
 ):
     """Suggest complementary dishes without creating any database records."""
     _require_event_access(db, event_id, current_user)
@@ -57,7 +58,7 @@ def suggest_ai_recipes(
         )
     ]
     try:
-        return ai_menu_service.suggest_recipes(names)
+        return ai_menu_service.suggest_recipes(names, payload.exclude_names if payload else [])
     except ai_menu_service.AiServiceError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 

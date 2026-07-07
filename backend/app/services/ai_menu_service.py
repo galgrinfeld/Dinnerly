@@ -28,12 +28,16 @@ The user is planning a shared dinner event.
 Existing dishes in the event:
 {existing_recipe_names}
 
+Suggestions already shown in this refresh session:
+{excluded_recipe_names}
+
 Suggest 5 additional dishes that would complement the current dinner menu.
 
 Requirements:
 
 * Include different dish types when possible: side dish, salad, appetizer, dessert, or main dish.
 * Do not suggest dishes that are already in the event.
+* Do not suggest dishes that were already shown in this refresh session.
 * Prefer practical home-cooking recipes.
 * Avoid overly complex restaurant-style dishes.
 * Keep the suggestions suitable for a shared dinner.
@@ -125,21 +129,29 @@ def _call_provider(prompt: str) -> dict:
         raise AiServiceError("AI provider returned an unusable response") from exc
 
 
-def _mock_suggestions(existing_names: list[str]) -> AiSuggestionsResponse:
-    existing = {name.casefold() for name in existing_names}
+def _mock_suggestions(existing_names: list[str], excluded_names: list[str] | None = None) -> AiSuggestionsResponse:
+    excluded_names = excluded_names or []
+    blocked = {name.casefold() for name in [*existing_names, *excluded_names]}
     candidates = [
         ("Roasted Garlic Herb Potatoes", "Side Dish", "Adds a warm, shareable side with savory herbs."),
         ("Citrus Garden Salad", "Salad", "Brings freshness and acidity to balance the menu."),
         ("Honey Glazed Carrots", "Side Dish", "Adds color and gentle sweetness to the dinner."),
         ("Chocolate Berry Mousse", "Dessert", "Finishes the meal with a light, make-ahead dessert."),
         ("Herbed Focaccia", "Bread", "A crowd-friendly bread that complements the existing dishes."),
+        ("Caprese Skewers", "Appetizer", "Adds a bright, easy starter that guests can share."),
+        ("Lemon Parmesan Green Beans", "Side Dish", "Brings a crisp vegetable side with a savory finish."),
+        ("Tomato Basil Bruschetta", "Appetizer", "Offers a fresh bite before the main meal."),
+        ("Apple Walnut Slaw", "Salad", "Adds crunch and a sweet-tart contrast to richer dishes."),
+        ("Vanilla Panna Cotta", "Dessert", "Gives the menu a chilled make-ahead dessert option."),
+        ("Mediterranean Couscous", "Side Dish", "Adds grains, herbs, and vegetables without feeling heavy."),
+        ("Mushroom Rice Pilaf", "Side Dish", "Adds an earthy, satisfying side for a shared table."),
     ]
     menu_context = existing_names[0] if existing_names else "the planned menu"
-    available = [AiRecipeSuggestion(name=n, category=c, reason=f"{r} It pairs well with {menu_context}.") for n, c, r in candidates if n.casefold() not in existing]
+    available = [AiRecipeSuggestion(name=n, category=c, reason=f"{r} It pairs well with {menu_context}.") for n, c, r in candidates if n.casefold() not in blocked]
     suffix = 1
     while len(available) < 4:
         name = f"Chef's Seasonal Plate {suffix}"
-        if name.casefold() not in existing:
+        if name.casefold() not in blocked:
             available.append(AiRecipeSuggestion(
                 name=name,
                 category="Side Dish",
@@ -149,21 +161,23 @@ def _mock_suggestions(existing_names: list[str]) -> AiSuggestionsResponse:
     return AiSuggestionsResponse(suggestions=available[:4])
 
 
-def suggest_recipes(existing_names: list[str]) -> AiSuggestionsResponse:
+def suggest_recipes(existing_names: list[str], excluded_names: list[str] | None = None) -> AiSuggestionsResponse:
+    excluded_names = excluded_names or []
     if not (os.getenv("OPENAI_API_KEY") or os.getenv("AI_API_KEY")):
-        return _mock_suggestions(existing_names)
+        return _mock_suggestions(existing_names, excluded_names)
     try:
         result = AiSuggestionsResponse.model_validate(
             _call_provider(
                 SUGGESTION_PROMPT.format(
-                    existing_recipe_names=", ".join(existing_names) or "No dishes have been added yet."
+                    existing_recipe_names=", ".join(existing_names) or "No dishes have been added yet.",
+                    excluded_recipe_names=", ".join(excluded_names) or "No prior suggestions are visible.",
                 )
             )
         )
     except ValidationError as exc:
         raise AiServiceError("AI suggestions failed validation") from exc
-    existing = {name.casefold() for name in existing_names}
-    filtered = [item for item in result.suggestions if item.name.casefold() not in existing]
+    blocked = {name.casefold() for name in [*existing_names, *excluded_names]}
+    filtered = [item for item in result.suggestions if item.name.casefold() not in blocked]
     if len(filtered) < 3:
         raise AiServiceError("AI did not return enough new dish suggestions")
     return AiSuggestionsResponse(suggestions=filtered[:5])

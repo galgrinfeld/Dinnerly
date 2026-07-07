@@ -36,6 +36,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -259,13 +260,20 @@ const EventDetails: React.FC = () => {
     try {
       setLoadingAiSuggestions(true);
       setAiError(null);
-      const result = await suggestEventRecipes(parseInt(eventId, 10));
+      const result = await suggestEventRecipes(parseInt(eventId, 10), {
+        excludeNames: aiSuggestions.map(suggestion => suggestion.name),
+      });
       setAiSuggestions(result.suggestions);
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'Failed to generate dish suggestions');
     } finally {
       setLoadingAiSuggestions(false);
     }
+  };
+
+  const handleDismissAiSuggestions = () => {
+    setAiSuggestions([]);
+    setAiError(null);
   };
 
   const handleCreateAiRecipe = async (suggestion: AiRecipeSuggestion) => {
@@ -1047,24 +1055,45 @@ const EventDetails: React.FC = () => {
           )}
         </Paper>
         <Paper variant="outlined" sx={{ p: 2.5, mt: 3, borderColor: '#D9C7A3' }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={2}>
-            <Box>
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2}>
+            <Stack spacing={0.75} sx={{ minWidth: 0 }}>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 AI Menu Assistant
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Discover dishes that complement the recipes already planned for this dinner.
               </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              startIcon={loadingAiSuggestions ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon />}
-              onClick={handleSuggestRecipes}
-              disabled={loadingAiSuggestions || Boolean(creatingAiRecipe)}
-              sx={{ alignSelf: { xs: 'stretch', sm: 'center' }, textTransform: 'none' }}
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              justifyContent={{ xs: 'stretch', md: 'flex-end' }}
+              sx={{ alignSelf: { xs: 'stretch', md: 'center' }, flexWrap: 'wrap', rowGap: 1 }}
             >
-              {loadingAiSuggestions ? 'Finding dishes...' : 'Suggest Dishes with AI'}
-            </Button>
+              <Button
+                variant="contained"
+                startIcon={loadingAiSuggestions ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon />}
+                onClick={handleSuggestRecipes}
+                disabled={loadingAiSuggestions || Boolean(creatingAiRecipe)}
+                sx={{ flex: { xs: '1 1 210px', md: '0 0 auto' }, textTransform: 'none' }}
+              >
+                {loadingAiSuggestions
+                  ? 'Finding dishes...'
+                  : aiSuggestions.length > 0
+                    ? 'Refresh Suggestions'
+                    : 'Suggest Dishes with AI'}
+              </Button>
+              {(aiSuggestions.length > 0 || aiError) && (
+                <IconButton
+                  aria-label="Close AI suggestions"
+                  onClick={handleDismissAiSuggestions}
+                  sx={{ alignSelf: 'center' }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </Stack>
           </Stack>
 
           {aiError && <Alert severity="error" sx={{ mt: 2 }}>{aiError}</Alert>}

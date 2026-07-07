@@ -24,6 +24,25 @@ class AiSuggestionsResponse(BaseModel):
     suggestions: List[AiRecipeSuggestion] = Field(..., min_length=3, max_length=5)
 
 
+class AiSuggestionsRequest(BaseModel):
+    exclude_names: List[str] = Field(default_factory=list, alias="excludeNames", max_length=25)
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_validator("exclude_names")
+    @classmethod
+    def clean_exclude_names(cls, values: List[str]) -> List[str]:
+        cleaned: list[str] = []
+        seen: set[str] = set()
+        for value in values:
+            name = value.strip()
+            folded = name.casefold()
+            if name and folded not in seen:
+                cleaned.append(name)
+                seen.add(folded)
+        return cleaned
+
+
 class AiCreateRecipeRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     category: str = Field(..., min_length=1, max_length=100)
